@@ -19,8 +19,7 @@
         formatter = pkgs.alejandra;
 
         apps = {
-          run = import ./nix/app.nix {inherit pkgs;};
-          format = import ./nix/format.nix {inherit pkgs;};
+          default = import ./nix/app.nix {inherit pkgs;};
         };
 
         checks = import ./nix/checks {inherit pkgs;};

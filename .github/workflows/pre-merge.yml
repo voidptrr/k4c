@@ -13,9 +13,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v16
+
+      - name: Enforce branch naming
+        env:
+          BRANCH_NAME: ${{ github.head_ref }}
+        run: ./scripts/validate-naming.sh --branch "$BRANCH_NAME"
+
+      - name: Enforce commit naming and no merges
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: ./scripts/validate-commits.sh
 
       - name: Run flake checks
         run: nix flake check --keep-going
