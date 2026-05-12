@@ -16,6 +16,21 @@ if [ -z "$base_sha" ] || [ -z "$head_sha" ]; then
   exit 1
 fi
 
+if ! git rev-parse --verify --quiet "$head_sha^{commit}" >/dev/null; then
+  echo "Invalid HEAD_SHA commit: $head_sha"
+  exit 1
+fi
+
+if ! git rev-parse --verify --quiet "$base_sha^{commit}" >/dev/null; then
+  echo "BASE_SHA not found locally: $base_sha"
+  echo "Falling back to origin/main for merge base calculation"
+  if ! git rev-parse --verify --quiet "origin/main^{commit}" >/dev/null; then
+    echo "origin/main is not available locally"
+    exit 1
+  fi
+  base_sha="origin/main"
+fi
+
 merge_base="$(git merge-base "$base_sha" "$head_sha")"
 commit_range="$merge_base..$head_sha"
 

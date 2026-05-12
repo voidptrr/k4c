@@ -34,7 +34,7 @@ jobs:
       - name: Enforce commits naming and no merges
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          HEAD_SHA: ${{ github.sha }}
         run: ./.github/scripts/validate-commits.sh
 
       - run: nix develop -c format-check
