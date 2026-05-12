@@ -4,7 +4,15 @@ on:
   pull_request:
     branches:
       - main
-      - master
+    paths:
+      - "src/**"
+      - "tests/**"
+      - ".github/workflows/pre-merge.yml"
+      - ".clang-format"
+
+concurrency:
+  group: pre-merge-checks
+  cancel-in-progress: true
 
 jobs:
   quality-gates:
