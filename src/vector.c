@@ -5,7 +5,7 @@
 
 #include "vector.h"
 
-#define DEFAULT_CAPACITY 50
+#define DEFAULT_CAPACITY 16
 
 enum vector_status vector_init(struct vector *vector, size_t elem_size) {
     if (vector == NULL) {

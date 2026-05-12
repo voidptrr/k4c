@@ -26,7 +26,7 @@ static int test_queue_init_valid_pointer(void) {
         return 1;
     }
 
-    if (q.buffer == NULL || q.size != 0 || q.elem_size != sizeof(int) || q.capacity != 50 ||
+    if (q.buffer == NULL || q.size != 0 || q.elem_size != sizeof(int) || q.capacity != 16 ||
         q.head != 0 || q.tail != 0) {
         fprintf(stderr, "queue_init(&q, ...) returned invalid queue state\n");
         free(q.buffer);

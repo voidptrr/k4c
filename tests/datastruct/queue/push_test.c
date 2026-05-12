@@ -78,6 +78,8 @@ static int test_queue_push_wraparound_growth(void) {
     int pushed = 99;
     int popped = 0;
     int i;
+    size_t initial_capacity;
+    size_t pop_count;
 
     status = queue_init(&q, sizeof(int));
     if (status != QUEUE_OK) {
@@ -85,7 +87,10 @@ static int test_queue_push_wraparound_growth(void) {
         return 1;
     }
 
-    for (i = 0; i < 50; i++) {
+    initial_capacity = q.capacity;
+    pop_count = initial_capacity / 2;
+
+    for (i = 0; i < (int)initial_capacity; i++) {
         int value = i;
         status = queue_push(&q, &value);
         if (status != QUEUE_OK) {
@@ -95,7 +100,7 @@ static int test_queue_push_wraparound_growth(void) {
         }
     }
 
-    for (i = 0; i < 20; i++) {
+    for (i = 0; i < (int)pop_count; i++) {
         status = queue_popleft(&q, &popped);
         if (status != QUEUE_OK || popped != i) {
             fprintf(stderr, "queue_popleft should dequeue initial FIFO values\n");
@@ -104,7 +109,7 @@ static int test_queue_push_wraparound_growth(void) {
         }
     }
 
-    for (i = 50; i < 70; i++) {
+    for (i = (int)initial_capacity; i < (int)(initial_capacity + pop_count); i++) {
         int value = i;
         status = queue_push(&q, &value);
         if (status != QUEUE_OK) {
@@ -121,13 +126,14 @@ static int test_queue_push_wraparound_growth(void) {
         return 1;
     }
 
-    if (q.capacity != 100 || q.size != 51 || q.head != 0 || q.tail != 51) {
+    if (q.capacity != initial_capacity * 2 || q.size != initial_capacity + 1 || q.head != 0 ||
+        q.tail != initial_capacity + 1) {
         fprintf(stderr, "queue_push should grow and normalize wrapped queue indices\n");
         queue_free(&q);
         return 1;
     }
 
-    for (i = 20; i < 70; i++) {
+    for (i = (int)pop_count; i < (int)(initial_capacity + pop_count); i++) {
         status = queue_popleft(&q, &popped);
         if (status != QUEUE_OK || popped != i) {
             fprintf(stderr, "queue should preserve FIFO order after wrapped growth\n");

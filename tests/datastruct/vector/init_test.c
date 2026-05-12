@@ -26,7 +26,7 @@ static int test_vector_init_valid_pointer(void) {
         return 1;
     }
 
-    if (v.buffer == NULL || v.size != 0 || v.elem_size != sizeof(int) || v.capacity != 50) {
+    if (v.buffer == NULL || v.size != 0 || v.elem_size != sizeof(int) || v.capacity != 16) {
         fprintf(stderr, "vector_init(&v, ...) returned invalid vector state\n");
         free(v.buffer);
         return 1;

@@ -62,6 +62,7 @@ static int test_queue_popback_wraps_tail_backward(void) {
     struct queue q;
     int out = 0;
     int i;
+    size_t initial_capacity;
 
     status = queue_init(&q, sizeof(int));
     if (status != QUEUE_OK) {
@@ -69,7 +70,9 @@ static int test_queue_popback_wraps_tail_backward(void) {
         return 1;
     }
 
-    for (i = 0; i < 50; i++) {
+    initial_capacity = q.capacity;
+
+    for (i = 0; i < (int)initial_capacity; i++) {
         int value = i;
         status = queue_push(&q, &value);
         if (status != QUEUE_OK) {
@@ -80,19 +83,19 @@ static int test_queue_popback_wraps_tail_backward(void) {
     }
 
     status = queue_popback(&q, &out);
-    if (status != QUEUE_OK || out != 49) {
+    if (status != QUEUE_OK || out != (int)(initial_capacity - 1)) {
         fprintf(stderr, "queue_popback should return the last pushed element\n");
         queue_free(&q);
         return 1;
     }
 
-    if (q.tail != 49 || q.size != 49) {
+    if (q.tail != initial_capacity - 1 || q.size != initial_capacity - 1) {
         fprintf(stderr, "queue_popback should move tail backward by one\n");
         queue_free(&q);
         return 1;
     }
 
-    for (i = 0; i < 49; i++) {
+    for (i = 0; i < (int)(initial_capacity - 1); i++) {
         status = queue_popleft(&q, &out);
         if (status != QUEUE_OK || out != i) {
             fprintf(stderr, "queue should preserve remaining FIFO order after popback\n");

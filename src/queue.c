@@ -5,7 +5,7 @@
 
 #include "queue.h"
 
-#define DEFAULT_CAPACITY 50
+#define DEFAULT_CAPACITY 16
 
 enum queue_status queue_init(struct queue *queue, size_t elem_size) {
     if (queue == NULL) {
