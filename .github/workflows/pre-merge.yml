@@ -4,7 +4,19 @@ on:
   pull_request:
     branches:
       - main
-      - master
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "nix/**"
+      - "flake.nix"
+      - "flake.lock"
+      - ".github/scripts/**"
+      - ".github/workflows/pre-merge.yml"
+      - ".clang-format"
+
+concurrency:
+  group: pre-merge-checks
+  cancel-in-progress: true
 
 jobs:
   quality-gates:
@@ -22,13 +34,16 @@ jobs:
       - name: Enforce branch naming
         env:
           BRANCH_NAME: ${{ github.head_ref }}
-        run: ./scripts/validate-naming.sh --branch "$BRANCH_NAME"
+        run: ./.github/scripts/validate-naming.sh --branch "$BRANCH_NAME"
 
       - name: Enforce commit naming and no merges
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: ./scripts/validate-commits.sh
+        run: ./.github/scripts/validate-commits.sh
 
-      - name: Run flake checks
-        run: nix flake check --keep-going
+      - name: Run format check
+        run: nix develop -c format-check
+
+      - name: Run tests
+        run: nix develop -c test-all
