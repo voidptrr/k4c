@@ -1,5 +1,7 @@
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
 
 #include "vector.h"
 
@@ -10,15 +12,57 @@ enum vector_status vector_init(struct vector *vector, size_t elem_size) {
         return VECTOR_ERR_NULL;
     }
 
-    void *init_data = malloc(elem_size * DEFAULT_CAPACITY);
-    if (init_data == NULL) {
+    void *buffer = malloc(elem_size * DEFAULT_CAPACITY);
+    if (buffer == NULL) {
         return VECTOR_ERR_OOM;
     }
 
-    vector->buffer = init_data;
+    vector->buffer = buffer;
     vector->size = 0;
     vector->elem_size = elem_size;
     vector->capacity = DEFAULT_CAPACITY;
 
     return VECTOR_OK;
+}
+
+enum vector_status vector_push(struct vector *vector, const void *element) {
+    if (vector == NULL || element == NULL) {
+        return VECTOR_ERR_NULL;
+    }
+
+    if (vector->size == vector->capacity) {
+        size_t new_capacity = vector->capacity *= 2;
+        void *tmp = realloc(vector->buffer, new_capacity * vector->elem_size);
+
+        if (tmp == NULL) {
+            return VECTOR_ERR_OOM;
+        }
+
+        vector->buffer = tmp;
+        vector->capacity = new_capacity;
+    }
+
+    uint8_t *base = (uint8_t *)vector->buffer;
+    void *dst = base + (vector->size * vector->elem_size);
+    memcpy(dst, element, vector->elem_size);
+    vector->size += 1;
+
+    return VECTOR_OK;
+}
+
+enum vector_status vector_free(const struct vector *vector) {
+    if (vector == NULL || vector->buffer == NULL) {
+        return VECTOR_ERR_NULL;
+    }
+
+    free(vector->buffer);
+    return VECTOR_OK;
+}
+
+size_t vector_size(struct vector *vector) {
+    if (vector == NULL) {
+        return 0;
+    }
+
+    return vector->size;
 }
