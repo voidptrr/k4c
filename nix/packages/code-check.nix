@@ -16,10 +16,11 @@ pkgs.writeShellApplication {
       -S . \
       -B build/hardened \
       -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+      -DCSTD_BUILD_BENCHMARKS=ON \
       -DCMAKE_C_FLAGS="$hardening_flags" \
       -DCMAKE_EXE_LINKER_FLAGS="$hardening_linker_flags"
 
     cmake --build build/hardened
-    ctest --test-dir build/hardened --output-on-failure
+    ctest --test-dir build/hardened --output-on-failure -LE benchmark
   '';
 }

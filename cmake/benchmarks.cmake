@@ -1,44 +1,28 @@
-function(dsa_add_benchmark TARGET_NAME SOURCE_FILE)
-  set(options)
-  set(oneValueArgs)
-  set(multiValueArgs LIB_SOURCES)
-  cmake_parse_arguments(DSA_BENCH "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+function(cstd_discover_benchmarks)
+  file(GLOB BENCH_FILES RELATIVE "${CMAKE_SOURCE_DIR}" "benchmarks/*_bench.c")
 
-  add_executable(${TARGET_NAME} ${SOURCE_FILE} ${DSA_BENCH_LIB_SOURCES})
-  target_include_directories(${TARGET_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/include" "${CMAKE_SOURCE_DIR}/src" "${CMAKE_SOURCE_DIR}/benchmarks")
-  target_compile_definitions(${TARGET_NAME} PRIVATE _POSIX_C_SOURCE=200809L)
+  if(NOT BENCH_FILES)
+    message(WARNING "No benchmarks found under benchmarks/*_bench.c")
+    return()
+  endif()
+
+  foreach(BENCH_FILE_REL ${BENCH_FILES})
+    get_filename_component(BENCH_BASENAME "${BENCH_FILE_REL}" NAME_WE)
+    string(REGEX REPLACE "_bench$" "" BENCH_NAME_RAW "${BENCH_BASENAME}")
+    string(REPLACE "_" "-" BENCH_NAME_DASH "${BENCH_NAME_RAW}")
+
+    string(REGEX MATCH "^[^_]+" DATASTRUCT_NAME "${BENCH_NAME_RAW}")
+    set(SOURCE_FILE "${CMAKE_SOURCE_DIR}/src/datastruct/${DATASTRUCT_NAME}.c")
+    if(NOT EXISTS "${SOURCE_FILE}")
+      message(FATAL_ERROR "Missing datastruct source for benchmark ${BENCH_FILE_REL}: ${SOURCE_FILE}")
+    endif()
+
+    set(TARGET_NAME "bench-${BENCH_NAME_DASH}")
+    add_executable(${TARGET_NAME} "${CMAKE_SOURCE_DIR}/${BENCH_FILE_REL}" ${SOURCE_FILE})
+    target_include_directories(${TARGET_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/include" "${CMAKE_SOURCE_DIR}/src" "${CMAKE_SOURCE_DIR}/benchmarks")
+    target_compile_definitions(${TARGET_NAME} PRIVATE _POSIX_C_SOURCE=200809L)
+
+    add_test(NAME "benchmark/${BENCH_NAME_DASH}" COMMAND ${TARGET_NAME})
+    set_tests_properties("benchmark/${BENCH_NAME_DASH}" PROPERTIES LABELS "benchmark;datastruct;${DATASTRUCT_NAME}")
+  endforeach()
 endfunction()
-
-set(DSA_BENCH_QUEUE_TARGET "bench-queue-push-pop")
-set(DSA_BENCH_VECTOR_TARGET "bench-vector-push-pop")
-
-dsa_add_benchmark(
-  ${DSA_BENCH_QUEUE_TARGET}
-  "${CMAKE_SOURCE_DIR}/benchmarks/queue_push_pop_bench.c"
-  LIB_SOURCES "${CMAKE_SOURCE_DIR}/src/datastruct/queue.c"
-)
-
-dsa_add_benchmark(
-  ${DSA_BENCH_VECTOR_TARGET}
-  "${CMAKE_SOURCE_DIR}/benchmarks/vector_push_pop_bench.c"
-  LIB_SOURCES "${CMAKE_SOURCE_DIR}/src/datastruct/vector.c"
-)
-
-add_custom_target(bench-queue
-  COMMAND ${DSA_BENCH_QUEUE_TARGET}
-  DEPENDS ${DSA_BENCH_QUEUE_TARGET}
-  USES_TERMINAL
-)
-
-add_custom_target(bench-vector
-  COMMAND ${DSA_BENCH_VECTOR_TARGET}
-  DEPENDS ${DSA_BENCH_VECTOR_TARGET}
-  USES_TERMINAL
-)
-
-add_custom_target(bench
-  COMMAND ${DSA_BENCH_QUEUE_TARGET}
-  COMMAND ${DSA_BENCH_VECTOR_TARGET}
-  DEPENDS ${DSA_BENCH_QUEUE_TARGET} ${DSA_BENCH_VECTOR_TARGET}
-  USES_TERMINAL
-)

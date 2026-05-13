@@ -17,7 +17,7 @@ pkgs.writeShellApplication {
 
     mkdir -p "$log_dir"
 
-    cmake -S . -B build/bench -DCMAKE_BUILD_TYPE=Release
+    cmake -S . -B build/bench -DCMAKE_BUILD_TYPE=Release -DCSTD_BUILD_BENCHMARKS=ON
     cmake --build build/bench
 
     {
@@ -25,7 +25,19 @@ pkgs.writeShellApplication {
       printf '%s\n' "benchmark_commit_full=$full_sha"
       printf '%s\n' "benchmark_compiler=gcc $(gcc -dumpfullversion -dumpversion)"
       printf '%s\n' ""
-      cmake --build build/bench --target bench
+
+      bench_found=0
+      for bench_bin in build/bench/bench-*; do
+        if [ -x "$bench_bin" ]; then
+          bench_found=1
+          "$bench_bin"
+        fi
+      done
+
+      if [ "$bench_found" -ne 1 ]; then
+        printf '%s\n' "No benchmark executables found under build/bench/bench-*" >&2
+        exit 1
+      fi
     } | tee "$log_file"
 
     printf '%s\n' "Saved benchmark log to $log_file"
