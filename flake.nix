@@ -1,5 +1,5 @@
 {
-  description = "C algorithms and data structures study workspace";
+  description = "cstd";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
