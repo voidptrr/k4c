@@ -179,10 +179,11 @@ static int test_queue_pushfront_wraparound_growth(void) {
         return 1;
     }
 
-    for (int i = (int)(initial_capacity / 2);
-         i < (int)(initial_capacity + (initial_capacity / 2)); i++) {
+    for (int i = (int)(initial_capacity / 2); i < (int)(initial_capacity + (initial_capacity / 2));
+         i++) {
         if (cstd_queue_popleft(&q, &out) != CSTD_OK || out != i) {
-            fprintf(stderr, "cstd_queue_pushfront should preserve logical FIFO order after growth\n");
+            fprintf(stderr,
+                    "cstd_queue_pushfront should preserve logical FIFO order after growth\n");
             cstd_queue_free(&q);
             return 1;
         }
