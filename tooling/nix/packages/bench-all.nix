@@ -10,36 +10,27 @@ pkgs.writeShellApplication {
     set -eu
 
     timestamp="$(date +%Y-%m-%d_%H%M%S)"
-    short_sha="$(git rev-parse --short HEAD 2>/dev/null || printf '%s' nogit)"
     full_sha="$(git rev-parse HEAD 2>/dev/null || printf '%s' nogit)"
-    log_dir="artifacts/benchmark-logs"
-    log_file="$log_dir/''${timestamp}_''${short_sha}.log"
-
-    mkdir -p "$log_dir"
 
     cmake -S . -B build/bench -DCMAKE_BUILD_TYPE=Release -DCSTD_BUILD_BENCHMARKS=ON
     cmake --build build/bench
 
-    {
-      printf '%s\n' "benchmark_run_timestamp=$timestamp"
-      printf '%s\n' "benchmark_commit_full=$full_sha"
-      printf '%s\n' "benchmark_compiler=gcc $(gcc -dumpfullversion -dumpversion)"
-      printf '%s\n' ""
+    printf '%s\n' "benchmark_run_timestamp=$timestamp"
+    printf '%s\n' "benchmark_commit_full=$full_sha"
+    printf '%s\n' "benchmark_compiler=gcc $(gcc -dumpfullversion -dumpversion)"
+    printf '%s\n' ""
 
-      bench_found=0
-      for bench_bin in build/bench/bench-*; do
-        if [ -x "$bench_bin" ]; then
-          bench_found=1
-          "$bench_bin"
-        fi
-      done
-
-      if [ "$bench_found" -ne 1 ]; then
-        printf '%s\n' "No benchmark executables found under build/bench/bench-*" >&2
-        exit 1
+    bench_found=0
+    for bench_bin in build/bench/bench-*; do
+      if [ -x "$bench_bin" ]; then
+        bench_found=1
+        "$bench_bin"
       fi
-    } | tee "$log_file"
+    done
 
-    printf '%s\n' "Saved benchmark log to $log_file"
+    if [ "$bench_found" -ne 1 ]; then
+      printf '%s\n' "No benchmark executables found under build/bench/bench-*" >&2
+      exit 1
+    fi
   '';
 }
