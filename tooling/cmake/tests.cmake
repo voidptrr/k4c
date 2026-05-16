@@ -1,4 +1,5 @@
 function(cstd_discover_tests)
+  file(GLOB_RECURSE CSTD_SRC_FILES "${CMAKE_SOURCE_DIR}/src/*.c")
   file(GLOB TEST_FILES RELATIVE "${CMAKE_SOURCE_DIR}" "tests/*/*/*_test.c")
 
   if(NOT TEST_FILES)
@@ -19,18 +20,8 @@ function(cstd_discover_tests)
 
     string(REGEX REPLACE "_test\\.c$" "" TEST_VARIANT "${TEST_FILENAME}")
 
-    set(SOURCE_FILE "${CMAKE_SOURCE_DIR}/src/${TARGET_GROUP}/${TARGET_NAME}.c")
-    if(NOT EXISTS "${SOURCE_FILE}")
-      message(FATAL_ERROR "Missing source file for ${TEST_FILE_REL}: ${SOURCE_FILE}")
-    endif()
-
-    set(EXTRA_SOURCES "")
-    if(TARGET_GROUP STREQUAL "datastruct" AND TARGET_NAME STREQUAL "binary_heap")
-      list(APPEND EXTRA_SOURCES "${CMAKE_SOURCE_DIR}/src/datastruct/vector.c")
-    endif()
-
     set(EXECUTABLE_NAME "${TARGET_GROUP}-${TARGET_NAME}-${TEST_VARIANT}")
-    add_executable(${EXECUTABLE_NAME} ${SOURCE_FILE} ${EXTRA_SOURCES} "${CMAKE_SOURCE_DIR}/${TEST_FILE_REL}")
+    add_executable(${EXECUTABLE_NAME} ${CSTD_SRC_FILES} "${CMAKE_SOURCE_DIR}/${TEST_FILE_REL}")
     target_include_directories(${EXECUTABLE_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/include" "${CMAKE_SOURCE_DIR}/src")
 
     set(CTEST_NAME "${TARGET_GROUP}/${TARGET_NAME}/${TEST_VARIANT}")

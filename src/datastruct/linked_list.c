@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "cstd/datastruct/linked_list.h"
+#include "cstd/mem/allocator.h"
 
 cstd_status cstd_linked_list_init(cstd_linked_list *list, size_t elem_size) {
     if (list == NULL) {
@@ -25,12 +26,12 @@ cstd_status cstd_linked_list_push(cstd_linked_list *list, const void *element) {
         return CSTD_ERR_NULL;
     }
 
-    cstd_linked_list_node *new_node = malloc(sizeof(cstd_linked_list_node));
+    cstd_linked_list_node *new_node = cstd_malloc(sizeof(cstd_linked_list_node));
     if (new_node == NULL) {
         return CSTD_ERR_OOM;
     }
 
-    new_node->data = malloc(list->elem_size);
+    new_node->data = cstd_malloc(list->elem_size);
     if (new_node->data == NULL) {
         free(new_node);
         return CSTD_ERR_OOM;
@@ -56,12 +57,12 @@ cstd_status cstd_linked_list_pushfront(cstd_linked_list *list, const void *eleme
         return CSTD_ERR_NULL;
     }
 
-    cstd_linked_list_node *new_node = malloc(sizeof(cstd_linked_list_node));
+    cstd_linked_list_node *new_node = cstd_malloc(sizeof(cstd_linked_list_node));
     if (new_node == NULL) {
         return CSTD_ERR_OOM;
     }
 
-    new_node->data = malloc(list->elem_size);
+    new_node->data = cstd_malloc(list->elem_size);
     if (new_node->data == NULL) {
         free(new_node);
         return CSTD_ERR_OOM;

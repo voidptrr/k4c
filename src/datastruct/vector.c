@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "cstd/datastruct/vector.h"
+#include "cstd/mem/allocator.h"
 
 #define CSTD_VECTOR_DEFAULT_CAPACITY 16
 
@@ -15,7 +16,7 @@ cstd_status cstd_vector_init(cstd_vector *vector, size_t elem_size) {
         return CSTD_ERR_RANGE;
     }
 
-    void *buffer = malloc(elem_size * CSTD_VECTOR_DEFAULT_CAPACITY);
+    void *buffer = cstd_malloc(elem_size * CSTD_VECTOR_DEFAULT_CAPACITY);
     if (buffer == NULL) {
         return CSTD_ERR_OOM;
     }
@@ -35,7 +36,7 @@ cstd_status cstd_vector_push(cstd_vector *vector, const void *element) {
 
     if (vector->size == vector->capacity) {
         size_t new_capacity = vector->capacity * 2;
-        void *tmp = realloc(vector->buffer, new_capacity * vector->elem_size);
+        void *tmp = cstd_realloc(vector->buffer, new_capacity * vector->elem_size);
         if (tmp == NULL) {
             return CSTD_ERR_OOM;
         }

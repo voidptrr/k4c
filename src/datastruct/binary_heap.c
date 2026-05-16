@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "cstd/datastruct/binary_heap.h"
+#include "cstd/mem/bytes.h"
 
 static void cstd_binary_heap_swap_at(cstd_binary_heap *heap, size_t i, size_t j) {
     size_t elem_size = heap->root.elem_size;
@@ -9,11 +10,7 @@ static void cstd_binary_heap_swap_at(cstd_binary_heap *heap, size_t i, size_t j)
     uint8_t *a = base + (i * elem_size);
     uint8_t *b = base + (j * elem_size);
 
-    for (size_t k = 0; k < elem_size; k++) {
-        uint8_t tmp = a[k];
-        a[k] = b[k];
-        b[k] = tmp;
-    }
+    cstd_memswap(a, b, elem_size);
 }
 
 static int cstd_binary_heap_compare_idx(const cstd_binary_heap *heap, size_t i, size_t j) {

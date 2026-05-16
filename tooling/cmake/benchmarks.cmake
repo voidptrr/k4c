@@ -1,4 +1,5 @@
 function(cstd_discover_benchmarks)
+  file(GLOB_RECURSE CSTD_SRC_FILES "${CMAKE_SOURCE_DIR}/src/*.c")
   file(GLOB BENCH_FILES RELATIVE "${CMAKE_SOURCE_DIR}" "benchmarks/*_bench.c")
 
   if(NOT BENCH_FILES)
@@ -11,24 +12,8 @@ function(cstd_discover_benchmarks)
     string(REGEX REPLACE "_bench$" "" BENCH_NAME_RAW "${BENCH_BASENAME}")
     string(REPLACE "_" "-" BENCH_NAME_DASH "${BENCH_NAME_RAW}")
 
-    set(DATASTRUCT_NAME "${BENCH_NAME_RAW}")
-    set(SOURCE_FILE "${CMAKE_SOURCE_DIR}/src/datastruct/${DATASTRUCT_NAME}.c")
-    if(NOT EXISTS "${SOURCE_FILE}")
-      string(REGEX MATCH "^[^_]+" DATASTRUCT_NAME "${BENCH_NAME_RAW}")
-      set(SOURCE_FILE "${CMAKE_SOURCE_DIR}/src/datastruct/${DATASTRUCT_NAME}.c")
-    endif()
-
-    if(NOT EXISTS "${SOURCE_FILE}")
-      message(FATAL_ERROR "Missing datastruct source for benchmark ${BENCH_FILE_REL}: ${SOURCE_FILE}")
-    endif()
-
-    set(EXTRA_SOURCES "")
-    if(DATASTRUCT_NAME STREQUAL "binary_heap")
-      list(APPEND EXTRA_SOURCES "${CMAKE_SOURCE_DIR}/src/datastruct/vector.c")
-    endif()
-
     set(TARGET_NAME "bench-${BENCH_NAME_DASH}")
-    add_executable(${TARGET_NAME} "${CMAKE_SOURCE_DIR}/${BENCH_FILE_REL}" ${SOURCE_FILE} ${EXTRA_SOURCES})
+    add_executable(${TARGET_NAME} "${CMAKE_SOURCE_DIR}/${BENCH_FILE_REL}" ${CSTD_SRC_FILES})
     target_include_directories(${TARGET_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/include" "${CMAKE_SOURCE_DIR}/src" "${CMAKE_SOURCE_DIR}/benchmarks")
     target_compile_definitions(${TARGET_NAME} PRIVATE _POSIX_C_SOURCE=200809L)
   endforeach()

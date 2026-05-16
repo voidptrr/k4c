@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "cstd/datastruct/queue.h"
+#include "cstd/mem/allocator.h"
 
 #define CSTD_QUEUE_DEFAULT_CAPACITY 16
 
@@ -10,7 +11,7 @@ static cstd_status cstd_queue_grow(cstd_queue *queue) {
     size_t old_capacity = queue->capacity;
     size_t new_capacity = old_capacity * 2;
     uint8_t *old_buffer = (uint8_t *)queue->buffer;
-    uint8_t *new_buffer = malloc(new_capacity * queue->elem_size);
+    uint8_t *new_buffer = cstd_malloc(new_capacity * queue->elem_size);
 
     if (new_buffer == NULL) {
         return CSTD_ERR_OOM;
@@ -51,7 +52,7 @@ cstd_status cstd_queue_init(cstd_queue *queue, size_t elem_size) {
         return CSTD_ERR_RANGE;
     }
 
-    void *buffer = malloc(elem_size * CSTD_QUEUE_DEFAULT_CAPACITY);
+    void *buffer = cstd_malloc(elem_size * CSTD_QUEUE_DEFAULT_CAPACITY);
     if (buffer == NULL) {
         return CSTD_ERR_OOM;
     }

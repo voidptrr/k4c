@@ -34,7 +34,7 @@ fi
 merge_base="$(git merge-base "$base_sha" "$head_sha")"
 commit_range="$merge_base..$head_sha"
 
-commit_regex='^(ds|algo|nix|ci|docs|bench|chore)(\([a-z0-9][a-z0-9_-]*\))?: [a-z0-9].+$'
+commit_regex='^(ds|algo|nix|ci|docs|bench|chore|mem)(\([a-z0-9][a-z0-9_-]*\))?: [a-z0-9].+$'
 
 merge_commit_count="$(git rev-list --count --merges "$commit_range")"
 if [ "$merge_commit_count" -ne 0 ]; then
@@ -55,7 +55,7 @@ if [ -n "$invalid_subjects" ]; then
   echo "Invalid commit subjects found in range: $commit_range"
   printf '%s\n' "$invalid_subjects"
   echo "Expected format: <area>(<specific>): <summary> or <area>: <summary>"
-  echo "Allowed areas: ds, algo, nix, ci, docs, bench, chore"
+  echo "Allowed areas: ds, algo, nix, ci, docs, bench, chore, mem"
   echo "Examples:"
   echo "  ds(vector): add push operation"
   echo "  docs: update vector API notes"
