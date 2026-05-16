@@ -7,6 +7,7 @@ docs_dir: docs
 site_dir: build
 theme:
   name: material
+  homepage: index.md
   palette:
     scheme: slate
   features:
@@ -29,8 +30,10 @@ nav:
   - cstd:
       - Overview: index.md
       - cstd.status: reference/cstd-status.md
+      - cstd.mem:
+          - cstd.mem.allocator: reference/cstd-mem-allocator.md
+          - cstd.mem.bytes: reference/cstd-mem-bytes.md
       - cstd.datastruct:
-          - Overview: reference/cstd-datastruct.md
           - cstd.datastruct.binary_heap: data-structures/binary-heap.md
           - cstd.datastruct.vector: data-structures/vector.md
           - cstd.datastruct.queue: data-structures/queue.md
