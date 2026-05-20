@@ -9,11 +9,11 @@ typedef void (*ckit_dealloc_fn)(void *ctx, void *ptr);
 
 _Noreturn void ckit_panic(const char *message);
 
-#define CKIT_ASSERT(cond, message)                                                                   \
-    do {                                                                                             \
-        if (!(cond)) {                                                                               \
-            ckit_panic(message);                                                                      \
-        }                                                                                            \
+#define CKIT_ASSERT(cond, message)                                                                 \
+    do {                                                                                           \
+        if (!(cond)) {                                                                             \
+            ckit_panic(message);                                                                   \
+        }                                                                                          \
     } while (0)
 
 /* Generic allocator callback set used by containers. */
