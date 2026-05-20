@@ -32,6 +32,6 @@ void *ckit_malloc(size_t size);
 void *ckit_realloc(void *ptr, size_t size);
 
 /* Print fatal message and abort process. */
-void ckit_panic(const char *message);
+_Noreturn void ckit_panic(const char *message);
 
 #endif

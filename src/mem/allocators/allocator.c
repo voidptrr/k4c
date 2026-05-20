@@ -24,10 +24,9 @@ void *ckit_realloc(void *ptr, size_t size) {
     return new_ptr;
 }
 
-void ckit_panic(const char *message) {
+_Noreturn void ckit_panic(const char *message) {
     if (message != NULL) {
-        fputs(message, stderr);
-        fputc('\n', stderr);
+        fprintf(stderr, "%s\n", message);
     }
     abort();
 }

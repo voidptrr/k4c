@@ -36,7 +36,8 @@ static bool ckit_hashmap_should_grow(const ckit_hashmap *map) {
 }
 
 static void ckit_hashmap_rehash(ckit_hashmap *map, size_t new_capacity) {
-    ckit_hashmap_entry **new_buckets = ckit_hashmap_alloc(map, sizeof(*new_buckets) * new_capacity);
+    ckit_hashmap_entry **new_buckets =
+        (ckit_hashmap_entry **)ckit_hashmap_alloc(map, sizeof(*new_buckets) * new_capacity);
     if (new_buckets == NULL) {
         ckit_panic("fatal: ckit_hashmap_rehash allocation failed");
     }
@@ -68,7 +69,8 @@ void ckit_hashmap_init(ckit_hashmap *map, size_t key_size, size_t value_size,
     assert(value_size > 0U);
 
     map->allocator = allocator;
-    map->buckets = ckit_hashmap_alloc(map, sizeof(*map->buckets) * CKIT_HASHMAP_DEFAULT_CAPACITY);
+    map->buckets = (ckit_hashmap_entry **)ckit_hashmap_alloc(
+        map, sizeof(*map->buckets) * CKIT_HASHMAP_DEFAULT_CAPACITY);
     if (map->buckets == NULL) {
         ckit_panic("fatal: ckit_hashmap_init allocation failed");
     }

@@ -30,6 +30,7 @@ static void ckit_deque_grow(ckit_deque *deque) {
     uint8_t *new_buffer = ckit_deque_alloc(deque, new_capacity * deque->elem_size);
     if (new_buffer == NULL) {
         ckit_panic("fatal: ckit_deque_grow allocation failed");
+        return;
     }
 
     if (deque->size > 0) {
@@ -78,9 +79,8 @@ void ckit_deque_init(ckit_deque *deque, size_t elem_size, ckit_allocator *alloca
 void ckit_deque_push(ckit_deque *deque, const void *element) {
     assert(deque != NULL);
     assert(element != NULL);
-
     if (deque->capacity == 0U) {
-        return CKIT_ERR_RANGE;
+        ckit_panic("fatal: ckit_deque_push invalid state");
     }
 
     if (deque->size == deque->capacity) {
@@ -97,9 +97,8 @@ void ckit_deque_push(ckit_deque *deque, const void *element) {
 void ckit_deque_pushfront(ckit_deque *deque, const void *element) {
     assert(deque != NULL);
     assert(element != NULL);
-
     if (deque->capacity == 0U) {
-        return CKIT_ERR_RANGE;
+        ckit_panic("fatal: ckit_deque_pushfront invalid state");
     }
 
     if (deque->size == deque->capacity) {
@@ -116,9 +115,8 @@ void ckit_deque_pushfront(ckit_deque *deque, const void *element) {
 
 void *ckit_deque_popleft(ckit_deque *deque) {
     assert(deque != NULL);
-
     if (deque->capacity == 0U) {
-        return CKIT_ERR_RANGE;
+        ckit_panic("fatal: ckit_deque_popleft invalid state");
     }
 
     if (deque->size == 0) {
@@ -135,9 +133,8 @@ void *ckit_deque_popleft(ckit_deque *deque) {
 
 void *ckit_deque_popback(ckit_deque *deque) {
     assert(deque != NULL);
-
     if (deque->capacity == 0U) {
-        return CKIT_ERR_RANGE;
+        ckit_panic("fatal: ckit_deque_popback invalid state");
     }
 
     if (deque->size == 0) {
@@ -166,9 +163,8 @@ const void *ckit_deque_peekleft(const ckit_deque *deque) {
 
 const void *ckit_deque_peekback(const ckit_deque *deque) {
     assert(deque != NULL);
-
     if (deque->capacity == 0U) {
-        return CKIT_ERR_RANGE;
+        ckit_panic("fatal: ckit_deque_peekback invalid state");
     }
 
     if (deque->size == 0) {
