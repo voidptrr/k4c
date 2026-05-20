@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -58,17 +57,17 @@ static void ckit_binary_heap_sift_down(ckit_binary_heap *heap, size_t idx) {
 
 void ckit_binary_heap_init(ckit_binary_heap *heap, size_t elem_size, ckit_heap_cmp_fn cmp,
                            ckit_allocator *allocator) {
-    assert(heap != NULL);
-    assert(cmp != NULL);
-    assert(elem_size > 0U);
+    CKIT_ASSERT(heap != NULL, "fatal: ckit_binary_heap_init invalid arguments");
+    CKIT_ASSERT(cmp != NULL, "fatal: ckit_binary_heap_init invalid arguments");
+    CKIT_ASSERT(elem_size > 0U, "fatal: ckit_binary_heap_init invalid arguments");
 
     ckit_vector_init(&heap->root, elem_size, allocator);
     heap->cmp = cmp;
 }
 
 void ckit_binary_heap_push(ckit_binary_heap *heap, const void *element) {
-    assert(heap != NULL);
-    assert(element != NULL);
+    CKIT_ASSERT(heap != NULL, "fatal: ckit_binary_heap_push invalid arguments");
+    CKIT_ASSERT(element != NULL, "fatal: ckit_binary_heap_push invalid arguments");
 
     ckit_vector_push(&heap->root, element);
 
@@ -76,7 +75,7 @@ void ckit_binary_heap_push(ckit_binary_heap *heap, const void *element) {
 }
 
 void *ckit_binary_heap_pop(ckit_binary_heap *heap) {
-    assert(heap != NULL);
+    CKIT_ASSERT(heap != NULL, "fatal: ckit_binary_heap_pop invalid arguments");
     if (heap->root.size == 0U) {
         return NULL;
     }
@@ -99,7 +98,7 @@ void *ckit_binary_heap_pop(ckit_binary_heap *heap) {
 }
 
 const void *ckit_binary_heap_peek(const ckit_binary_heap *heap) {
-    assert(heap != NULL);
+    CKIT_ASSERT(heap != NULL, "fatal: ckit_binary_heap_peek invalid arguments");
     if (heap->root.size == 0U) {
         return NULL;
     }
@@ -108,7 +107,7 @@ const void *ckit_binary_heap_peek(const ckit_binary_heap *heap) {
 }
 
 void ckit_binary_heap_free(ckit_binary_heap *heap) {
-    assert(heap != NULL);
+    CKIT_ASSERT(heap != NULL, "fatal: ckit_binary_heap_free invalid arguments");
     ckit_vector_free(&heap->root);
     heap->cmp = NULL;
 }

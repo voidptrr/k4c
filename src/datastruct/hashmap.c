@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -63,10 +62,10 @@ static void ckit_hashmap_rehash(ckit_hashmap *map, size_t new_capacity) {
 
 void ckit_hashmap_init(ckit_hashmap *map, size_t key_size, size_t value_size,
                        ckit_hashmap_key_eq_fn key_eq, ckit_allocator *allocator) {
-    assert(map != NULL);
-    assert(key_eq != NULL);
-    assert(key_size > 0U);
-    assert(value_size > 0U);
+    CKIT_ASSERT(map != NULL, "fatal: ckit_hashmap_init invalid arguments");
+    CKIT_ASSERT(key_eq != NULL, "fatal: ckit_hashmap_init invalid arguments");
+    CKIT_ASSERT(key_size > 0U, "fatal: ckit_hashmap_init invalid arguments");
+    CKIT_ASSERT(value_size > 0U, "fatal: ckit_hashmap_init invalid arguments");
 
     map->allocator = allocator;
     map->buckets = (ckit_hashmap_entry **)ckit_hashmap_alloc(
@@ -84,9 +83,9 @@ void ckit_hashmap_init(ckit_hashmap *map, size_t key_size, size_t value_size,
 }
 
 void ckit_hashmap_put(ckit_hashmap *map, const void *key, const void *value) {
-    assert(map != NULL);
-    assert(key != NULL);
-    assert(value != NULL);
+    CKIT_ASSERT(map != NULL, "fatal: ckit_hashmap_put invalid arguments");
+    CKIT_ASSERT(key != NULL, "fatal: ckit_hashmap_put invalid arguments");
+    CKIT_ASSERT(value != NULL, "fatal: ckit_hashmap_put invalid arguments");
 
     size_t bucket = ckit_hashmap_bucket_index(map, key);
     ckit_hashmap_entry *curr = map->buckets[bucket];
@@ -127,8 +126,8 @@ void ckit_hashmap_put(ckit_hashmap *map, const void *key, const void *value) {
 }
 
 const void *ckit_hashmap_get(const ckit_hashmap *map, const void *key) {
-    assert(map != NULL);
-    assert(key != NULL);
+    CKIT_ASSERT(map != NULL, "fatal: ckit_hashmap_get invalid arguments");
+    CKIT_ASSERT(key != NULL, "fatal: ckit_hashmap_get invalid arguments");
 
     size_t bucket = ckit_hashmap_bucket_index(map, key);
     ckit_hashmap_entry *curr = map->buckets[bucket];
@@ -142,8 +141,8 @@ const void *ckit_hashmap_get(const ckit_hashmap *map, const void *key) {
 }
 
 void *ckit_hashmap_remove(ckit_hashmap *map, const void *key) {
-    assert(map != NULL);
-    assert(key != NULL);
+    CKIT_ASSERT(map != NULL, "fatal: ckit_hashmap_remove invalid arguments");
+    CKIT_ASSERT(key != NULL, "fatal: ckit_hashmap_remove invalid arguments");
 
     size_t bucket = ckit_hashmap_bucket_index(map, key);
     ckit_hashmap_entry *prev = NULL;
@@ -171,7 +170,7 @@ void *ckit_hashmap_remove(ckit_hashmap *map, const void *key) {
 }
 
 void ckit_hashmap_free(ckit_hashmap *map) {
-    assert(map != NULL);
+    CKIT_ASSERT(map != NULL, "fatal: ckit_hashmap_free invalid arguments");
 
     if (map->buckets != NULL) {
         for (size_t i = 0U; i < map->capacity; i++) {

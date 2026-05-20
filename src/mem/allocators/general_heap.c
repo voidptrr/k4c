@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -65,10 +64,11 @@ static void ckit_heap_coalesce(ckit_heap_block *block) {
 }
 
 ckit_allocator ckit_heap_init(ckit_heap *heap, size_t capacity) {
-    assert(heap != NULL);
+    CKIT_ASSERT(heap != NULL, "fatal: ckit_heap_init invalid arguments");
 
     capacity = ckit_align_up(capacity, CKIT_HEAP_ALIGN);
-    assert(capacity > sizeof(ckit_heap_block) + CKIT_HEAP_ALIGN);
+    CKIT_ASSERT(capacity > sizeof(ckit_heap_block) + CKIT_HEAP_ALIGN,
+                "fatal: ckit_heap_init invalid capacity");
 
     heap->buffer = ckit_malloc(capacity);
     heap->capacity = capacity;
@@ -90,7 +90,7 @@ ckit_allocator ckit_heap_init(ckit_heap *heap, size_t capacity) {
 }
 
 void ckit_heap_free(ckit_heap *heap) {
-    assert(heap != NULL);
+    CKIT_ASSERT(heap != NULL, "fatal: ckit_heap_free invalid arguments");
 
     free(heap->buffer);
     heap->buffer = NULL;

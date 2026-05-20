@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -21,8 +20,8 @@ static void ckit_linked_list_dealloc(const ckit_linked_list *list, void *ptr) {
 }
 
 void ckit_linked_list_init(ckit_linked_list *list, size_t elem_size, ckit_allocator *allocator) {
-    assert(list != NULL);
-    assert(elem_size > 0U);
+    CKIT_ASSERT(list != NULL, "fatal: ckit_linked_list_init invalid arguments");
+    CKIT_ASSERT(elem_size > 0U, "fatal: ckit_linked_list_init invalid arguments");
 
     list->size = 0;
     list->elem_size = elem_size;
@@ -32,8 +31,8 @@ void ckit_linked_list_init(ckit_linked_list *list, size_t elem_size, ckit_alloca
 }
 
 void ckit_linked_list_push(ckit_linked_list *list, const void *element) {
-    assert(list != NULL);
-    assert(element != NULL);
+    CKIT_ASSERT(list != NULL, "fatal: ckit_linked_list_push invalid arguments");
+    CKIT_ASSERT(element != NULL, "fatal: ckit_linked_list_push invalid arguments");
 
     ckit_linked_list_node *new_node = ckit_linked_list_alloc(list, sizeof(ckit_linked_list_node));
     if (new_node == NULL) {
@@ -60,8 +59,8 @@ void ckit_linked_list_push(ckit_linked_list *list, const void *element) {
 }
 
 void ckit_linked_list_pushfront(ckit_linked_list *list, const void *element) {
-    assert(list != NULL);
-    assert(element != NULL);
+    CKIT_ASSERT(list != NULL, "fatal: ckit_linked_list_pushfront invalid arguments");
+    CKIT_ASSERT(element != NULL, "fatal: ckit_linked_list_pushfront invalid arguments");
 
     ckit_linked_list_node *new_node = ckit_linked_list_alloc(list, sizeof(ckit_linked_list_node));
     if (new_node == NULL) {
@@ -86,7 +85,7 @@ void ckit_linked_list_pushfront(ckit_linked_list *list, const void *element) {
 }
 
 void *ckit_linked_list_popleft(ckit_linked_list *list) {
-    assert(list != NULL);
+    CKIT_ASSERT(list != NULL, "fatal: ckit_linked_list_popleft invalid arguments");
 
     if (list->head == NULL) {
         return NULL;
@@ -106,7 +105,7 @@ void *ckit_linked_list_popleft(ckit_linked_list *list) {
 }
 
 void ckit_linked_list_free(ckit_linked_list *list) {
-    assert(list != NULL);
+    CKIT_ASSERT(list != NULL, "fatal: ckit_linked_list_free invalid arguments");
 
     ckit_linked_list_node *curr = list->head;
     while (curr != NULL) {

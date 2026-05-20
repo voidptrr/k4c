@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,8 +30,8 @@ static void ckit_vector_dealloc(const ckit_vector *vector, void *ptr) {
 }
 
 void ckit_vector_init(ckit_vector *vector, size_t elem_size, ckit_allocator *allocator) {
-    assert(vector != NULL);
-    assert(elem_size > 0U);
+    CKIT_ASSERT(vector != NULL, "fatal: ckit_vector_init invalid arguments");
+    CKIT_ASSERT(elem_size > 0U, "fatal: ckit_vector_init invalid arguments");
 
     vector->allocator = allocator;
 
@@ -48,8 +47,8 @@ void ckit_vector_init(ckit_vector *vector, size_t elem_size, ckit_allocator *all
 }
 
 void ckit_vector_push(ckit_vector *vector, const void *element) {
-    assert(vector != NULL);
-    assert(element != NULL);
+    CKIT_ASSERT(vector != NULL, "fatal: ckit_vector_push invalid arguments");
+    CKIT_ASSERT(element != NULL, "fatal: ckit_vector_push invalid arguments");
 
     if (vector->size == vector->capacity) {
         size_t new_capacity = vector->capacity * 2;
@@ -69,7 +68,7 @@ void ckit_vector_push(ckit_vector *vector, const void *element) {
 }
 
 void *ckit_vector_pop(ckit_vector *vector) {
-    assert(vector != NULL);
+    CKIT_ASSERT(vector != NULL, "fatal: ckit_vector_pop invalid arguments");
 
     if (vector->size == 0) {
         return NULL;
@@ -82,7 +81,7 @@ void *ckit_vector_pop(ckit_vector *vector) {
 }
 
 void ckit_vector_free(ckit_vector *vector) {
-    assert(vector != NULL);
+    CKIT_ASSERT(vector != NULL, "fatal: ckit_vector_free invalid arguments");
 
     ckit_vector_dealloc(vector, vector->buffer);
     vector->buffer = NULL;
