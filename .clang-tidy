@@ -6,4 +6,4 @@ Checks: >-
   portability-*,
   -bugprone-easily-swappable-parameters,
   -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
-WarningsAsErrors: ''
+WarningsAsErrors: '*'
