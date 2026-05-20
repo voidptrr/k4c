@@ -79,6 +79,10 @@ void ckit_deque_push(ckit_deque *deque, const void *element) {
     assert(deque != NULL);
     assert(element != NULL);
 
+    if (deque->capacity == 0U) {
+        return CKIT_ERR_RANGE;
+    }
+
     if (deque->size == deque->capacity) {
         ckit_deque_grow(deque);
     }
@@ -93,6 +97,10 @@ void ckit_deque_push(ckit_deque *deque, const void *element) {
 void ckit_deque_pushfront(ckit_deque *deque, const void *element) {
     assert(deque != NULL);
     assert(element != NULL);
+
+    if (deque->capacity == 0U) {
+        return CKIT_ERR_RANGE;
+    }
 
     if (deque->size == deque->capacity) {
         ckit_deque_grow(deque);
@@ -109,6 +117,10 @@ void ckit_deque_pushfront(ckit_deque *deque, const void *element) {
 void *ckit_deque_popleft(ckit_deque *deque) {
     assert(deque != NULL);
 
+    if (deque->capacity == 0U) {
+        return CKIT_ERR_RANGE;
+    }
+
     if (deque->size == 0) {
         return NULL;
     }
@@ -123,6 +135,10 @@ void *ckit_deque_popleft(ckit_deque *deque) {
 
 void *ckit_deque_popback(ckit_deque *deque) {
     assert(deque != NULL);
+
+    if (deque->capacity == 0U) {
+        return CKIT_ERR_RANGE;
+    }
 
     if (deque->size == 0) {
         return NULL;
@@ -150,6 +166,10 @@ const void *ckit_deque_peekleft(const ckit_deque *deque) {
 
 const void *ckit_deque_peekback(const ckit_deque *deque) {
     assert(deque != NULL);
+
+    if (deque->capacity == 0U) {
+        return CKIT_ERR_RANGE;
+    }
 
     if (deque->size == 0) {
         return NULL;

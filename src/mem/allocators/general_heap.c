@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "ckit/mem/align.h"
+#include "mem/utils.h"
 #include "ckit/mem/allocators/allocator.h"
 #include "ckit/mem/allocators/general_heap.h"
 
