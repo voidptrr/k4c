@@ -29,40 +29,32 @@ static void ckit_vector_dealloc(const ckit_vector *vector, void *ptr) {
     vector->allocator->dealloc(vector->allocator->ctx, ptr);
 }
 
-ckit_status ckit_vector_init(ckit_vector *vector, size_t elem_size, ckit_allocator *allocator) {
-    if (vector == NULL) {
-        return CKIT_ERR_NULL;
-    }
-
-    if (elem_size == 0) {
-        return CKIT_ERR_RANGE;
-    }
+void ckit_vector_init(ckit_vector *vector, size_t elem_size, ckit_allocator *allocator) {
+    CKIT_ASSERT(vector != NULL, "fatal: ckit_vector_init invalid arguments");
+    CKIT_ASSERT(elem_size > 0U, "fatal: ckit_vector_init invalid arguments");
 
     vector->allocator = allocator;
 
     void *buffer = ckit_vector_alloc(vector, elem_size * CKIT_VECTOR_DEFAULT_CAPACITY);
     if (buffer == NULL) {
-        return CKIT_ERR_RANGE;
+        ckit_panic("fatal: ckit_vector_init allocation failed");
     }
 
     vector->buffer = buffer;
     vector->size = 0;
     vector->elem_size = elem_size;
     vector->capacity = CKIT_VECTOR_DEFAULT_CAPACITY;
-
-    return CKIT_OK;
 }
 
-ckit_status ckit_vector_push(ckit_vector *vector, const void *element) {
-    if (vector == NULL || element == NULL) {
-        return CKIT_ERR_NULL;
-    }
+void ckit_vector_push(ckit_vector *vector, const void *element) {
+    CKIT_ASSERT(vector != NULL, "fatal: ckit_vector_push invalid arguments");
+    CKIT_ASSERT(element != NULL, "fatal: ckit_vector_push invalid arguments");
 
     if (vector->size == vector->capacity) {
         size_t new_capacity = vector->capacity * 2;
         void *tmp = ckit_vector_realloc(vector, vector->buffer, new_capacity * vector->elem_size);
         if (tmp == NULL) {
-            return CKIT_ERR_RANGE;
+            ckit_panic("fatal: ckit_vector_push allocation failed");
         }
 
         vector->buffer = tmp;
@@ -73,40 +65,29 @@ ckit_status ckit_vector_push(ckit_vector *vector, const void *element) {
     void *dst = base + (vector->size * vector->elem_size);
     memcpy(dst, element, vector->elem_size);
     vector->size += 1;
-
-    return CKIT_OK;
 }
 
-ckit_status ckit_vector_pop(ckit_vector *vector, void *out) {
-    if (vector == NULL || out == NULL) {
-        return CKIT_ERR_NULL;
-    }
+void *ckit_vector_pop(ckit_vector *vector) {
+    CKIT_ASSERT(vector != NULL, "fatal: ckit_vector_pop invalid arguments");
 
     if (vector->size == 0) {
-        return CKIT_ERR_EMPTY;
+        return NULL;
     }
 
     vector->size -= 1;
 
     uint8_t *base = (uint8_t *)vector->buffer;
-    void *src = base + (vector->size * vector->elem_size);
-    memcpy(out, src, vector->elem_size);
-
-    return CKIT_OK;
+    return base + (vector->size * vector->elem_size);
 }
 
-ckit_status ckit_vector_free(ckit_vector *vector) {
-    if (vector == NULL) {
-        return CKIT_ERR_NULL;
-    }
+void ckit_vector_free(ckit_vector *vector) {
+    CKIT_ASSERT(vector != NULL, "fatal: ckit_vector_free invalid arguments");
 
     ckit_vector_dealloc(vector, vector->buffer);
     vector->buffer = NULL;
     vector->size = 0;
     vector->capacity = 0;
     vector->allocator = NULL;
-
-    return CKIT_OK;
 }
 
 size_t ckit_vector_size(const ckit_vector *vector) {
