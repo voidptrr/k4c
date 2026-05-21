@@ -1,6 +1,6 @@
 #include <stdint.h>
 
-#include "ckit/mem/bytes.h"
+#include "ckit/memory/bytes.h"
 
 void ckit_memswap(void *a, void *b, size_t size) {
     uint8_t *left = (uint8_t *)a;

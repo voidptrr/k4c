@@ -12,6 +12,13 @@ bool ckit_eq_cstr(const void *lhs, const void *rhs, size_t size) {
     return strcmp((const char *)lhs, (const char *)rhs) == 0;
 }
 
+bool ckit_eq_cstr_ptr(const void *lhs, const void *rhs, size_t size) {
+    (void)size;
+    const char *a = *(const char *const *)lhs;
+    const char *b = *(const char *const *)rhs;
+    return strcmp(a, b) == 0;
+}
+
 bool ckit_eq_i32(const void *lhs, const void *rhs, size_t size) {
     (void)size;
     return (*(const int32_t *)lhs) == (*(const int32_t *)rhs);
@@ -30,6 +37,11 @@ bool ckit_eq_u32(const void *lhs, const void *rhs, size_t size) {
 bool ckit_eq_u64(const void *lhs, const void *rhs, size_t size) {
     (void)size;
     return (*(const uint64_t *)lhs) == (*(const uint64_t *)rhs);
+}
+
+bool ckit_eq_size(const void *lhs, const void *rhs, size_t size) {
+    (void)size;
+    return (*(const size_t *)lhs) == (*(const size_t *)rhs);
 }
 
 int ckit_cmp_i32(const void *lhs, const void *rhs) {
@@ -53,5 +65,11 @@ int ckit_cmp_u32(const void *lhs, const void *rhs) {
 int ckit_cmp_u64(const void *lhs, const void *rhs) {
     uint64_t a = *(const uint64_t *)lhs;
     uint64_t b = *(const uint64_t *)rhs;
+    return (a > b) - (a < b);
+}
+
+int ckit_cmp_size(const void *lhs, const void *rhs) {
+    size_t a = *(const size_t *)lhs;
+    size_t b = *(const size_t *)rhs;
     return (a > b) - (a < b);
 }

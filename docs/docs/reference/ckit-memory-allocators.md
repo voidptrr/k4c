@@ -1,4 +1,4 @@
-# mem.allocators
+# memory.allocators
 
 ## DESCRIPTION
 

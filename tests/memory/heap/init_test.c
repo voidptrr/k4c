@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "ckit/mem/allocators/general_heap.h"
+#include "ckit/memory/allocators/general_heap.h"
 
 int main(void) {
     ckit_heap heap;

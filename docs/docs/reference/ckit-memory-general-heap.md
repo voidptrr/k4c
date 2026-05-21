@@ -1,4 +1,4 @@
-# mem.general_heap
+# memory.general_heap
 
 ## DESCRIPTION
 

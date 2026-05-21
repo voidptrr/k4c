@@ -1,20 +1,11 @@
-#ifndef CKIT_MEM_ALLOCATOR_H
-#define CKIT_MEM_ALLOCATOR_H
+#ifndef CKIT_MEMORY_ALLOCATOR_H
+#define CKIT_MEMORY_ALLOCATOR_H
 
 #include <stddef.h>
 
 typedef void *(*ckit_alloc_fn)(void *ctx, size_t size);
 typedef void *(*ckit_realloc_fn)(void *ctx, void *ptr, size_t size);
 typedef void (*ckit_dealloc_fn)(void *ctx, void *ptr);
-
-_Noreturn void ckit_panic(const char *message);
-
-#define CKIT_ASSERT(cond, message)                                                                 \
-    do {                                                                                           \
-        if (!(cond)) {                                                                             \
-            ckit_panic(message);                                                                   \
-        }                                                                                          \
-    } while (0)
 
 /* Generic allocator callback set used by containers. */
 typedef struct ckit_allocator {

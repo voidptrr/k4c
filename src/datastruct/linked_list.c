@@ -1,8 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "ckit/common/panic.h"
 #include "ckit/datastruct/linked_list.h"
-#include "ckit/mem/allocators/allocator.h"
+#include "ckit/memory/allocators/allocator.h"
 
 static void *ckit_linked_list_alloc(const ckit_linked_list *list, size_t size) {
     if (list->allocator == NULL || list->allocator->alloc == NULL) {

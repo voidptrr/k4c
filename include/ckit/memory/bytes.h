@@ -1,5 +1,5 @@
-#ifndef CKIT_MEM_BYTES_H
-#define CKIT_MEM_BYTES_H
+#ifndef CKIT_MEMORY_BYTES_H
+#define CKIT_MEMORY_BYTES_H
 
 #include <stddef.h>
 

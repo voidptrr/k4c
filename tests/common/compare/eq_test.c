@@ -26,6 +26,14 @@ int main(void) {
         return 1;
     }
 
+    const char *sp1 = "hash";
+    const char *sp2 = "hash";
+    const char *sp3 = "map";
+    if (!ckit_eq_cstr_ptr(&sp1, &sp2, 0U) || ckit_eq_cstr_ptr(&sp1, &sp3, 0U)) {
+        fprintf(stderr, "ckit_eq_cstr_ptr should compare pointed-to strings\n");
+        return 1;
+    }
+
     int32_t i32a = -4;
     int32_t i32b = -4;
     int32_t i32c = 9;
@@ -39,6 +47,14 @@ int main(void) {
     uint64_t u64c = 77U;
     if (!ckit_eq_u64(&u64a, &u64b, 0U) || ckit_eq_u64(&u64a, &u64c, 0U)) {
         fprintf(stderr, "ckit_eq_u64 should compare uint64 values\n");
+        return 1;
+    }
+
+    size_t size_a = 42U;
+    size_t size_b = 42U;
+    size_t size_c = 77U;
+    if (!ckit_eq_size(&size_a, &size_b, 0U) || ckit_eq_size(&size_a, &size_c, 0U)) {
+        fprintf(stderr, "ckit_eq_size should compare size_t values\n");
         return 1;
     }
 

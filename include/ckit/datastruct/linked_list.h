@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "ckit/mem/allocators/allocator.h"
+#include "ckit/memory/allocators/allocator.h"
 
 /*
  * Generic singly linked list.

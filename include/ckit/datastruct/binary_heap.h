@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "ckit/compare.h"
 #include "ckit/datastruct/vector.h"
 
 /*
@@ -14,7 +15,7 @@
  */
 
 /* Comparator callback: negative if a < b, zero if equal, positive if a > b. */
-typedef int (*ckit_heap_cmp_fn)(const void *a, const void *b);
+typedef ckit_cmp_fn ckit_heap_cmp_fn;
 
 /* Heap object wrapping vector storage and comparator policy. */
 typedef struct ckit_binary_heap {

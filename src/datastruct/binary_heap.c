@@ -1,8 +1,9 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "ckit/common/panic.h"
 #include "ckit/datastruct/binary_heap.h"
-#include "ckit/mem/bytes.h"
+#include "ckit/memory/bytes.h"
 
 static void ckit_binary_heap_swap_at(ckit_binary_heap *heap, size_t i, size_t j) {
     size_t elem_size = heap->root.elem_size;
