@@ -24,5 +24,15 @@ int main(void) {
         return 1;
     }
 
+    size_t size_a = 1U;
+    size_t size_b = 2U;
+    size_t size_c = 2U;
+
+    if (!(ckit_cmp_size(&size_a, &size_b) < 0 && ckit_cmp_size(&size_b, &size_a) > 0 &&
+          ckit_cmp_size(&size_b, &size_c) == 0)) {
+        fprintf(stderr, "ckit_cmp_size should provide strict weak ordering\n");
+        return 1;
+    }
+
     return 0;
 }

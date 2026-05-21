@@ -3,9 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "mem/utils.h"
-#include "ckit/mem/allocators/allocator.h"
-#include "ckit/mem/allocators/general_heap.h"
+#include "ckit/common/panic.h"
+#include "ckit/memory/allocators/allocator.h"
+#include "ckit/memory/allocators/general_heap.h"
+#include "memory/utils.h"
 
 #define CKIT_HEAP_ALIGN (sizeof(max_align_t))
 

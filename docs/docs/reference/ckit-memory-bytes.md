@@ -1,4 +1,4 @@
-# mem.bytes
+# memory.bytes
 
 ## DESCRIPTION
 

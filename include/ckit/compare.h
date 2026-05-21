@@ -4,17 +4,25 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+/* Shared callback shapes used by generic containers. */
+typedef bool (*ckit_eq_fn)(const void *lhs, const void *rhs, size_t size);
+typedef int (*ckit_cmp_fn)(const void *lhs, const void *rhs);
+
 /*
  * Shared equality helpers for key matching (hashmap key_eq callbacks).
- * The size argument is honored for byte/string comparisons and ignored for
- * fixed-width scalar helpers.
+ * ckit_eq_bytes honors size. ckit_eq_cstr compares inline null-terminated
+ * character data. ckit_eq_cstr_ptr compares stored const char * values.
+ * Scalar helpers ignore size. Pointer-string equality requires a matching hash
+ * over string contents when used with hash-based containers.
  */
 bool ckit_eq_bytes(const void *lhs, const void *rhs, size_t size);
 bool ckit_eq_cstr(const void *lhs, const void *rhs, size_t size);
+bool ckit_eq_cstr_ptr(const void *lhs, const void *rhs, size_t size);
 bool ckit_eq_i32(const void *lhs, const void *rhs, size_t size);
 bool ckit_eq_i64(const void *lhs, const void *rhs, size_t size);
 bool ckit_eq_u32(const void *lhs, const void *rhs, size_t size);
 bool ckit_eq_u64(const void *lhs, const void *rhs, size_t size);
+bool ckit_eq_size(const void *lhs, const void *rhs, size_t size);
 
 /*
  * Shared ordering helpers for container callbacks that use int-style
@@ -24,5 +32,6 @@ int ckit_cmp_i32(const void *lhs, const void *rhs);
 int ckit_cmp_i64(const void *lhs, const void *rhs);
 int ckit_cmp_u32(const void *lhs, const void *rhs);
 int ckit_cmp_u64(const void *lhs, const void *rhs);
+int ckit_cmp_size(const void *lhs, const void *rhs);
 
 #endif

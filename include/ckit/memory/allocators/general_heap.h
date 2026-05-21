@@ -1,9 +1,9 @@
-#ifndef CKIT_MEM_GENERAL_HEAP_H
-#define CKIT_MEM_GENERAL_HEAP_H
+#ifndef CKIT_MEMORY_GENERAL_HEAP_H
+#define CKIT_MEMORY_GENERAL_HEAP_H
 
 #include <stddef.h>
 
-#include "ckit/mem/allocators/allocator.h"
+#include "ckit/memory/allocators/allocator.h"
 
 /*
  * Free-list heap memory model (inside heap->buffer):

@@ -4,7 +4,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "ckit/mem/allocators/allocator.h"
+#include "ckit/compare.h"
+#include "ckit/memory/allocators/allocator.h"
 
 /*
  * Hash map with separate chaining.
@@ -33,7 +34,7 @@
  */
 
 /* Key equality callback used to resolve collisions and lookups. */
-typedef bool (*ckit_hashmap_key_eq_fn)(const void *lhs, const void *rhs, size_t key_size);
+typedef ckit_eq_fn ckit_hashmap_key_eq_fn;
 
 /* One chained entry stored inside a bucket list. */
 typedef struct ckit_hashmap_entry {

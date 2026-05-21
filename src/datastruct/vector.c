@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "ckit/common/panic.h"
 #include "ckit/datastruct/vector.h"
-#include "ckit/mem/allocators/allocator.h"
+#include "ckit/memory/allocators/allocator.h"
 
 #define CKIT_VECTOR_DEFAULT_CAPACITY 16
 

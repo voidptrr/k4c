@@ -1,7 +1,7 @@
-#include <stdio.h>
 #include <stdlib.h>
 
-#include "ckit/mem/allocators/allocator.h"
+#include "ckit/common/panic.h"
+#include "ckit/memory/allocators/allocator.h"
 
 void *ckit_malloc(size_t size) {
     void *ptr = malloc(size);
@@ -22,11 +22,4 @@ void *ckit_realloc(void *ptr, size_t size) {
         ckit_panic("fatal: ckit_realloc out of memory");
     }
     return new_ptr;
-}
-
-_Noreturn void ckit_panic(const char *message) {
-    if (message != NULL) {
-        fprintf(stderr, "%s\n", message);
-    }
-    abort();
 }

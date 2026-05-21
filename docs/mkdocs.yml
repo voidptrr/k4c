@@ -47,9 +47,9 @@ nav:
   - Compare: reference/ckit-compare.md
   - Memory:
       - Allocators:
-          - Overview: reference/ckit-mem-allocators.md
-          - Free-list allocator: reference/ckit-mem-general-heap.md
-      - Bytes: reference/ckit-mem-bytes.md
+          - Overview: reference/ckit-memory-allocators.md
+          - Free-list allocator: reference/ckit-memory-general-heap.md
+      - Bytes: reference/ckit-memory-bytes.md
   - Data structures:
       - Hashmap: data-structures/hashmap.md
       - Binary heap: data-structures/binary-heap.md
