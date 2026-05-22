@@ -12,9 +12,6 @@ int main(void) {
     test_item first = {.value = 7};
     test_item second = {.value = 11};
 
-    ckit_linked_list_node_init(&first.node);
-    ckit_linked_list_node_init(&second.node);
-
     list = ckit_linked_list_init(NULL);
     ckit_linked_list_push(list, &first.node);
     ckit_linked_list_push(list, &second.node);
