@@ -28,7 +28,7 @@ description: Write git commit messages. Activate when user ask to write commit, 
 
 ### Workflow
 
-- Run `fid` to inspect changes since the last commit.
+- Run `git diff` to inspect changes since the last commit.
 - Identify the subsystem from changed file paths.
 - Draft the commit message using the format above.
 - Apply the commit.
