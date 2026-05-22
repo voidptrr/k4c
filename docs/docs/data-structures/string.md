@@ -38,6 +38,56 @@ void ckit_string_append(ckit_string *string, const char *suffix);
 - Returns: none.
 - Notes: may reallocate and update `*string`.
 
+### ckit_string_prepend
+
+```c
+void ckit_string_prepend(ckit_string *string, const char *prefix);
+```
+
+- Parameters: `string`, `prefix`
+- Returns: none.
+- Notes: may reallocate and update `*string`.
+
+### ckit_string_contains
+
+```c
+bool ckit_string_contains(const ckit_string string, const char *needle);
+```
+
+- Parameters: `string`, `needle`
+- Returns: `true` when `needle` appears in `string`; otherwise `false`.
+- Notes: an empty `needle` matches.
+
+### ckit_string_starts_with
+
+```c
+bool ckit_string_starts_with(const ckit_string string, const char *prefix);
+```
+
+- Parameters: `string`, `prefix`
+- Returns: `true` when `string` begins with `prefix`; otherwise `false`.
+- Notes: an empty `prefix` matches.
+
+### ckit_string_ends_with
+
+```c
+bool ckit_string_ends_with(const ckit_string string, const char *suffix);
+```
+
+- Parameters: `string`, `suffix`
+- Returns: `true` when `string` ends with `suffix`; otherwise `false`.
+- Notes: an empty `suffix` matches.
+
+### ckit_string_clear
+
+```c
+void ckit_string_clear(ckit_string string);
+```
+
+- Parameters: `string`
+- Returns: none.
+- Notes: resets length to zero without releasing storage.
+
 ### ckit_string_free
 
 ```c
@@ -67,7 +117,8 @@ int main(void) {
     ckit_string value = ckit_string_init("hello", NULL);
 
     ckit_string_append(&value, " world");
-    if (strcmp(value, "hello world") != 0) {
+    ckit_string_prepend(&value, "say ");
+    if (strcmp(value, "say hello world") != 0) {
         ckit_string_free(value);
         return 1;
     }
