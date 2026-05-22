@@ -49,7 +49,4 @@ void ckit_vector_free(ckit_vector *vector);
 /* Return the number of stored elements. */
 size_t ckit_vector_size(const ckit_vector *vector);
 
-/* Return whether the vector has zero elements. */
-bool ckit_vector_is_empty(const ckit_vector *vector);
-
 #endif

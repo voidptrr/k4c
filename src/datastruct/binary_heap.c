@@ -121,7 +121,3 @@ size_t ckit_binary_heap_size(const ckit_binary_heap *heap) {
     }
     return ckit_vector_size(heap->root);
 }
-
-bool ckit_binary_heap_is_empty(const ckit_binary_heap *heap) {
-    return ckit_binary_heap_size(heap) == 0U;
-}

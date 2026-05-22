@@ -8,7 +8,7 @@ int main(void) {
     ckit_hashmap *map;
 
     map = ckit_hashmap_init(sizeof(uint64_t), sizeof(uint64_t), ckit_eq_u64, NULL);
-    if (ckit_hashmap_size(map) != 0U || !ckit_hashmap_is_empty(map)) {
+    if (ckit_hashmap_size(map) != 0U) {
         fprintf(stderr, "new hashmap should be empty\n");
         ckit_hashmap_free(map);
         return 1;

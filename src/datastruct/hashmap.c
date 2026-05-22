@@ -184,7 +184,3 @@ size_t ckit_hashmap_size(const ckit_hashmap *map) {
     }
     return map->size;
 }
-
-bool ckit_hashmap_is_empty(const ckit_hashmap *map) {
-    return ckit_hashmap_size(map) == 0U;
-}

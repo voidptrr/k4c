@@ -65,7 +65,4 @@ void ckit_hashmap_free(ckit_hashmap *map);
 /* Return the number of stored entries. */
 size_t ckit_hashmap_size(const ckit_hashmap *map);
 
-/* Return whether map has zero entries. */
-bool ckit_hashmap_is_empty(const ckit_hashmap *map);
-
 #endif

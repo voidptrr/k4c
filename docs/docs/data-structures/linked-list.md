@@ -100,16 +100,6 @@ size_t ckit_linked_list_size(const ckit_linked_list *list);
 - Returns: current element count.
 - Notes: returns `0` when `list` is `NULL`.
 
-### ckit_linked_list_is_empty
-
-```c
-bool ckit_linked_list_is_empty(const ckit_linked_list *list);
-```
-
-- Parameters: `list`
-- Returns: `true` when empty; otherwise `false`.
-- Notes: returns `true` when `list` is `NULL`.
-
 ## EXAMPLE
 
 ```c

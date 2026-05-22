@@ -94,16 +94,6 @@ size_t ckit_vector_size(const ckit_vector *vector);
 - Returns: current element count.
 - Notes: returns `0` when `vector` is `NULL`.
 
-### ckit_vector_is_empty
-
-```c
-bool ckit_vector_is_empty(const ckit_vector *vector);
-```
-
-- Parameters: `vector`
-- Returns: `true` when empty; otherwise `false`.
-- Notes: returns `true` when `vector` is `NULL`.
-
 ## EXAMPLE
 
 ```c
