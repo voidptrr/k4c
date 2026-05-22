@@ -53,7 +53,4 @@ void ckit_deque_free(ckit_deque *deque);
 /* Return the number of stored elements. */
 size_t ckit_deque_size(const ckit_deque *deque);
 
-/* Return whether the deque has zero elements. */
-bool ckit_deque_is_empty(const ckit_deque *deque);
-
 #endif

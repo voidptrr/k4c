@@ -125,7 +125,3 @@ size_t ckit_vector_size(const ckit_vector *vector) {
 
     return vector->size;
 }
-
-bool ckit_vector_is_empty(const ckit_vector *vector) {
-    return ckit_vector_size(vector) == 0;
-}

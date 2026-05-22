@@ -173,7 +173,3 @@ size_t ckit_deque_size(const ckit_deque *deque) {
 
     return deque->size;
 }
-
-bool ckit_deque_is_empty(const ckit_deque *deque) {
-    return ckit_deque_size(deque) == 0;
-}

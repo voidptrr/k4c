@@ -87,7 +87,3 @@ size_t ckit_linked_list_size(const ckit_linked_list *list) {
 
     return list->size;
 }
-
-bool ckit_linked_list_is_empty(const ckit_linked_list *list) {
-    return ckit_linked_list_size(list) == 0;
-}

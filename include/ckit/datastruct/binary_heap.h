@@ -54,7 +54,4 @@ void ckit_binary_heap_free(ckit_binary_heap *heap);
 /* Return the number of stored elements. */
 size_t ckit_binary_heap_size(const ckit_binary_heap *heap);
 
-/* Return whether the heap has zero elements. */
-bool ckit_binary_heap_is_empty(const ckit_binary_heap *heap);
-
 #endif
