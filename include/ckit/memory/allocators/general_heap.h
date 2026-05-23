@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 
+#include "ckit/datastruct/doubly_linked_list.h"
 #include "ckit/memory/allocators/allocator.h"
 
 /*
@@ -15,11 +16,11 @@
  * Each block header tracks:
  * - payload size
  * - free/used state
- * - previous/next block links
+ * - intrusive doubly linked list node
  *
  * Linked-list view of blocks:
  *
- *   heap->head -> [A free] <-> [B used] <-> [C free] -> NULL
+ *   heap->blocks -> [A free] <-> [B used] <-> [C free] -> NULL
  *
  * Allocation strategy:
  * - first-fit scan from head
@@ -31,8 +32,8 @@ typedef struct ckit_heap {
     void *buffer;
     /* Total bytes managed by this heap region. */
     size_t capacity;
-    /* Internal pointer to first block header in the region. */
-    void *head;
+    /* Internal list of block headers in address order. */
+    ckit_doubly_linked_list *blocks;
 } ckit_heap;
 
 /*

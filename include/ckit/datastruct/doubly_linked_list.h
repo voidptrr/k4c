@@ -51,6 +51,11 @@ void ckit_doubly_linked_list_push(ckit_doubly_linked_list *list,
 void ckit_doubly_linked_list_pushfront(ckit_doubly_linked_list *list,
                                        ckit_doubly_linked_list_node *node);
 
+/* Insert node after an existing node, or at the front when after is NULL. */
+void ckit_doubly_linked_list_insert_after(ckit_doubly_linked_list *list,
+                                          ckit_doubly_linked_list_node *after,
+                                          ckit_doubly_linked_list_node *node);
+
 /* Remove and return the head node, or NULL when empty. */
 ckit_doubly_linked_list_node *ckit_doubly_linked_list_popleft(ckit_doubly_linked_list *list);
 
@@ -66,5 +71,11 @@ void ckit_doubly_linked_list_free(ckit_doubly_linked_list *list);
 
 /* Return the number of stored elements. */
 size_t ckit_doubly_linked_list_size(const ckit_doubly_linked_list *list);
+
+/* Return the head node, or NULL when empty. */
+ckit_doubly_linked_list_node *ckit_doubly_linked_list_head(const ckit_doubly_linked_list *list);
+
+/* Return the tail node, or NULL when empty. */
+ckit_doubly_linked_list_node *ckit_doubly_linked_list_tail(const ckit_doubly_linked_list *list);
 
 #endif
