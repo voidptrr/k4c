@@ -55,6 +55,30 @@ void ckit_doubly_linked_list_pushfront(ckit_doubly_linked_list *list,
     list->size += 1;
 }
 
+void ckit_doubly_linked_list_insert_after(ckit_doubly_linked_list *list,
+                                          ckit_doubly_linked_list_node *after,
+                                          ckit_doubly_linked_list_node *node) {
+    CKIT_ASSERT(list != NULL, "fatal: ckit_doubly_linked_list_insert_after invalid arguments");
+    CKIT_ASSERT(node != NULL, "fatal: ckit_doubly_linked_list_insert_after invalid arguments");
+
+    if (after == NULL) {
+        ckit_doubly_linked_list_pushfront(list, node);
+        return;
+    }
+
+    node->prev = after;
+    node->next = after->next;
+
+    if (after->next != NULL) {
+        after->next->prev = node;
+    } else {
+        list->tail = node;
+    }
+
+    after->next = node;
+    list->size += 1;
+}
+
 ckit_doubly_linked_list_node *ckit_doubly_linked_list_popleft(ckit_doubly_linked_list *list) {
     CKIT_ASSERT(list != NULL, "fatal: ckit_doubly_linked_list_popleft invalid arguments");
 
@@ -132,4 +156,16 @@ size_t ckit_doubly_linked_list_size(const ckit_doubly_linked_list *list) {
     CKIT_ASSERT(list != NULL, "fatal: ckit_doubly_linked_list_size invalid arguments");
 
     return list->size;
+}
+
+ckit_doubly_linked_list_node *ckit_doubly_linked_list_head(const ckit_doubly_linked_list *list) {
+    CKIT_ASSERT(list != NULL, "fatal: ckit_doubly_linked_list_head invalid arguments");
+
+    return list->head;
+}
+
+ckit_doubly_linked_list_node *ckit_doubly_linked_list_tail(const ckit_doubly_linked_list *list) {
+    CKIT_ASSERT(list != NULL, "fatal: ckit_doubly_linked_list_tail invalid arguments");
+
+    return list->tail;
 }
