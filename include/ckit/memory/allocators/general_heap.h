@@ -55,7 +55,6 @@ void *ckit_heap_alloc(ckit_heap *heap, size_t size);
 
 /*
  * Free a pointer previously returned by ckit_heap_alloc/ckit_heap_realloc.
- * NULL is ignored.
  */
 void ckit_heap_dealloc(ckit_heap *heap, void *ptr);
 

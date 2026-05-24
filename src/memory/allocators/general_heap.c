@@ -7,9 +7,7 @@
 #include "ckit/datastruct/doubly_linked_list.h"
 #include "ckit/memory/allocators/allocator.h"
 #include "ckit/memory/allocators/general_heap.h"
-#include "memory/utils.h"
-
-#define CKIT_HEAP_ALIGN (sizeof(max_align_t))
+#include "ckit/memory/utils.h"
 
 /* Header stored immediately before each heap-managed payload block. */
 typedef struct ckit_heap_block {
@@ -24,7 +22,7 @@ static ckit_heap_block *ckit_heap_head(const ckit_heap *heap) {
         return NULL;
     }
 
-    return ckit_container_of(head, ckit_heap_block, node);
+    return CKIT_CONTAINER_OF(head, ckit_heap_block, node);
 }
 
 static ckit_heap_block *ckit_heap_next(const ckit_heap_block *block) {
@@ -32,7 +30,7 @@ static ckit_heap_block *ckit_heap_next(const ckit_heap_block *block) {
         return NULL;
     }
 
-    return ckit_container_of(block->node.next, ckit_heap_block, node);
+    return CKIT_CONTAINER_OF(block->node.next, ckit_heap_block, node);
 }
 
 static ckit_heap_block *ckit_heap_prev(const ckit_heap_block *block) {
@@ -40,18 +38,17 @@ static ckit_heap_block *ckit_heap_prev(const ckit_heap_block *block) {
         return NULL;
     }
 
-    return ckit_container_of(block->node.prev, ckit_heap_block, node);
+    return CKIT_CONTAINER_OF(block->node.prev, ckit_heap_block, node);
 }
 
 static void ckit_heap_split_block(ckit_heap *heap, ckit_heap_block *block, size_t size) {
     size_t remaining = block->size - size;
 
-    if (remaining <= sizeof(ckit_heap_block) + CKIT_HEAP_ALIGN) {
+    if (remaining <= sizeof(ckit_heap_block) + CKIT_MEMORY_ALIGN) {
         return;
     }
 
-    uint8_t *next_addr = (uint8_t *)(block + 1) + size;
-    ckit_heap_block *split = (ckit_heap_block *)next_addr;
+    ckit_heap_block *split = (ckit_heap_block *)((uint8_t *)block + sizeof(*block) + size);
     split->size = remaining - sizeof(ckit_heap_block);
     split->is_free = true;
 
@@ -79,8 +76,8 @@ static ckit_heap_block *ckit_heap_coalesce(ckit_heap *heap, ckit_heap_block *blo
 ckit_allocator ckit_heap_init(ckit_heap *heap, size_t capacity) {
     CKIT_ASSERT(heap != NULL, "fatal: ckit_heap_init invalid arguments");
 
-    capacity = ckit_align_up(capacity, CKIT_HEAP_ALIGN);
-    CKIT_ASSERT(capacity > sizeof(ckit_heap_block) + CKIT_HEAP_ALIGN,
+    capacity = ckit_align_up(capacity, CKIT_MEMORY_ALIGN);
+    CKIT_ASSERT(capacity > sizeof(ckit_heap_block) + CKIT_MEMORY_ALIGN,
                 "fatal: ckit_heap_init invalid capacity");
 
     heap->buffer = ckit_malloc(NULL, capacity);
@@ -115,17 +112,18 @@ void ckit_heap_free(ckit_heap *heap) {
 }
 
 void *ckit_heap_alloc(ckit_heap *heap, size_t size) {
-    if (heap == NULL || size == 0 || heap->blocks == NULL) {
-        return NULL;
-    }
+    CKIT_ASSERT(heap != NULL, "fatal: ckit_heap_alloc invalid arguments");
+    CKIT_ASSERT(heap->buffer != NULL, "fatal: ckit_heap_alloc invalid heap");
+    CKIT_ASSERT(heap->blocks != NULL, "fatal: ckit_heap_alloc invalid heap");
+    CKIT_ASSERT(size > 0, "fatal: ckit_heap_alloc invalid arguments");
 
-    size = ckit_align_up(size, CKIT_HEAP_ALIGN);
+    size = ckit_align_up(size, CKIT_MEMORY_ALIGN);
     ckit_heap_block *block = ckit_heap_head(heap);
     while (block != NULL) {
         if (block->is_free && block->size >= size) {
             ckit_heap_split_block(heap, block, size);
             block->is_free = false;
-            return (void *)(block + 1);
+            return (uint8_t *)block + sizeof(*block);
         }
         block = ckit_heap_next(block);
     }
@@ -134,9 +132,10 @@ void *ckit_heap_alloc(ckit_heap *heap, size_t size) {
 }
 
 void ckit_heap_dealloc(ckit_heap *heap, void *ptr) {
-    if (heap == NULL || ptr == NULL || heap->buffer == NULL) {
-        return;
-    }
+    CKIT_ASSERT(heap != NULL, "fatal: ckit_heap_dealloc invalid arguments");
+    CKIT_ASSERT(ptr != NULL, "fatal: ckit_heap_dealloc invalid arguments");
+    CKIT_ASSERT(heap->buffer != NULL, "fatal: ckit_heap_dealloc invalid heap");
+    CKIT_ASSERT(heap->blocks != NULL, "fatal: ckit_heap_dealloc invalid heap");
 
     uintptr_t start = (uintptr_t)heap->buffer;
     uintptr_t end = start + heap->capacity;
@@ -145,15 +144,15 @@ void ckit_heap_dealloc(ckit_heap *heap, void *ptr) {
         return;
     }
 
-    ckit_heap_block *block = ((ckit_heap_block *)ptr) - 1;
+    ckit_heap_block *block = (ckit_heap_block *)((uint8_t *)ptr - sizeof(ckit_heap_block));
     block->is_free = true;
     ckit_heap_coalesce(heap, block);
 }
 
 void *ckit_heap_realloc(ckit_heap *heap, void *ptr, size_t size) {
-    if (heap == NULL) {
-        return NULL;
-    }
+    CKIT_ASSERT(heap != NULL, "fatal: ckit_heap_realloc invalid arguments");
+    CKIT_ASSERT(heap->buffer != NULL, "fatal: ckit_heap_realloc invalid heap");
+    CKIT_ASSERT(heap->blocks != NULL, "fatal: ckit_heap_realloc invalid heap");
 
     if (ptr == NULL) {
         return ckit_heap_alloc(heap, size);
@@ -164,8 +163,8 @@ void *ckit_heap_realloc(ckit_heap *heap, void *ptr, size_t size) {
         return NULL;
     }
 
-    size = ckit_align_up(size, CKIT_HEAP_ALIGN);
-    ckit_heap_block *block = ((ckit_heap_block *)ptr) - 1;
+    size = ckit_align_up(size, CKIT_MEMORY_ALIGN);
+    ckit_heap_block *block = (ckit_heap_block *)((uint8_t *)ptr - sizeof(ckit_heap_block));
     if (block->size >= size) {
         ckit_heap_split_block(heap, block, size);
         return ptr;
@@ -191,18 +190,19 @@ void *ckit_heap_realloc(ckit_heap *heap, void *ptr, size_t size) {
 }
 
 size_t ckit_heap_capacity(const ckit_heap *heap) {
-    if (heap == NULL) {
-        return 0;
-    }
+    CKIT_ASSERT(heap != NULL, "fatal: ckit_heap_capacity invalid arguments");
+    CKIT_ASSERT(heap->buffer != NULL, "fatal: ckit_heap_capacity invalid heap");
+    CKIT_ASSERT(heap->blocks != NULL, "fatal: ckit_heap_capacity invalid heap");
+
     return heap->capacity;
 }
 
 size_t ckit_heap_available(const ckit_heap *heap) {
     size_t total = 0;
 
-    if (heap == NULL || heap->blocks == NULL) {
-        return 0;
-    }
+    CKIT_ASSERT(heap != NULL, "fatal: ckit_heap_available invalid arguments");
+    CKIT_ASSERT(heap->buffer != NULL, "fatal: ckit_heap_available invalid heap");
+    CKIT_ASSERT(heap->blocks != NULL, "fatal: ckit_heap_available invalid heap");
 
     const ckit_heap_block *block = ckit_heap_head(heap);
     while (block != NULL) {

@@ -44,7 +44,7 @@ void ckit_heap_dealloc(ckit_heap *heap, void *ptr);
 ```
 
 - Parameters: `heap`, `ptr`
-- Behavior: frees `ptr` if valid; ignores `NULL`.
+- Behavior: frees `ptr` if valid.
 
 ### ckit_heap_realloc
 
@@ -63,7 +63,7 @@ size_t ckit_heap_capacity(const ckit_heap *heap);
 ```
 
 - Parameters: `heap`
-- Returns: total managed bytes, or `0` when `heap` is `NULL`.
+- Returns: total managed bytes.
 
 ### ckit_heap_available
 
@@ -72,4 +72,4 @@ size_t ckit_heap_available(const ckit_heap *heap);
 ```
 
 - Parameters: `heap`
-- Returns: sum of currently free payload bytes, or `0` when `heap` is `NULL`.
+- Returns: sum of currently free payload bytes.
