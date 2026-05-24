@@ -29,7 +29,7 @@ int main(void) {
         return 1;
     }
 
-    test_item *out = ckit_container_of(out_node, test_item, node);
+    test_item *out = CKIT_CONTAINER_OF(out_node, test_item, node);
     if (out->value != first.value) {
         fprintf(stderr, "popleft should return head value\n");
         ckit_linked_list_free(list);
@@ -43,7 +43,7 @@ int main(void) {
         return 1;
     }
 
-    out = ckit_container_of(out_node, test_item, node);
+    out = CKIT_CONTAINER_OF(out_node, test_item, node);
     if (out->value != second.value) {
         fprintf(stderr, "popleft should preserve FIFO order\n");
         ckit_linked_list_free(list);
