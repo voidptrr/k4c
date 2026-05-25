@@ -2,9 +2,9 @@
 #define CKIT_DATASTRUCT_DOUBLY_LINKED_LIST_H
 
 #include <stddef.h>
-#include <stdint.h>
 
 #include "ckit/memory/allocators/allocator.h"
+#include "ckit/memory/utils.h"
 
 /*
  * Opaque intrusive doubly linked list.
@@ -28,10 +28,6 @@
  * - remove unlinks a known node in O(1)
  * - linked list nodes and owning objects are caller-owned
  */
-
-#ifndef ckit_container_of
-#define ckit_container_of(ptr, type, member) ((type *)((uint8_t *)(ptr) - offsetof(type, member)))
-#endif
 
 typedef struct ckit_doubly_linked_list_node {
     struct ckit_doubly_linked_list_node *prev;

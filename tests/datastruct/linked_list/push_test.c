@@ -24,8 +24,8 @@ int main(void) {
         return 1;
     }
 
-    test_item *out_first = ckit_container_of(out_first_node, test_item, node);
-    test_item *out_second = ckit_container_of(out_second_node, test_item, node);
+    test_item *out_first = CKIT_CONTAINER_OF(out_first_node, test_item, node);
+    test_item *out_second = CKIT_CONTAINER_OF(out_second_node, test_item, node);
     if (out_first->value != first.value || out_second->value != second.value) {
         fprintf(stderr, "push should append and preserve order\n");
         ckit_linked_list_free(list);

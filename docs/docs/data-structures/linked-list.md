@@ -6,7 +6,7 @@ The linked_list module provides an intrusive singly linked list. User objects em
 `ckit_linked_list_node`, and the list links those embedded nodes directly.
 
 The list owns only the list handle. Nodes and owning objects remain caller-owned.
-Use `ckit_container_of` to recover the owning object from a returned node.
+Use `CKIT_CONTAINER_OF` to recover the owning object from a returned node.
 
 This API is fail-fast: invalid required arguments are programmer errors and are asserted.
 
@@ -22,10 +22,10 @@ typedef struct ckit_linked_list_node {
 
 Embed this node in the object you want to link.
 
-### ckit_container_of
+### CKIT_CONTAINER_OF
 
 ```c
-#define ckit_container_of(ptr, type, member)
+#define CKIT_CONTAINER_OF(ptr, type, member)
 ```
 
 - Parameters: `ptr`, `type`, `member`
@@ -70,6 +70,17 @@ ckit_linked_list_node *ckit_linked_list_popleft(ckit_linked_list *list);
 - Parameters: `list`
 - Returns: removed head node, or `NULL` when list is empty.
 
+### ckit_linked_list_remove_after
+
+```c
+ckit_linked_list_node *ckit_linked_list_remove_after(ckit_linked_list *list,
+                                                     ckit_linked_list_node *prev);
+```
+
+- Parameters: `list`, `prev`
+- Returns: removed node after `prev`, or removed head node when `prev` is `NULL`.
+- Notes: returns `NULL` when there is no node to remove.
+
 ### ckit_linked_list_free
 
 ```c
@@ -88,6 +99,15 @@ size_t ckit_linked_list_size(const ckit_linked_list *list);
 
 - Parameters: `list`
 - Returns: current element count.
+
+### ckit_linked_list_head
+
+```c
+ckit_linked_list_node *ckit_linked_list_head(const ckit_linked_list *list);
+```
+
+- Parameters: `list`
+- Returns: current head node, or `NULL` when list is empty.
 
 ## EXAMPLE
 
@@ -108,7 +128,7 @@ int main(void) {
     ckit_linked_list_push(list, &second.node);
 
     ckit_linked_list_node *node = ckit_linked_list_popleft(list);
-    job *out = ckit_container_of(node, job, node);
+    job *out = CKIT_CONTAINER_OF(node, job, node);
 
     ckit_linked_list_free(list);
     return out->id == 1 ? 0 : 1;

@@ -2,6 +2,10 @@
 #define CKIT_MEMORY_UTILS_H
 
 #include <stddef.h>
+#include <stdint.h>
+
+#define CKIT_CONTAINER_OF(ptr, type, member) ((type *)((uint8_t *)(ptr) - offsetof(type, member)))
+#define CKIT_MEMORY_ALIGN (sizeof(max_align_t))
 
 /*
  * Round value up to the next multiple of alignment.

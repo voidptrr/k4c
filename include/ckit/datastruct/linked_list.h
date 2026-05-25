@@ -3,9 +3,9 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdint.h>
 
 #include "ckit/memory/allocators/allocator.h"
+#include "ckit/memory/utils.h"
 
 /*
  * Opaque intrusive singly linked list.
@@ -28,8 +28,6 @@
  * - linked list nodes and owning objects are caller-owned
  */
 
-#define ckit_container_of(ptr, type, member) ((type *)((uint8_t *)(ptr) - offsetof(type, member)))
-
 typedef struct ckit_linked_list_node {
     struct ckit_linked_list_node *next;
 } ckit_linked_list_node;
@@ -48,10 +46,17 @@ void ckit_linked_list_pushfront(ckit_linked_list *list, ckit_linked_list_node *n
 /* Remove and return the head node, or NULL when empty. */
 ckit_linked_list_node *ckit_linked_list_popleft(ckit_linked_list *list);
 
+/* Remove and return the node after prev, or the head node when prev is NULL. */
+ckit_linked_list_node *ckit_linked_list_remove_after(ckit_linked_list *list,
+                                                     ckit_linked_list_node *prev);
+
 /* Release the linked-list handle. Nodes remain caller-owned. */
 void ckit_linked_list_free(ckit_linked_list *list);
 
 /* Return the number of stored elements. */
 size_t ckit_linked_list_size(const ckit_linked_list *list);
+
+/* Return the head node, or NULL when empty. */
+ckit_linked_list_node *ckit_linked_list_head(const ckit_linked_list *list);
 
 #endif
