@@ -43,9 +43,9 @@ ckit_hashset *ckit_hashset_init(size_t elem_size, ckit_hashset_elem_eq_fn elem_e
 
 /*
  * Insert element when it is not already present.
- * Returns true when inserted, or false when element already exists.
+ * Existing elements are left unchanged.
  */
-bool ckit_hashset_insert(ckit_hashset *set, const void *elem);
+void ckit_hashset_insert(ckit_hashset *set, const void *elem);
 
 /*
  * Return true when element exists in set.

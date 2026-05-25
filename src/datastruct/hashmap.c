@@ -23,30 +23,16 @@ struct ckit_hashmap {
     ckit_allocator *allocator;
 };
 
-static void ckit_hashmap_rehash(ckit_hashmap *map, size_t new_capacity) {
-    size_t alloc_size = sizeof(*map->buckets) * new_capacity;
-    ckit_linked_list **new_buckets = (ckit_linked_list **)ckit_malloc(map->allocator, alloc_size);
-    memset((void *)new_buckets, 0, alloc_size);
-    for (size_t i = 0; i < new_capacity; i++) {
-        new_buckets[i] = ckit_linked_list_init(map->allocator);
-    }
+static void ckit_hashmap_entry_free(ckit_linked_list_node *node, ckit_allocator *allocator) {
+    ckit_hashmap_entry *entry = CKIT_CONTAINER_OF(node, ckit_hashmap_entry, node);
+    ckit_dealloc(allocator, entry->key);
+    ckit_dealloc(allocator, entry->value);
+    ckit_dealloc(allocator, entry);
+}
 
-    for (size_t i = 0; i < map->capacity; i++) {
-        ckit_linked_list_node *node = ckit_linked_list_head(map->buckets[i]);
-        while (node != NULL) {
-            ckit_linked_list_node *next = node->next;
-            ckit_hashmap_entry *entry = CKIT_CONTAINER_OF(node, ckit_hashmap_entry, node);
-            size_t bucket = ckit_hash_bucket_index(entry->key, map->key_size, new_capacity);
-
-            ckit_linked_list_pushfront(new_buckets[bucket], &entry->node);
-            node = next;
-        }
-        ckit_linked_list_free(map->buckets[i]);
-    }
-
-    ckit_dealloc(map->allocator, (void *)map->buckets);
-    map->buckets = new_buckets;
-    map->capacity = new_capacity;
+static const void *ckit_hashmap_entry_key(const ckit_linked_list_node *node) {
+    const ckit_hashmap_entry *entry = CKIT_CONTAINER_OF(node, ckit_hashmap_entry, node);
+    return entry->key;
 }
 
 ckit_hashmap *ckit_hashmap_init(size_t key_size, size_t value_size, ckit_hashmap_key_eq_fn key_eq,
@@ -57,12 +43,7 @@ ckit_hashmap *ckit_hashmap_init(size_t key_size, size_t value_size, ckit_hashmap
 
     ckit_hashmap *map = ckit_malloc(allocator, sizeof(*map));
     map->allocator = allocator;
-    size_t alloc_size = sizeof(*map->buckets) * CKIT_HASH_DEFAULT_CAPACITY;
-    map->buckets = (ckit_linked_list **)ckit_malloc(allocator, alloc_size);
-    memset((void *)map->buckets, 0, alloc_size);
-    for (size_t i = 0; i < CKIT_HASH_DEFAULT_CAPACITY; i++) {
-        map->buckets[i] = ckit_linked_list_init(allocator);
-    }
+    map->buckets = ckit_hash_buckets_init(CKIT_HASH_DEFAULT_CAPACITY, allocator);
 
     map->size = 0;
     map->key_size = key_size;
@@ -79,19 +60,20 @@ void ckit_hashmap_put(ckit_hashmap *map, const void *key, const void *value) {
     CKIT_ASSERT(value != NULL, "fatal: ckit_hashmap_put invalid arguments");
 
     size_t bucket = ckit_hash_bucket_index(key, map->key_size, map->capacity);
-    ckit_linked_list_node *node = ckit_linked_list_head(map->buckets[bucket]);
-
-    while (node != NULL) {
+    ckit_linked_list_node *node = ckit_hash_bucket_find(map->buckets[bucket], key, map->key_size,
+                                                        map->key_eq, ckit_hashmap_entry_key);
+    if (node != NULL) {
         ckit_hashmap_entry *entry = CKIT_CONTAINER_OF(node, ckit_hashmap_entry, node);
-        if (map->key_eq(entry->key, key, map->key_size)) {
-            memcpy(entry->value, value, map->value_size);
-            return;
-        }
-        node = node->next;
+        memcpy(entry->value, value, map->value_size);
+        return;
     }
 
     if (ckit_hash_should_grow(map->size, map->capacity)) {
-        ckit_hashmap_rehash(map, map->capacity * 2);
+        size_t new_capacity = map->capacity * 2;
+        map->buckets =
+            ckit_hash_buckets_rehash(map->buckets, map->capacity, new_capacity, map->key_size,
+                                     map->allocator, ckit_hashmap_entry_key);
+        map->capacity = new_capacity;
         bucket = ckit_hash_bucket_index(key, map->key_size, map->capacity);
     }
 
@@ -111,13 +93,11 @@ const void *ckit_hashmap_get(const ckit_hashmap *map, const void *key) {
     CKIT_ASSERT(key != NULL, "fatal: ckit_hashmap_get invalid arguments");
 
     size_t bucket = ckit_hash_bucket_index(key, map->key_size, map->capacity);
-    ckit_linked_list_node *node = ckit_linked_list_head(map->buckets[bucket]);
-    while (node != NULL) {
+    ckit_linked_list_node *node = ckit_hash_bucket_find(map->buckets[bucket], key, map->key_size,
+                                                        map->key_eq, ckit_hashmap_entry_key);
+    if (node != NULL) {
         ckit_hashmap_entry *entry = CKIT_CONTAINER_OF(node, ckit_hashmap_entry, node);
-        if (map->key_eq(entry->key, key, map->key_size)) {
-            return entry->value;
-        }
-        node = node->next;
+        return entry->value;
     }
     return NULL;
 }
@@ -152,22 +132,7 @@ void ckit_hashmap_free(ckit_hashmap *map) {
     CKIT_ASSERT(map != NULL, "fatal: ckit_hashmap_free invalid arguments");
 
     ckit_allocator *allocator = map->allocator;
-    if (map->buckets) {
-        for (size_t i = 0; i < map->capacity; i++) {
-            ckit_linked_list_node *node = ckit_linked_list_head(map->buckets[i]);
-            while (node != NULL) {
-                ckit_linked_list_node *next = node->next;
-                ckit_hashmap_entry *entry = CKIT_CONTAINER_OF(node, ckit_hashmap_entry, node);
-                ckit_dealloc(map->allocator, entry->key);
-                ckit_dealloc(map->allocator, entry->value);
-                ckit_dealloc(map->allocator, entry);
-                node = next;
-            }
-            ckit_linked_list_free(map->buckets[i]);
-        }
-    }
-
-    ckit_dealloc(map->allocator, (void *)map->buckets);
+    ckit_hash_buckets_free(map->buckets, map->capacity, allocator, ckit_hashmap_entry_free);
     ckit_dealloc(allocator, map);
 }
 
