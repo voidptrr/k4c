@@ -6,8 +6,8 @@
 #include "ckit/datastruct/hashset.h"
 #include "ckit/datastruct/linked_list.h"
 #include "ckit/memory/allocators/allocator.h"
+#include "ckit/utils.h"
 #include "datastruct/hash_common.h"
-#include "memory/utils.h"
 
 typedef struct ck_hashset_entry {
     ck_linked_list_node node;
