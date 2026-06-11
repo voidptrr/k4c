@@ -2,9 +2,6 @@
 #define CK_INTERNAL_MEMORY_UTILS_H
 
 #include <stddef.h>
-#include <stdint.h>
-
-#include "ckit/utils.h"
 
 #define CK_MEMORY_ALIGN (sizeof(max_align_t))
 
