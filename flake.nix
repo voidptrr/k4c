@@ -18,6 +18,11 @@
   in {
     formatter = forEachSystem ({pkgs}: pkgs.alejandra);
 
+    packages = forEachSystem ({pkgs}: {
+      default = pkgs.callPackage ./tools/nix/package.nix {};
+      ckit = pkgs.callPackage ./tools/nix/package.nix {};
+    });
+
     devShells = forEachSystem ({pkgs}: {
       default = import ./tools/nix/shell.nix {inherit pkgs;};
     });

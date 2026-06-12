@@ -27,7 +27,7 @@
 
 #include <stddef.h>
 
-#define CK_MEMORY_ALIGN (sizeof(max_align_t))
+#define CK_MEMORY_ALIGN (_Alignof(max_align_t))
 
 /*
  * Round value up to the next multiple of alignment.
