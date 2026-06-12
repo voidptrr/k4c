@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+#include <stddef.h>
+
 #include "ckit/common/panic.h"
 #include "ckit/datastruct/doubly_linked_list.h"
 #include "ckit/memory/allocators/allocator.h"

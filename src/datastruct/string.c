@@ -23,6 +23,7 @@
  */
 
 #include <stdint.h>
+#include <stddef.h>
 #include <string.h>
 
 #include "ckit/common/panic.h"
