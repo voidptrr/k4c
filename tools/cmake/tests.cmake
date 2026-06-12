@@ -1,6 +1,5 @@
 function(ck_discover_tests)
-  file(GLOB_RECURSE CK_SRC_FILES "${CMAKE_SOURCE_DIR}/src/*.c")
-  file(GLOB TEST_FILES RELATIVE "${CMAKE_SOURCE_DIR}" "tests/*/*/*_test.c")
+  file(GLOB TEST_FILES RELATIVE "${PROJECT_SOURCE_DIR}" "tests/*/*/*_test.c")
 
   if(NOT TEST_FILES)
     message(WARNING "No tests found under tests/*/*/*_test.c")
@@ -21,8 +20,9 @@ function(ck_discover_tests)
     string(REGEX REPLACE "_test\\.c$" "" TEST_VARIANT "${TEST_FILENAME}")
 
     set(EXECUTABLE_NAME "${TARGET_GROUP}-${TARGET_NAME}-${TEST_VARIANT}")
-    add_executable(${EXECUTABLE_NAME} ${CK_SRC_FILES} "${CMAKE_SOURCE_DIR}/${TEST_FILE_REL}")
-    target_include_directories(${EXECUTABLE_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/include" "${CMAKE_SOURCE_DIR}/src")
+    add_executable(${EXECUTABLE_NAME} "${PROJECT_SOURCE_DIR}/${TEST_FILE_REL}")
+    target_include_directories(${EXECUTABLE_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/src")
+    target_link_libraries(${EXECUTABLE_NAME} PRIVATE ckit::ckit)
 
     set(CTEST_NAME "${TARGET_GROUP}/${TARGET_NAME}/${TEST_VARIANT}")
     add_test(NAME ${CTEST_NAME} COMMAND ${EXECUTABLE_NAME})
