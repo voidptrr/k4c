@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 
-#include <stdint.h>
 #include <string.h>
 
 #include "ckit/common/panic.h"
