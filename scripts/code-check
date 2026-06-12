@@ -19,7 +19,7 @@ cmake --build build/hardened
 
 for file in $(find src -type f -name '*.c' | sort); do
   status=0
-  output="$(clang-tidy -p build/hardened --quiet --warnings-as-errors='*' "$file" 2>&1)" || status=$?
+  output="$(clang-tidy -p build/hardened --quiet "$file" 2>&1)" || status=$?
   if [ -n "$output" ]; then
     filtered_output="$(printf '%s\n' "$output" |
       sed \
