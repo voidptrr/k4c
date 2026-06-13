@@ -44,10 +44,6 @@
       ctools.lib.mkCChecks {
         inherit pkgs;
         src = ./.;
-        formatDirs = ["src" "tests" "include"];
-        nixDirs = ["flake.nix" "tools/nix"];
-        sourceDirs = ["src" "tests"];
-        headerDirs = ["include"];
       });
   };
 }
