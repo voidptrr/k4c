@@ -1,6 +1,40 @@
 {
   "nodes": {
+    "ctools": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1781307725,
+        "narHash": "sha256-6ddfFKfEPAzh5dvNF4QowiWvNqyGLjjtp9Fmc3+LS68=",
+        "owner": "voidptrr",
+        "repo": "ctools",
+        "rev": "02d4c66dbfdc952255a3a28298f5963d219234c8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "voidptrr",
+        "repo": "ctools",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
+      "locked": {
+        "lastModified": 1777954456,
+        "narHash": "sha256-hGdgeU2Nk87RAuZyYjyDjFL6LK7dAZN5RE9+hrDTkDU=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "549bd84d6279f9852cae6225e372cc67fb91a4c1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
       "locked": {
         "lastModified": 1777954456,
         "narHash": "sha256-hGdgeU2Nk87RAuZyYjyDjFL6LK7dAZN5RE9+hrDTkDU=",
@@ -18,7 +52,8 @@
     },
     "root": {
       "inputs": {
-        "nixpkgs": "nixpkgs"
+        "ctools": "ctools",
+        "nixpkgs": "nixpkgs_2"
       }
     }
   },

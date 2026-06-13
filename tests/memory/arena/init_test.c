@@ -25,6 +25,7 @@
 #include <stdio.h>
 
 #include "ckit/memory/allocators/arena.h"
+#include "ckit/memory/allocators/allocator.h"
 
 int main(void) {
     int status = 0;

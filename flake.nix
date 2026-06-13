@@ -3,9 +3,14 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    ctools.url = "github:voidptrr/ctools";
   };
 
-  outputs = {nixpkgs, ...}: let
+  outputs = {
+    ctools,
+    nixpkgs,
+    ...
+  }: let
     systems = [
       "x86_64-linux"
       "aarch64-linux"
@@ -24,7 +29,26 @@
     });
 
     devShells = forEachSystem ({pkgs}: {
-      default = import ./tools/nix/shell.nix {inherit pkgs;};
+      default = ctools.lib.mkCShell {
+        inherit pkgs;
+        extraPackages = [
+          (pkgs.python3.withPackages (ps: [
+            ps.mkdocs
+            ps.mkdocs-material
+          ]))
+        ];
+      };
     });
+
+    checks = forEachSystem ({pkgs}:
+      ctools.lib.mkCChecks {
+        inherit pkgs;
+        src = ./.;
+        formatDirs = ["src" "tests" "include"];
+        nixDirs = ["flake.nix" "tools/nix"];
+        sourceDirs = ["src" "tests"];
+        headerDirs = ["include"];
+        headerIncludeFlags = ["-Iinclude"];
+      });
   };
 }
