@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   flake:
-    uses: voidptrr/ctools/.github/workflows/checks.yml@97684bedb31f1b35915016dfa0f716a42324c20a
+    uses: voidptrr/ctools/.github/workflows/checks.yml@c515d3e2f639cce88846a6927f57f2426d129c95
 
   docs:
     runs-on: ubuntu-latest
