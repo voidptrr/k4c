@@ -3,8 +3,7 @@
 ## Commands
 - Docs build: `scripts/docs-build`
 - Formatting: `scripts/format`
-- Format check: `scripts/format-check`
-- Code check: `scripts/code-check`
+- Checks: `nix flake check`
 
 ## Directory Structure
 - Core: `src/`

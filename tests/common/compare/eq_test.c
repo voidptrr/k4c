@@ -53,7 +53,8 @@ int main(void) {
     const char *sp1 = "hash";
     const char *sp2 = "hash";
     const char *sp3 = "map";
-    if (!ck_eq_cstr_ptr(&sp1, &sp2, 0) || ck_eq_cstr_ptr(&sp1, &sp3, 0)) {
+    if (!ck_eq_cstr_ptr((const void *)&sp1, (const void *)&sp2, 0) ||
+        ck_eq_cstr_ptr((const void *)&sp1, (const void *)&sp3, 0)) {
         fprintf(stderr, "ck_eq_cstr_ptr should compare pointed-to strings\n");
         return 1;
     }
