@@ -22,38 +22,25 @@
  * SOFTWARE.
  */
 
-#include <stdio.h>
 #include <string.h>
 
 #include "ckit/memory/allocators/general_heap.h"
+#include "ckit/testing.h"
 
 int main(void) {
-    int status = 0;
     ck_heap *heap = ck_heap_init(4096);
     char *ptr;
 
     ptr = (char *)ck_heap_realloc(heap, NULL, 32);
-    if (ptr == NULL) {
-        fprintf(stderr, "realloc with NULL should allocate\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_PTR_NOT_NULL(ptr);
 
     memcpy(ptr, "hello", 6);
     ptr = (char *)ck_heap_realloc(heap, ptr, 128);
-    if (ptr == NULL || memcmp(ptr, "hello", 6) != 0) {
-        fprintf(stderr, "realloc should preserve existing bytes\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_PTR_NOT_NULL(ptr);
+    CK_TEST_ASSERT_EQ(memcmp(ptr, "hello", 6), 0);
 
-    if (ck_heap_realloc(heap, ptr, 0) != NULL) {
-        fprintf(stderr, "realloc size 0 should return NULL\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_PTR_NULL(ck_heap_realloc(heap, ptr, 0));
 
-cleanup:
     ck_heap_deinit(heap);
-    return status;
+    return 0;
 }

@@ -22,12 +22,10 @@
  * SOFTWARE.
  */
 
-#include <stdio.h>
-
+#include "ckit/testing.h"
 #include "ckit/datastruct/vector.h"
 
 int main(void) {
-    int status = 0;
     ck_vector *v;
 
     v = ck_vector_init(sizeof(int), NULL);
@@ -37,13 +35,8 @@ int main(void) {
         ck_vector_push(v, &value);
     }
 
-    if (ck_vector_size(v) != 17) {
-        fprintf(stderr, "vector should store all pushed elements\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_EQ(ck_vector_size(v), 17);
 
-cleanup:
     ck_vector_deinit(v);
-    return status;
+    return 0;
 }

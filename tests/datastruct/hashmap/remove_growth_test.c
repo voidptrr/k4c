@@ -23,14 +23,14 @@
  */
 
 #include <stdint.h>
-#include <stdio.h>
 
+#include "ckit/testing.h"
 #include "ckit/compare.h"
 #include "ckit/datastruct/hashmap.h"
 
 int main(void) {
-    int status = 0;
     ck_hashmap *map;
+    uint64_t key = 128;
 
     map = ck_hashmap_init(sizeof(uint64_t), sizeof(uint64_t), ck_eq_u64, NULL);
 
@@ -39,23 +39,11 @@ int main(void) {
         ck_hashmap_put(map, &i, &value);
     }
 
-    if (ck_hashmap_size(map) != 256) {
-        fprintf(stderr, "hashmap size should match inserted count\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_EQ(ck_hashmap_size(map), 256);
 
-    {
-        uint64_t key = 128;
-        ck_hashmap_remove(map, &key);
-        if (ck_hashmap_get(map, &key) != NULL) {
-            fprintf(stderr, "removed key should not be found\n");
-            status = 1;
-            goto cleanup;
-        }
-    }
+    ck_hashmap_remove(map, &key);
+    CK_TEST_ASSERT_PTR_NULL(ck_hashmap_get(map, &key));
 
-cleanup:
     ck_hashmap_deinit(map);
-    return status;
+    return 0;
 }

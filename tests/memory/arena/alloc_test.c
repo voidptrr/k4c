@@ -23,38 +23,27 @@
  */
 
 #include <stdint.h>
-#include <stdio.h>
 
+#include "ckit/testing.h"
 #include "ckit/memory/allocators/arena.h"
 #include "memory/utils.h"
 
 int main(void) {
-    int status = 0;
     ck_arena *arena = ck_arena_init(128);
     void *first;
     void *second;
 
     first = ck_arena_alloc(arena, 8);
     second = ck_arena_alloc(arena, 8);
-    if (first == NULL || second == NULL || first == second) {
-        fprintf(stderr, "arena alloc should return distinct allocations\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_PTR_NOT_NULL(first);
+    CK_TEST_ASSERT_PTR_NOT_NULL(second);
+    CK_TEST_ASSERT_PTR_NE(first, second);
 
-    if (((uintptr_t)first % CK_MEMORY_ALIGN) != 0 || ((uintptr_t)second % CK_MEMORY_ALIGN) != 0) {
-        fprintf(stderr, "arena alloc should return aligned pointers\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_EQ((uintptr_t)first % CK_MEMORY_ALIGN, 0);
+    CK_TEST_ASSERT_EQ((uintptr_t)second % CK_MEMORY_ALIGN, 0);
 
-    if (ck_arena_alloc(arena, ck_arena_capacity(arena)) != NULL) {
-        fprintf(stderr, "arena alloc should return NULL when capacity is exceeded\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_PTR_NULL(ck_arena_alloc(arena, ck_arena_capacity(arena)));
 
-cleanup:
     ck_arena_deinit(arena);
-    return status;
+    return 0;
 }

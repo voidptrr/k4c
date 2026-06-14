@@ -23,13 +23,12 @@
  */
 
 #include <stdint.h>
-#include <stdio.h>
 
+#include "ckit/testing.h"
 #include "ckit/compare.h"
 #include "ckit/datastruct/hashset.h"
 
 int main(void) {
-    int status = 0;
     ck_hashset *set;
     const ck_hashset *const_set;
     uint64_t value = 42;
@@ -39,36 +38,21 @@ int main(void) {
 
     set = ck_hashset_init(sizeof(uint64_t), ck_eq_u64, NULL);
 
-    if (ck_hashset_get(set, &value) != NULL) {
-        fprintf(stderr, "missing element should return NULL\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_PTR_NULL(ck_hashset_get(set, &value));
 
     ck_hashset_insert(set, &value);
 
     found = (uint64_t *)ck_hashset_get(set, &value);
-    if (found == NULL || *found != value) {
-        fprintf(stderr, "get should return inserted element\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_PTR_NOT_NULL(found);
+    CK_TEST_ASSERT_EQ(*found, value);
 
     const_set = set;
     const_found = (const uint64_t *)ck_hashset_get_const(const_set, &value);
-    if (const_found == NULL || *const_found != value) {
-        fprintf(stderr, "get_const should return inserted element\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_PTR_NOT_NULL(const_found);
+    CK_TEST_ASSERT_EQ(*const_found, value);
 
-    if (ck_hashset_get(set, &missing) != NULL) {
-        fprintf(stderr, "get should return NULL for missing element\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_PTR_NULL(ck_hashset_get(set, &missing));
 
-cleanup:
     ck_hashset_deinit(set);
-    return status;
+    return 0;
 }

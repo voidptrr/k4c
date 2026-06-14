@@ -46,6 +46,7 @@ nav:
   - Overview: index.md
   - Utilities: reference/ckit-utils.md
   - Compare: reference/ckit-compare.md
+  - Testing: reference/ckit-testing.md
   - Memory:
       - Allocators:
           - Overview: reference/ckit-memory-allocators.md
