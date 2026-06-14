@@ -22,12 +22,12 @@
  * SOFTWARE.
  */
 
-#include <stdio.h>
+#include <stddef.h>
 
+#include "ckit/testing.h"
 #include "ckit/memory/allocators/general_heap.h"
 
 int main(void) {
-    int status = 0;
     ck_heap *heap = ck_heap_init(2048);
     size_t before;
     size_t after;
@@ -38,22 +38,14 @@ int main(void) {
 
     a = (int *)ck_heap_alloc(heap, sizeof(int));
     b = (int *)ck_heap_alloc(heap, sizeof(int));
-    if (a == NULL || b == NULL) {
-        fprintf(stderr, "heap alloc should return pointers\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_PTR_NOT_NULL(a);
+    CK_TEST_ASSERT_PTR_NOT_NULL(b);
 
     after = ck_heap_available(heap);
-    if (after >= before) {
-        fprintf(stderr, "available bytes should decrease after alloc\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT(after < before);
 
     ck_heap_dealloc(heap, a);
     ck_heap_dealloc(heap, b);
-cleanup:
     ck_heap_deinit(heap);
-    return status;
+    return 0;
 }

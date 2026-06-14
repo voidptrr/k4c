@@ -22,8 +22,7 @@
  * SOFTWARE.
  */
 
-#include <stdio.h>
-
+#include "ckit/testing.h"
 #include "ckit/datastruct/linked_list.h"
 #include "ckit/utils.h"
 
@@ -33,7 +32,6 @@ typedef struct test_item {
 } test_item;
 
 int main(void) {
-    int status = 0;
     ck_linked_list *list;
     test_item first = {.value = 7};
     test_item second = {.value = 11};
@@ -44,21 +42,15 @@ int main(void) {
 
     ck_linked_list_node *out_first_node = ck_linked_list_popleft(list);
     ck_linked_list_node *out_second_node = ck_linked_list_popleft(list);
-    if (out_first_node == NULL || out_second_node == NULL || ck_linked_list_size(list) != 0) {
-        fprintf(stderr, "push should return two nodes\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_PTR_NOT_NULL(out_first_node);
+    CK_TEST_ASSERT_PTR_NOT_NULL(out_second_node);
+    CK_TEST_ASSERT_EQ(ck_linked_list_size(list), 0);
 
     test_item *out_first = CK_CONTAINER_OF(out_first_node, test_item, node);
     test_item *out_second = CK_CONTAINER_OF(out_second_node, test_item, node);
-    if (out_first->value != first.value || out_second->value != second.value) {
-        fprintf(stderr, "push should append and preserve order\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_EQ(out_first->value, first.value);
+    CK_TEST_ASSERT_EQ(out_second->value, second.value);
 
-cleanup:
     ck_linked_list_deinit(list);
-    return status;
+    return 0;
 }

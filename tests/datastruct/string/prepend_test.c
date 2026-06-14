@@ -22,30 +22,18 @@
  * SOFTWARE.
  */
 
-#include <stdio.h>
-#include <string.h>
-
 #include "ckit/datastruct/string.h"
+#include "ckit/testing.h"
 
 int main(void) {
-    int status = 0;
     ck_string value = ck_string_init("world", NULL);
 
     ck_string_prepend(&value, "hello ");
-    if (strcmp(value, "hello world") != 0) {
-        fprintf(stderr, "prepend should add prefix before existing string\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_STR_EQ(value, "hello world");
 
     ck_string_prepend(&value, "");
-    if (strcmp(value, "hello world") != 0) {
-        fprintf(stderr, "empty prepend should not change string\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_STR_EQ(value, "hello world");
 
-cleanup:
     ck_string_deinit(value);
-    return status;
+    return 0;
 }

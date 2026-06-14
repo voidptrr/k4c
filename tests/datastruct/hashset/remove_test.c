@@ -22,14 +22,13 @@
  * SOFTWARE.
  */
 
-#include <stdio.h>
 #include <stdint.h>
 
+#include "ckit/testing.h"
 #include "ckit/compare.h"
 #include "ckit/datastruct/hashset.h"
 
 int main(void) {
-    int status = 0;
     ck_hashset *set;
 
     set = ck_hashset_init(sizeof(uint64_t), ck_eq_u64, NULL);
@@ -40,31 +39,20 @@ int main(void) {
 
     uint64_t removed = 42;
     ck_hashset_remove(set, &removed);
-    if (ck_hashset_contains(set, &removed) || ck_hashset_size(set) != 255) {
-        fprintf(stderr, "hashset remove should delete existing value\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT(!ck_hashset_contains(set, &removed));
+    CK_TEST_ASSERT_EQ(ck_hashset_size(set), 255);
 
     ck_hashset_remove(set, &removed);
-    if (ck_hashset_size(set) != 255) {
-        fprintf(stderr, "hashset remove should ignore missing value\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_EQ(ck_hashset_size(set), 255);
 
     uint64_t first = 0;
     uint64_t last = 255;
     ck_hashset_remove(set, &first);
     ck_hashset_remove(set, &last);
-    if (ck_hashset_contains(set, &first) || ck_hashset_contains(set, &last) ||
-        ck_hashset_size(set) != 253) {
-        fprintf(stderr, "hashset remove should handle bucket head and chain nodes\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT(!ck_hashset_contains(set, &first));
+    CK_TEST_ASSERT(!ck_hashset_contains(set, &last));
+    CK_TEST_ASSERT_EQ(ck_hashset_size(set), 253);
 
-cleanup:
     ck_hashset_deinit(set);
-    return status;
+    return 0;
 }

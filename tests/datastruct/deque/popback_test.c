@@ -22,12 +22,10 @@
  * SOFTWARE.
  */
 
-#include <stdio.h>
-
+#include "ckit/testing.h"
 #include "ckit/datastruct/deque.h"
 
 int main(void) {
-    int status = 0;
     ck_deque *q;
     int first = 1;
     int second = 2;
@@ -38,13 +36,9 @@ int main(void) {
     ck_deque_push(q, &second);
 
     out = (int *)ck_deque_popback(q);
-    if (out == NULL || *out != second) {
-        fprintf(stderr, "popback should remove back element\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_PTR_NOT_NULL(out);
+    CK_TEST_ASSERT_EQ(*out, second);
 
-cleanup:
     ck_deque_deinit(q);
-    return status;
+    return 0;
 }

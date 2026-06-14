@@ -22,8 +22,9 @@
  * SOFTWARE.
  */
 
-#include <stdio.h>
+#include <stddef.h>
 
+#include "ckit/testing.h"
 #include "ckit/datastruct/binary_heap.h"
 
 static int cmp_int_asc(const void *a, const void *b) {
@@ -33,7 +34,6 @@ static int cmp_int_asc(const void *a, const void *b) {
 }
 
 int main(void) {
-    int status = 0;
     ck_binary_heap *heap;
     int values[] = {5, 2, 8, 1};
     const int *top;
@@ -44,13 +44,10 @@ int main(void) {
     }
 
     top = (const int *)ck_binary_heap_peek(heap);
-    if (top == NULL || *top != 1 || ck_binary_heap_size(heap) != 4) {
-        fprintf(stderr, "push should maintain heap invariant\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_PTR_NOT_NULL(top);
+    CK_TEST_ASSERT_EQ(*top, 1);
+    CK_TEST_ASSERT_EQ(ck_binary_heap_size(heap), 4);
 
-cleanup:
     ck_binary_heap_deinit(heap);
-    return status;
+    return 0;
 }

@@ -22,8 +22,7 @@
  * SOFTWARE.
  */
 
-#include <stdio.h>
-
+#include "ckit/testing.h"
 #include "ckit/datastruct/linked_list.h"
 
 typedef struct test_item {
@@ -32,25 +31,15 @@ typedef struct test_item {
 } test_item;
 
 int main(void) {
-    int status = 0;
     ck_linked_list *list;
     test_item first = {.value = 1};
 
     list = ck_linked_list_init(NULL);
-    if (ck_linked_list_head(list) != NULL) {
-        fprintf(stderr, "empty list head should be null\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_PTR_NULL(ck_linked_list_head(list));
 
     ck_linked_list_push(list, &first.node);
-    if (ck_linked_list_head(list) != &first.node) {
-        fprintf(stderr, "list head should return first node\n");
-        status = 1;
-        goto cleanup;
-    }
+    CK_TEST_ASSERT_PTR_EQ(ck_linked_list_head(list), &first.node);
 
-cleanup:
     ck_linked_list_deinit(list);
-    return status;
+    return 0;
 }
