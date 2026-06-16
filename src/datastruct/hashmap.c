@@ -64,24 +64,35 @@ static void *ck_hashmap_entry_value(const ck_hashmap *map, ck_hashmap_entry *ent
     return entry->data + value_offset;
 }
 
-static const void *ck_hashmap_entry_value_const(const ck_hashmap *map,
-                                                const ck_hashmap_entry *entry) {
+static const void *ck_hashmap_entry_value_const(
+    const ck_hashmap *map,
+    const ck_hashmap_entry *entry
+) {
     size_t value_offset = ck_align_up(map->key_size, CK_MEMORY_ALIGN);
     return entry->data + value_offset;
 }
 
 static ck_hashmap_entry *ck_hashmap_entry_get(const ck_hashmap *map, const void *key) {
     size_t bucket = ck_hash_common_bucket_index(key, map->key_size, map->capacity);
-    ck_linked_list_node *node = ck_hash_common_bucket_find(map->buckets[bucket], key, map->key_size,
-                                                           map->key_eq, ck_hashmap_entry_key);
+    ck_linked_list_node *node = ck_hash_common_bucket_find(
+        map->buckets[bucket],
+        key,
+        map->key_size,
+        map->key_eq,
+        ck_hashmap_entry_key
+    );
     if (node != NULL) {
         return CK_CONTAINER_OF(node, ck_hashmap_entry, node);
     }
     return NULL;
 }
 
-ck_hashmap *ck_hashmap_create(size_t key_size, size_t value_size, ck_hashmap_key_eq_fn key_eq,
-                              ck_allocator *allocator) {
+ck_hashmap *ck_hashmap_create(
+    size_t key_size,
+    size_t value_size,
+    ck_hashmap_key_eq_fn key_eq,
+    ck_allocator *allocator
+) {
     CK_ASSERT(key_eq != NULL, "fatal: ck_hashmap_create invalid arguments");
     CK_ASSERT(key_size > 0, "fatal: ck_hashmap_create invalid arguments");
     CK_ASSERT(value_size > 0, "fatal: ck_hashmap_create invalid arguments");
@@ -106,8 +117,13 @@ void ck_hashmap_put(ck_hashmap *map, const void *key, const void *value) {
 
     ck_allocator *allocator = map->allocator;
     size_t bucket = ck_hash_common_bucket_index(key, map->key_size, map->capacity);
-    ck_linked_list_node *node = ck_hash_common_bucket_find(map->buckets[bucket], key, map->key_size,
-                                                           map->key_eq, ck_hashmap_entry_key);
+    ck_linked_list_node *node = ck_hash_common_bucket_find(
+        map->buckets[bucket],
+        key,
+        map->key_size,
+        map->key_eq,
+        ck_hashmap_entry_key
+    );
     if (node != NULL) {
         ck_hashmap_entry *entry = CK_CONTAINER_OF(node, ck_hashmap_entry, node);
         memcpy(ck_hashmap_entry_value(map, entry), value, map->value_size);
@@ -116,9 +132,14 @@ void ck_hashmap_put(ck_hashmap *map, const void *key, const void *value) {
 
     if (ck_hash_common_should_grow(map->size, map->capacity)) {
         size_t new_capacity = map->capacity * 2;
-        map->buckets =
-            ck_hash_common_buckets_rehash(map->buckets, map->capacity, new_capacity, map->key_size,
-                                          allocator, ck_hashmap_entry_key);
+        map->buckets = ck_hash_common_buckets_rehash(
+            map->buckets,
+            map->capacity,
+            new_capacity,
+            map->key_size,
+            allocator,
+            ck_hashmap_entry_key
+        );
         map->capacity = new_capacity;
         bucket = ck_hash_common_bucket_index(key, map->key_size, map->capacity);
     }
@@ -163,7 +184,12 @@ void ck_hashmap_remove(ck_hashmap *map, const void *key) {
     ck_allocator *allocator = map->allocator;
     size_t bucket = ck_hash_common_bucket_index(key, map->key_size, map->capacity);
     ck_linked_list_node *node = ck_hash_common_bucket_remove(
-        map->buckets[bucket], key, map->key_size, map->key_eq, ck_hashmap_entry_key);
+        map->buckets[bucket],
+        key,
+        map->key_size,
+        map->key_eq,
+        ck_hashmap_entry_key
+    );
     if (node != NULL) {
         ck_hashmap_entry *entry = CK_CONTAINER_OF(node, ck_hashmap_entry, node);
         ck_dealloc(allocator, entry);
@@ -181,7 +207,11 @@ void ck_hashmap_destroy(ck_hashmap *map) {
     CK_ASSERT(map != NULL, "fatal: ck_hashmap_destroy invalid arguments");
 
     ck_allocator *allocator = map->allocator;
-    ck_hash_common_buckets_destroy(map->buckets, map->capacity, allocator,
-                                   ck_hashmap_entry_destroy);
+    ck_hash_common_buckets_destroy(
+        map->buckets,
+        map->capacity,
+        allocator,
+        ck_hashmap_entry_destroy
+    );
     ck_dealloc(allocator, map);
 }

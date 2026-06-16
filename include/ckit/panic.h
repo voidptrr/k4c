@@ -27,11 +27,11 @@
 
 _Noreturn void ck_panic(const char *message);
 
-#define CK_ASSERT(cond, message)                                                                   \
-    do {                                                                                           \
-        if (!(cond)) {                                                                             \
-            ck_panic(message);                                                                     \
-        }                                                                                          \
+#define CK_ASSERT(cond, message) \
+    do { \
+        if (!(cond)) { \
+            ck_panic(message); \
+        } \
     } while (0)
 
 #endif

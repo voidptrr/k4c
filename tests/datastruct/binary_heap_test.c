@@ -22,10 +22,11 @@
  * SOFTWARE.
  */
 
-#include "ckit/testing.h"
-#include "ckit/memory/allocators/test_allocator.h"
-#include "ckit/datastruct/binary_heap.h"
 #include <stddef.h>
+
+#include "ckit/datastruct/binary_heap.h"
+#include "ckit/memory/allocators/test_allocator.h"
+#include "ckit/testing.h"
 
 static int cmp_int_asc(const void *a, const void *b) {
     int lhs = *(const int *)a;

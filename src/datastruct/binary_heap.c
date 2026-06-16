@@ -84,8 +84,11 @@ static void ck_binary_heap_sift_down(ck_binary_heap *heap, size_t idx) {
     }
 }
 
-ck_binary_heap *ck_binary_heap_create(size_t elem_size, ck_heap_cmp_fn cmp,
-                                      ck_allocator *allocator) {
+ck_binary_heap *ck_binary_heap_create(
+    size_t elem_size,
+    ck_heap_cmp_fn cmp,
+    ck_allocator *allocator
+) {
     CK_ASSERT(cmp != NULL, "fatal: ck_binary_heap_create invalid arguments");
     CK_ASSERT(elem_size > 0, "fatal: ck_binary_heap_create invalid arguments");
 

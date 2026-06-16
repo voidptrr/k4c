@@ -22,10 +22,10 @@
  * SOFTWARE.
  */
 
-#include "ckit/testing.h"
-#include "ckit/memory/allocators/test_allocator.h"
 #include "ckit/datastruct/linked_list.h"
+#include "ckit/memory/allocators/test_allocator.h"
 #include "ckit/memory/utils.h"
+#include "ckit/testing.h"
 
 typedef struct test_item {
     int value;
@@ -178,5 +178,11 @@ CK_TEST(remove_after) {
     return 0;
 }
 
-CK_TEST_MAIN(CK_TEST_CASE(head), CK_TEST_CASE(init), CK_TEST_CASE(popleft), CK_TEST_CASE(push),
-             CK_TEST_CASE(pushfront), CK_TEST_CASE(remove_after))
+CK_TEST_MAIN(
+    CK_TEST_CASE(head),
+    CK_TEST_CASE(init),
+    CK_TEST_CASE(popleft),
+    CK_TEST_CASE(push),
+    CK_TEST_CASE(pushfront),
+    CK_TEST_CASE(remove_after)
+)

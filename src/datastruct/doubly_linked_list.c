@@ -62,8 +62,10 @@ void ck_doubly_linked_list_push(ck_doubly_linked_list *list, ck_doubly_linked_li
     list->size += 1;
 }
 
-void ck_doubly_linked_list_pushfront(ck_doubly_linked_list *list,
-                                     ck_doubly_linked_list_node *node) {
+void ck_doubly_linked_list_pushfront(
+    ck_doubly_linked_list *list,
+    ck_doubly_linked_list_node *node
+) {
     CK_ASSERT(list != NULL, "fatal: ck_doubly_linked_list_pushfront invalid arguments");
     CK_ASSERT(node != NULL, "fatal: ck_doubly_linked_list_pushfront invalid arguments");
 
@@ -80,9 +82,11 @@ void ck_doubly_linked_list_pushfront(ck_doubly_linked_list *list,
     list->size += 1;
 }
 
-void ck_doubly_linked_list_insert_after(ck_doubly_linked_list *list,
-                                        ck_doubly_linked_list_node *after,
-                                        ck_doubly_linked_list_node *node) {
+void ck_doubly_linked_list_insert_after(
+    ck_doubly_linked_list *list,
+    ck_doubly_linked_list_node *after,
+    ck_doubly_linked_list_node *node
+) {
     CK_ASSERT(list != NULL, "fatal: ck_doubly_linked_list_insert_after invalid arguments");
     CK_ASSERT(node != NULL, "fatal: ck_doubly_linked_list_insert_after invalid arguments");
 

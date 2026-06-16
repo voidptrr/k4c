@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "ckit/datastruct/string.h"
@@ -177,11 +177,9 @@ size_t ck_string_len(const ck_string string) {
 }
 
 void ck_string_destroy(ck_string string) {
-    ck_string_header *header = ck_string_header_from_buf(string);
-    if (header == NULL) {
-        return;
-    }
+    CK_ASSERT(string != NULL, "fatal: ck_string_destroy invalid arguments");
 
+    ck_string_header *header = ck_string_header_from_buf(string);
     ck_allocator *allocator = header->allocator;
     ck_dealloc(allocator, header);
 }

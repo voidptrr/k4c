@@ -62,8 +62,11 @@ typedef struct ck_hashset ck_hashset;
  * Hashing uses the internal FNV-1a implementation.
  * Initial capacity is implementation-defined.
  */
-ck_hashset *ck_hashset_create(size_t elem_size, ck_hashset_elem_eq_fn elem_eq,
-                              ck_allocator *allocator);
+ck_hashset *ck_hashset_create(
+    size_t elem_size,
+    ck_hashset_elem_eq_fn elem_eq,
+    ck_allocator *allocator
+);
 
 /*
  * Insert element when it is not already present.

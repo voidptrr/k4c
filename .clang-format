@@ -1,15 +1,64 @@
 Language: Cpp
 BasedOnStyle: LLVM
+
 IndentWidth: 4
 ContinuationIndentWidth: 4
 TabWidth: 4
 UseTab: Never
+LineEnding: LF
+InsertNewlineAtEOF: true
 ColumnLimit: 100
+
 BreakBeforeBraces: Attach
+BraceWrapping:
+  AfterFunction: false
+  BeforeElse: false
+  BeforeWhile: false
+
+AlignAfterOpenBracket: BlockIndent
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignEscapedNewlines: DontAlign
+AlignOperands: Align
+AlignTrailingComments:
+  Kind: Never
+
+BinPackArguments: false
+BinPackParameters: OnePerLine
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeTernaryOperators: true
+BreakStringLiterals: true
+PenaltyReturnTypeOnItsOwnLine: 1000000
+
 AllowShortFunctionsOnASingleLine: Empty
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
+
+DerivePointerAlignment: false
 PointerAlignment: Right
+SpaceAroundPointerQualifiers: Default
+SpaceAfterCStyleCast: false
+
 SpaceBeforeParens: ControlStatements
-SortIncludes: false
+
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^<'
+    Priority: 1
+  - Regex: '^"'
+    Priority: 2
+IncludeIsMainRegex: '$^'
+SortIncludes:
+  Enabled: true
+  IgnoreCase: false
+
 IndentCaseLabels: true
+IndentCaseBlocks: false
+IndentGotoLabels: true
+IndentPPDirectives: None
+MaxEmptyLinesToKeep: 1

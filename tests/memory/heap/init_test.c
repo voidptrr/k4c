@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#include "ckit/testing.h"
 #include "ckit/memory/allocators/general_heap.h"
+#include "ckit/testing.h"
 
 int main(void) {
     ck_heap *heap = ck_heap_create(1024);

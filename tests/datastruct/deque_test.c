@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
-#include "ckit/testing.h"
-#include "ckit/memory/allocators/test_allocator.h"
 #include "ckit/datastruct/deque.h"
+#include "ckit/memory/allocators/test_allocator.h"
+#include "ckit/testing.h"
 
 CK_TEST(init) {
     ck_test_allocator test_allocator;
@@ -163,6 +163,12 @@ CK_TEST(pushfront) {
     return 0;
 }
 
-CK_TEST_MAIN(CK_TEST_CASE(init), CK_TEST_CASE(peekback), CK_TEST_CASE(peekleft),
-             CK_TEST_CASE(popback), CK_TEST_CASE(popleft), CK_TEST_CASE(push),
-             CK_TEST_CASE(pushfront))
+CK_TEST_MAIN(
+    CK_TEST_CASE(init),
+    CK_TEST_CASE(peekback),
+    CK_TEST_CASE(peekleft),
+    CK_TEST_CASE(popback),
+    CK_TEST_CASE(popleft),
+    CK_TEST_CASE(push),
+    CK_TEST_CASE(pushfront)
+)

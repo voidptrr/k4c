@@ -75,8 +75,8 @@ void *ck_arena_alloc(ck_arena *arena, size_t size) {
 
     size = ck_align_up(size, CK_MEMORY_ALIGN);
     size_t header_size = ck_align_up(sizeof(ck_arena_alloc_header), CK_MEMORY_ALIGN);
-    if (size > arena->capacity || header_size > arena->capacity - size ||
-        arena->offset > arena->capacity - header_size - size) {
+    if (size > arena->capacity || header_size > arena->capacity - size
+        || arena->offset > arena->capacity - header_size - size) {
         return NULL;
     }
 

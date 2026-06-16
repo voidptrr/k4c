@@ -62,8 +62,12 @@ typedef struct ck_hashmap ck_hashmap;
  * Hashing uses the internal FNV-1a implementation.
  * Initial capacity is implementation-defined.
  */
-ck_hashmap *ck_hashmap_create(size_t key_size, size_t value_size, ck_hashmap_key_eq_fn key_eq,
-                              ck_allocator *allocator);
+ck_hashmap *ck_hashmap_create(
+    size_t key_size,
+    size_t value_size,
+    ck_hashmap_key_eq_fn key_eq,
+    ck_allocator *allocator
+);
 
 /*
  * Insert or update an entry.

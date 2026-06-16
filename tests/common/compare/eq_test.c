@@ -25,8 +25,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "ckit/testing.h"
 #include "ckit/compare.h"
+#include "ckit/testing.h"
 
 int main(void) {
     uint8_t a[] = {1, 2, 3};

@@ -37,76 +37,88 @@ typedef struct ck_test_case {
 
 #define CK_TEST(name) static int ck_test_case_##name(void)
 #define CK_TEST_CASE(name) {#name, ck_test_case_##name}
-#define CK_TEST_MAIN(...)                                                                          \
-    int main(void) {                                                                               \
-        static const ck_test_case ck_test_cases[] = {__VA_ARGS__};                                 \
-        return ck_test_run(ck_test_cases, sizeof(ck_test_cases) / sizeof(ck_test_cases[0]));       \
+#define CK_TEST_MAIN(...) \
+    int main(void) { \
+        static const ck_test_case ck_test_cases[] = {__VA_ARGS__}; \
+        return ck_test_run(ck_test_cases, sizeof(ck_test_cases) / sizeof(ck_test_cases[0])); \
     }
 
-#define CK_TEST_ASSERT(condition)                                                                  \
-    do {                                                                                           \
-        if (!(condition)) {                                                                        \
-            return ck_test_fail(__FILE__, __LINE__, #condition, NULL);                             \
-        }                                                                                          \
+#define CK_TEST_ASSERT(condition) \
+    do { \
+        if (!(condition)) { \
+            return ck_test_fail(__FILE__, __LINE__, #condition, NULL); \
+        } \
     } while (0)
 
-#define CK_TEST_ASSERT_MSG(condition, message)                                                     \
-    do {                                                                                           \
-        if (!(condition)) {                                                                        \
-            return ck_test_fail(__FILE__, __LINE__, #condition, message);                          \
-        }                                                                                          \
+#define CK_TEST_ASSERT_MSG(condition, message) \
+    do { \
+        if (!(condition)) { \
+            return ck_test_fail(__FILE__, __LINE__, #condition, message); \
+        } \
     } while (0)
 
-#define CK_TEST_ASSERT_EQ(actual, expected)                                                        \
-    do {                                                                                           \
-        if ((actual) != (expected)) {                                                              \
-            return ck_test_fail_eq(__FILE__, __LINE__, #actual, #expected);                        \
-        }                                                                                          \
+#define CK_TEST_ASSERT_EQ(actual, expected) \
+    do { \
+        if ((actual) != (expected)) { \
+            return ck_test_fail_eq(__FILE__, __LINE__, #actual, #expected); \
+        } \
     } while (0)
 
-#define CK_TEST_ASSERT_PTR_NULL(ptr)                                                               \
-    do {                                                                                           \
-        const void *ck_test_ptr = (ptr);                                                           \
-        if (ck_test_ptr != NULL) {                                                                 \
-            return ck_test_fail_ptr_null(__FILE__, __LINE__, #ptr, ck_test_ptr);                   \
-        }                                                                                          \
+#define CK_TEST_ASSERT_PTR_NULL(ptr) \
+    do { \
+        const void *ck_test_ptr = (ptr); \
+        if (ck_test_ptr != NULL) { \
+            return ck_test_fail_ptr_null(__FILE__, __LINE__, #ptr, ck_test_ptr); \
+        } \
     } while (0)
 
-#define CK_TEST_ASSERT_PTR_NOT_NULL(ptr)                                                           \
-    do {                                                                                           \
-        const void *ck_test_ptr = (ptr);                                                           \
-        if (ck_test_ptr == NULL) {                                                                 \
-            return ck_test_fail(__FILE__, __LINE__, #ptr " != NULL", NULL);                        \
-        }                                                                                          \
+#define CK_TEST_ASSERT_PTR_NOT_NULL(ptr) \
+    do { \
+        const void *ck_test_ptr = (ptr); \
+        if (ck_test_ptr == NULL) { \
+            return ck_test_fail(__FILE__, __LINE__, #ptr " != NULL", NULL); \
+        } \
     } while (0)
 
-#define CK_TEST_ASSERT_PTR_EQ(actual, expected)                                                    \
-    do {                                                                                           \
-        const void *ck_test_actual = (actual);                                                     \
-        const void *ck_test_expected = (expected);                                                 \
-        if (ck_test_actual != ck_test_expected) {                                                  \
-            return ck_test_fail_ptr_eq(__FILE__, __LINE__, #actual, #expected, ck_test_actual,     \
-                                       ck_test_expected);                                          \
-        }                                                                                          \
+#define CK_TEST_ASSERT_PTR_EQ(actual, expected) \
+    do { \
+        const void *ck_test_actual = (actual); \
+        const void *ck_test_expected = (expected); \
+        if (ck_test_actual != ck_test_expected) { \
+            return ck_test_fail_ptr_eq( \
+                __FILE__, \
+                __LINE__, \
+                #actual, \
+                #expected, \
+                ck_test_actual, \
+                ck_test_expected \
+            ); \
+        } \
     } while (0)
 
-#define CK_TEST_ASSERT_PTR_NE(actual, expected)                                                    \
-    do {                                                                                           \
-        const void *ck_test_actual = (actual);                                                     \
-        const void *ck_test_expected = (expected);                                                 \
-        if (ck_test_actual == ck_test_expected) {                                                  \
-            return ck_test_fail(__FILE__, __LINE__, #actual " != " #expected, NULL);               \
-        }                                                                                          \
+#define CK_TEST_ASSERT_PTR_NE(actual, expected) \
+    do { \
+        const void *ck_test_actual = (actual); \
+        const void *ck_test_expected = (expected); \
+        if (ck_test_actual == ck_test_expected) { \
+            return ck_test_fail(__FILE__, __LINE__, #actual " != " #expected, NULL); \
+        } \
     } while (0)
 
-#define CK_TEST_ASSERT_STR_EQ(actual, expected)                                                    \
-    do {                                                                                           \
-        const char *ck_test_actual = (actual);                                                     \
-        const char *ck_test_expected = (expected);                                                 \
-        if (!ck_test_str_eq(ck_test_actual, ck_test_expected)) {                                   \
-            return ck_test_fail_str_eq(__FILE__, __LINE__, #actual, #expected, ck_test_actual,     \
-                                       ck_test_expected);                                          \
-        }                                                                                          \
+#define CK_TEST_ASSERT_STR_EQ(actual, expected) \
+    do { \
+        const char *ck_test_actual = (actual); \
+        const char *ck_test_expected = (expected); \
+        if (!ck_test_str_eq(ck_test_actual, ck_test_expected)) { \
+            return ck_test_fail_str_eq( \
+                __FILE__, \
+                __LINE__, \
+                #actual, \
+                #expected, \
+                ck_test_actual, \
+                ck_test_expected \
+            ); \
+        } \
     } while (0)
 
 /* Print an assertion failure and return 1 for direct use from test main. */
@@ -119,12 +131,24 @@ int ck_test_fail_eq(const char *file, int line, const char *actual_expr, const c
 int ck_test_fail_ptr_null(const char *file, int line, const char *expr, const void *ptr);
 
 /* Print a pointer equality assertion failure and return 1 for direct use from test main. */
-int ck_test_fail_ptr_eq(const char *file, int line, const char *actual_expr,
-                        const char *expected_expr, const void *actual, const void *expected);
+int ck_test_fail_ptr_eq(
+    const char *file,
+    int line,
+    const char *actual_expr,
+    const char *expected_expr,
+    const void *actual,
+    const void *expected
+);
 
 /* Print a string equality assertion failure and return 1 for direct use from test main. */
-int ck_test_fail_str_eq(const char *file, int line, const char *actual_expr,
-                        const char *expected_expr, const char *actual, const char *expected);
+int ck_test_fail_str_eq(
+    const char *file,
+    int line,
+    const char *actual_expr,
+    const char *expected_expr,
+    const char *actual,
+    const char *expected
+);
 
 /* Return whether two C strings are equal, treating two NULL pointers as equal. */
 bool ck_test_str_eq(const char *actual, const char *expected);

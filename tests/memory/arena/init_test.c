@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
-#include "ckit/testing.h"
-#include "ckit/memory/allocators/arena.h"
 #include "ckit/memory/allocators/allocator.h"
+#include "ckit/memory/allocators/arena.h"
+#include "ckit/testing.h"
 
 int main(void) {
     ck_arena *arena = ck_arena_create(128);
@@ -34,8 +34,9 @@ int main(void) {
     CK_TEST_ASSERT(allocator.alloc != NULL);
     CK_TEST_ASSERT(allocator.realloc != NULL);
     CK_TEST_ASSERT(allocator.dealloc == NULL);
-    CK_TEST_ASSERT(allocator.features ==
-                   (CK_ALLOCATOR_FEATURE_REALLOC | CK_ALLOCATOR_FEATURE_RESET));
+    CK_TEST_ASSERT(
+        allocator.features == (CK_ALLOCATOR_FEATURE_REALLOC | CK_ALLOCATOR_FEATURE_RESET)
+    );
 
     CK_TEST_ASSERT(ck_arena_capacity(arena) >= 128);
     CK_TEST_ASSERT_EQ(ck_arena_used(arena), 0);
