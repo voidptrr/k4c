@@ -29,31 +29,24 @@ concurrency:
 
 jobs:
   build:
-    name: build docs
     runs-on: ubuntu-latest
 
     steps:
-      - name: checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
-      - name: install nix
-        uses: DeterminateSystems/nix-installer-action@ef8a148080ab6020fd15196c2084a2eea5ff2d25 # v22
+      - uses: DeterminateSystems/nix-installer-action@ef8a148080ab6020fd15196c2084a2eea5ff2d25 # v22
 
-      - name: build docs
-        run: nix develop -c scripts/docs-build
+      - run: nix develop -c scripts/docs-build
 
-      - name: setup pages
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
 
-      - name: upload artifact
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
           path: docs/site
 
   deploy:
-    name: deploy docs
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment:
       name: github-pages
@@ -62,6 +55,5 @@ jobs:
     needs: build
 
     steps:
-      - name: deploy to github pages
-        id: deployment
+      - id: deployment
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5
