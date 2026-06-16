@@ -23,10 +23,11 @@
  */
 
 #include <stdint.h>
+
 #include "ckit/compare.h"
 #include "ckit/datastruct/hashset.h"
-#include "ckit/testing.h"
 #include "ckit/memory/allocators/test_allocator.h"
+#include "ckit/testing.h"
 
 CK_TEST(allocator) {
     ck_test_allocator test_allocator;
@@ -177,5 +178,11 @@ CK_TEST(remove) {
     return 0;
 }
 
-CK_TEST_MAIN(CK_TEST_CASE(allocator), CK_TEST_CASE(contains), CK_TEST_CASE(get), CK_TEST_CASE(init),
-             CK_TEST_CASE(insert), CK_TEST_CASE(remove))
+CK_TEST_MAIN(
+    CK_TEST_CASE(allocator),
+    CK_TEST_CASE(contains),
+    CK_TEST_CASE(get),
+    CK_TEST_CASE(init),
+    CK_TEST_CASE(insert),
+    CK_TEST_CASE(remove)
+)

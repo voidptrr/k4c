@@ -25,9 +25,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "ckit/testing.h"
 #include "ckit/memory/allocators/arena.h"
 #include "ckit/memory/utils.h"
+#include "ckit/testing.h"
 
 int main(void) {
     ck_arena *arena = ck_arena_create(256);

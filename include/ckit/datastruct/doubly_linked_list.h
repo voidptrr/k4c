@@ -69,9 +69,11 @@ void ck_doubly_linked_list_push(ck_doubly_linked_list *list, ck_doubly_linked_li
 void ck_doubly_linked_list_pushfront(ck_doubly_linked_list *list, ck_doubly_linked_list_node *node);
 
 /* Insert node after an existing node, or at the front when after is NULL. */
-void ck_doubly_linked_list_insert_after(ck_doubly_linked_list *list,
-                                        ck_doubly_linked_list_node *after,
-                                        ck_doubly_linked_list_node *node);
+void ck_doubly_linked_list_insert_after(
+    ck_doubly_linked_list *list,
+    ck_doubly_linked_list_node *after,
+    ck_doubly_linked_list_node *node
+);
 
 /* Remove and return the head node, or NULL when empty. */
 ck_doubly_linked_list_node *ck_doubly_linked_list_popleft(ck_doubly_linked_list *list);

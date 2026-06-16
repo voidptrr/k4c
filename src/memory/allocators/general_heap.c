@@ -106,8 +106,10 @@ ck_heap *ck_heap_create(size_t capacity) {
     ck_heap *heap;
 
     capacity = ck_align_up(capacity, CK_MEMORY_ALIGN);
-    CK_ASSERT(capacity > sizeof(ck_heap_block) + CK_MEMORY_ALIGN,
-              "fatal: ck_heap_create invalid capacity");
+    CK_ASSERT(
+        capacity > sizeof(ck_heap_block) + CK_MEMORY_ALIGN,
+        "fatal: ck_heap_create invalid capacity"
+    );
 
     heap = ck_malloc(NULL, sizeof(ck_heap));
     heap->buffer = ck_malloc(NULL, capacity);
@@ -197,8 +199,8 @@ void *ck_heap_realloc(ck_heap *heap, void *ptr, size_t size) {
     }
 
     ck_heap_block *next = ck_heap_next(block);
-    if (next != NULL && next->is_free &&
-        (block->size + sizeof(ck_heap_block) + next->size) >= size) {
+    if (next != NULL && next->is_free
+        && (block->size + sizeof(ck_heap_block) + next->size) >= size) {
         block->size += sizeof(ck_heap_block) + next->size;
         ck_doubly_linked_list_remove(heap->blocks, &next->node);
         ck_heap_split_block(heap, block, size);

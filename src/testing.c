@@ -37,8 +37,12 @@ int ck_test_fail(const char *file, int line, const char *condition, const char *
     return 1;
 }
 
-int ck_test_fail_eq(const char *file, int line, const char *actual_expr,
-                    const char *expected_expr) {
+int ck_test_fail_eq(
+    const char *file,
+    int line,
+    const char *actual_expr,
+    const char *expected_expr
+) {
     fprintf(stderr, "%s:%d: assertion failed: %s == %s\n", file, line, actual_expr, expected_expr);
     return 1;
 }
@@ -48,18 +52,45 @@ int ck_test_fail_ptr_null(const char *file, int line, const char *expr, const vo
     return 1;
 }
 
-int ck_test_fail_ptr_eq(const char *file, int line, const char *actual_expr,
-                        const char *expected_expr, const void *actual, const void *expected) {
-    fprintf(stderr, "%s:%d: assertion failed: %s == %s (actual %p, expected %p)\n", file, line,
-            actual_expr, expected_expr, actual, expected);
+int ck_test_fail_ptr_eq(
+    const char *file,
+    int line,
+    const char *actual_expr,
+    const char *expected_expr,
+    const void *actual,
+    const void *expected
+) {
+    fprintf(
+        stderr,
+        "%s:%d: assertion failed: %s == %s (actual %p, expected %p)\n",
+        file,
+        line,
+        actual_expr,
+        expected_expr,
+        actual,
+        expected
+    );
     return 1;
 }
 
-int ck_test_fail_str_eq(const char *file, int line, const char *actual_expr,
-                        const char *expected_expr, const char *actual, const char *expected) {
-    fprintf(stderr, "%s:%d: assertion failed: %s == %s (actual \"%s\", expected \"%s\")\n", file,
-            line, actual_expr, expected_expr, actual == NULL ? "(null)" : actual,
-            expected == NULL ? "(null)" : expected);
+int ck_test_fail_str_eq(
+    const char *file,
+    int line,
+    const char *actual_expr,
+    const char *expected_expr,
+    const char *actual,
+    const char *expected
+) {
+    fprintf(
+        stderr,
+        "%s:%d: assertion failed: %s == %s (actual \"%s\", expected \"%s\")\n",
+        file,
+        line,
+        actual_expr,
+        expected_expr,
+        actual == NULL ? "(null)" : actual,
+        expected == NULL ? "(null)" : expected
+    );
     return 1;
 }
 

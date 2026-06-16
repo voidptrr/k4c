@@ -22,10 +22,11 @@
  * SOFTWARE.
  */
 
-#include "ckit/testing.h"
-#include "ckit/memory/allocators/test_allocator.h"
-#include "ckit/datastruct/vector.h"
 #include <stddef.h>
+
+#include "ckit/datastruct/vector.h"
+#include "ckit/memory/allocators/test_allocator.h"
+#include "ckit/testing.h"
 
 CK_TEST(init) {
     ck_test_allocator test_allocator;
@@ -126,6 +127,10 @@ CK_TEST(push_preserves_existing_items_after_growth) {
     return 0;
 }
 
-CK_TEST_MAIN(CK_TEST_CASE(init), CK_TEST_CASE(pop), CK_TEST_CASE(push_single_element),
-             CK_TEST_CASE(push_grows_storage),
-             CK_TEST_CASE(push_preserves_existing_items_after_growth))
+CK_TEST_MAIN(
+    CK_TEST_CASE(init),
+    CK_TEST_CASE(pop),
+    CK_TEST_CASE(push_single_element),
+    CK_TEST_CASE(push_grows_storage),
+    CK_TEST_CASE(push_preserves_existing_items_after_growth)
+)

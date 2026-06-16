@@ -45,10 +45,14 @@ ck_linked_list **ck_hash_common_buckets_create(size_t capacity, ck_allocator *al
     return buckets;
 }
 
-ck_linked_list **ck_hash_common_buckets_rehash(ck_linked_list **buckets, size_t capacity,
-                                               size_t new_capacity, size_t value_size,
-                                               ck_allocator *allocator,
-                                               ck_hash_common_entry_value_fn entry_value) {
+ck_linked_list **ck_hash_common_buckets_rehash(
+    ck_linked_list **buckets,
+    size_t capacity,
+    size_t new_capacity,
+    size_t value_size,
+    ck_allocator *allocator,
+    ck_hash_common_entry_value_fn entry_value
+) {
     CK_ASSERT(buckets != NULL, "fatal: ck_hash_common_buckets_rehash invalid arguments");
     CK_ASSERT(capacity > 0, "fatal: ck_hash_common_buckets_rehash invalid arguments");
     CK_ASSERT(new_capacity > 0, "fatal: ck_hash_common_buckets_rehash invalid arguments");
@@ -73,9 +77,13 @@ ck_linked_list **ck_hash_common_buckets_rehash(ck_linked_list **buckets, size_t 
     return new_buckets;
 }
 
-ck_linked_list_node *ck_hash_common_bucket_find(ck_linked_list *bucket, const void *value,
-                                                size_t value_size, ck_eq_fn value_eq,
-                                                ck_hash_common_entry_value_fn entry_value) {
+ck_linked_list_node *ck_hash_common_bucket_find(
+    ck_linked_list *bucket,
+    const void *value,
+    size_t value_size,
+    ck_eq_fn value_eq,
+    ck_hash_common_entry_value_fn entry_value
+) {
     CK_ASSERT(bucket != NULL, "fatal: ck_hash_common_bucket_find invalid arguments");
     CK_ASSERT(value != NULL, "fatal: ck_hash_common_bucket_find invalid arguments");
     CK_ASSERT(value_size > 0, "fatal: ck_hash_common_bucket_find invalid arguments");
@@ -93,9 +101,13 @@ ck_linked_list_node *ck_hash_common_bucket_find(ck_linked_list *bucket, const vo
     return NULL;
 }
 
-ck_linked_list_node *ck_hash_common_bucket_remove(ck_linked_list *bucket, const void *value,
-                                                  size_t value_size, ck_eq_fn value_eq,
-                                                  ck_hash_common_entry_value_fn entry_value) {
+ck_linked_list_node *ck_hash_common_bucket_remove(
+    ck_linked_list *bucket,
+    const void *value,
+    size_t value_size,
+    ck_eq_fn value_eq,
+    ck_hash_common_entry_value_fn entry_value
+) {
     CK_ASSERT(bucket != NULL, "fatal: ck_hash_common_bucket_remove invalid arguments");
     CK_ASSERT(value != NULL, "fatal: ck_hash_common_bucket_remove invalid arguments");
     CK_ASSERT(value_size > 0, "fatal: ck_hash_common_bucket_remove invalid arguments");
@@ -116,9 +128,12 @@ ck_linked_list_node *ck_hash_common_bucket_remove(ck_linked_list *bucket, const 
     return NULL;
 }
 
-void ck_hash_common_buckets_destroy(ck_linked_list **buckets, size_t capacity,
-                                    ck_allocator *allocator,
-                                    ck_hash_common_entry_destroy_fn entry_destroy) {
+void ck_hash_common_buckets_destroy(
+    ck_linked_list **buckets,
+    size_t capacity,
+    ck_allocator *allocator,
+    ck_hash_common_entry_destroy_fn entry_destroy
+) {
     CK_ASSERT(buckets != NULL, "fatal: ck_hash_common_buckets_destroy invalid arguments");
     CK_ASSERT(entry_destroy != NULL, "fatal: ck_hash_common_buckets_destroy invalid arguments");
 

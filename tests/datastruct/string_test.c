@@ -23,8 +23,8 @@
  */
 
 #include "ckit/datastruct/string.h"
-#include "ckit/testing.h"
 #include "ckit/memory/allocators/test_allocator.h"
+#include "ckit/testing.h"
 
 CK_TEST(allocator) {
     ck_test_allocator test_allocator;
@@ -142,5 +142,11 @@ CK_TEST(search) {
     return 0;
 }
 
-CK_TEST_MAIN(CK_TEST_CASE(allocator), CK_TEST_CASE(append), CK_TEST_CASE(clear), CK_TEST_CASE(init),
-             CK_TEST_CASE(prepend), CK_TEST_CASE(search))
+CK_TEST_MAIN(
+    CK_TEST_CASE(allocator),
+    CK_TEST_CASE(append),
+    CK_TEST_CASE(clear),
+    CK_TEST_CASE(init),
+    CK_TEST_CASE(prepend),
+    CK_TEST_CASE(search)
+)

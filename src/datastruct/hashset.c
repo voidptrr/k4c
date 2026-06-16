@@ -61,15 +61,23 @@ static const void *ck_hashset_entry_elem(const ck_linked_list_node *node) {
 static ck_hashset_entry *ck_hashset_entry_get(const ck_hashset *set, const void *elem) {
     size_t bucket = ck_hash_common_bucket_index(elem, set->elem_size, set->capacity);
     ck_linked_list_node *node = ck_hash_common_bucket_find(
-        set->buckets[bucket], elem, set->elem_size, set->elem_eq, ck_hashset_entry_elem);
+        set->buckets[bucket],
+        elem,
+        set->elem_size,
+        set->elem_eq,
+        ck_hashset_entry_elem
+    );
     if (node != NULL) {
         return CK_CONTAINER_OF(node, ck_hashset_entry, node);
     }
     return NULL;
 }
 
-ck_hashset *ck_hashset_create(size_t elem_size, ck_hashset_elem_eq_fn elem_eq,
-                              ck_allocator *allocator) {
+ck_hashset *ck_hashset_create(
+    size_t elem_size,
+    ck_hashset_elem_eq_fn elem_eq,
+    ck_allocator *allocator
+) {
     CK_ASSERT(elem_eq != NULL, "fatal: ck_hashset_create invalid arguments");
     CK_ASSERT(elem_size > 0, "fatal: ck_hashset_create invalid arguments");
 
@@ -92,16 +100,26 @@ void ck_hashset_insert(ck_hashset *set, const void *elem) {
     ck_allocator *allocator = set->allocator;
     size_t bucket = ck_hash_common_bucket_index(elem, set->elem_size, set->capacity);
     ck_linked_list_node *node = ck_hash_common_bucket_find(
-        set->buckets[bucket], elem, set->elem_size, set->elem_eq, ck_hashset_entry_elem);
+        set->buckets[bucket],
+        elem,
+        set->elem_size,
+        set->elem_eq,
+        ck_hashset_entry_elem
+    );
     if (node != NULL) {
         return;
     }
 
     if (ck_hash_common_should_grow(set->size, set->capacity)) {
         size_t new_capacity = set->capacity * 2;
-        set->buckets =
-            ck_hash_common_buckets_rehash(set->buckets, set->capacity, new_capacity, set->elem_size,
-                                          allocator, ck_hashset_entry_elem);
+        set->buckets = ck_hash_common_buckets_rehash(
+            set->buckets,
+            set->capacity,
+            new_capacity,
+            set->elem_size,
+            allocator,
+            ck_hashset_entry_elem
+        );
         set->capacity = new_capacity;
         bucket = ck_hash_common_bucket_index(elem, set->elem_size, set->capacity);
     }
@@ -149,7 +167,12 @@ void ck_hashset_remove(ck_hashset *set, const void *elem) {
     ck_allocator *allocator = set->allocator;
     size_t bucket = ck_hash_common_bucket_index(elem, set->elem_size, set->capacity);
     ck_linked_list_node *node = ck_hash_common_bucket_remove(
-        set->buckets[bucket], elem, set->elem_size, set->elem_eq, ck_hashset_entry_elem);
+        set->buckets[bucket],
+        elem,
+        set->elem_size,
+        set->elem_eq,
+        ck_hashset_entry_elem
+    );
     if (node != NULL) {
         ck_hashset_entry *entry = CK_CONTAINER_OF(node, ck_hashset_entry, node);
         ck_dealloc(allocator, entry);
@@ -167,7 +190,11 @@ void ck_hashset_destroy(ck_hashset *set) {
     CK_ASSERT(set != NULL, "fatal: ck_hashset_destroy invalid arguments");
 
     ck_allocator *allocator = set->allocator;
-    ck_hash_common_buckets_destroy(set->buckets, set->capacity, allocator,
-                                   ck_hashset_entry_destroy);
+    ck_hash_common_buckets_destroy(
+        set->buckets,
+        set->capacity,
+        allocator,
+        ck_hashset_entry_destroy
+    );
     ck_dealloc(allocator, set);
 }

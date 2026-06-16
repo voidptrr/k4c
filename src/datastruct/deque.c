@@ -52,17 +52,26 @@ static void ck_deque_grow(ck_deque *deque) {
 
     if (deque->size > 0) {
         if (deque->head < deque->tail) {
-            memcpy(new_buffer, old_buffer + (deque->head * deque->elem_size),
-                   deque->size * deque->elem_size);
+            memcpy(
+                new_buffer,
+                old_buffer + (deque->head * deque->elem_size),
+                deque->size * deque->elem_size
+            );
         } else {
             size_t first_count = old_capacity - deque->head;
             size_t second_count = deque->tail;
 
-            memcpy(new_buffer, old_buffer + (deque->head * deque->elem_size),
-                   first_count * deque->elem_size);
+            memcpy(
+                new_buffer,
+                old_buffer + (deque->head * deque->elem_size),
+                first_count * deque->elem_size
+            );
             if (second_count > 0) {
-                memcpy(new_buffer + (first_count * deque->elem_size), old_buffer,
-                       second_count * deque->elem_size);
+                memcpy(
+                    new_buffer + (first_count * deque->elem_size),
+                    old_buffer,
+                    second_count * deque->elem_size
+                );
             }
         }
     }

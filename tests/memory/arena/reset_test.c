@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#include "ckit/testing.h"
 #include "ckit/memory/allocators/arena.h"
+#include "ckit/testing.h"
 
 int main(void) {
     ck_arena *arena = ck_arena_create(128);
