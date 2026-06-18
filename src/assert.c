@@ -22,16 +22,14 @@
  * SOFTWARE.
  */
 
-#ifndef VSTD_PANIC_H
-#define VSTD_PANIC_H
+#include <stdio.h>
+#include <stdlib.h>
 
-_Noreturn void vs_panic(const char *message);
+#include "vstd/assert.h"
 
-#define VS_ASSERT(cond, message) \
-    do { \
-        if (!(cond)) { \
-            vs_panic(message); \
-        } \
-    } while (0)
-
-#endif
+_Noreturn void vs_panic(const char *message) {
+    if (message != NULL) {
+        fprintf(stderr, "%s\n", message);
+    }
+    abort();
+}
