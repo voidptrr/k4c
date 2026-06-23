@@ -24,6 +24,14 @@ typedef struct vs_doubly_linked_list_node {
 
 Embed this node in the object you want to link.
 
+### vs_doubly_linked_list_iterator_state
+
+```c
+typedef struct vs_doubly_linked_list_iterator_state vs_doubly_linked_list_iterator_state;
+```
+
+Caller-owned cursor state for `vs_doubly_linked_list_iterator`.
+
 ### VS_CONTAINER_OF
 
 ```c
@@ -32,6 +40,7 @@ Embed this node in the object you want to link.
 
 - Parameters: `ptr`, `type`, `member`
 - Returns: pointer to the owning object.
+- Example: `job *item = VS_CONTAINER_OF(node, job, node);`
 
 ## FUNCTIONS
 
@@ -46,6 +55,7 @@ vs_doubly_linked_list *vs_doubly_linked_list_create(vs_allocator *allocator);
 - Notes: the list stores `allocator` and reuses it to destroy the list handle.
   Nodes remain caller-owned. When `allocator` is `NULL`, the handle uses the C
   library heap through `vs_malloc`.
+- Example: `vs_doubly_linked_list *list = vs_doubly_linked_list_create(NULL);`
 
 ### vs_doubly_linked_list_push
 
@@ -57,6 +67,7 @@ void vs_doubly_linked_list_push(vs_doubly_linked_list *list,
 - Parameters: `list`, `node`
 - Returns: none.
 - Notes: appends `node` at the tail.
+- Example: `vs_doubly_linked_list_push(list, &item.node);`
 
 ### vs_doubly_linked_list_pushfront
 
@@ -68,6 +79,7 @@ void vs_doubly_linked_list_pushfront(vs_doubly_linked_list *list,
 - Parameters: `list`, `node`
 - Returns: none.
 - Notes: prepends `node` at the head.
+- Example: `vs_doubly_linked_list_pushfront(list, &item.node);`
 
 ### vs_doubly_linked_list_insert_after
 
@@ -80,6 +92,7 @@ void vs_doubly_linked_list_insert_after(vs_doubly_linked_list *list,
 - Parameters: `list`, `after`, `node`
 - Returns: none.
 - Notes: inserts `node` after `after`, or at the front when `after` is `NULL`.
+- Example: `vs_doubly_linked_list_insert_after(list, &first.node, &second.node);`
 
 ### vs_doubly_linked_list_popleft
 
@@ -89,6 +102,7 @@ vs_doubly_linked_list_node *vs_doubly_linked_list_popleft(vs_doubly_linked_list 
 
 - Parameters: `list`
 - Returns: removed head node, or `NULL` when list is empty.
+- Example: `vs_doubly_linked_list_node *node = vs_doubly_linked_list_popleft(list);`
 
 ### vs_doubly_linked_list_popback
 
@@ -98,6 +112,7 @@ vs_doubly_linked_list_node *vs_doubly_linked_list_popback(vs_doubly_linked_list 
 
 - Parameters: `list`
 - Returns: removed tail node, or `NULL` when list is empty.
+- Example: `vs_doubly_linked_list_node *node = vs_doubly_linked_list_popback(list);`
 
 ### vs_doubly_linked_list_remove
 
@@ -109,6 +124,7 @@ void vs_doubly_linked_list_remove(vs_doubly_linked_list *list,
 - Parameters: `list`, `node`
 - Returns: none.
 - Notes: unlinks a known node in `O(1)`.
+- Example: `vs_doubly_linked_list_remove(list, &item.node);`
 
 ### vs_doubly_linked_list_size
 
@@ -118,6 +134,7 @@ size_t vs_doubly_linked_list_size(const vs_doubly_linked_list *list);
 
 - Parameters: `list`
 - Returns: current element count.
+- Example: `size_t count = vs_doubly_linked_list_size(list);`
 
 ### vs_doubly_linked_list_head
 
@@ -127,6 +144,7 @@ vs_doubly_linked_list_node *vs_doubly_linked_list_head(const vs_doubly_linked_li
 
 - Parameters: `list`
 - Returns: current head node, or `NULL` when list is empty.
+- Example: `vs_doubly_linked_list_node *head = vs_doubly_linked_list_head(list);`
 
 ### vs_doubly_linked_list_tail
 
@@ -136,6 +154,7 @@ vs_doubly_linked_list_node *vs_doubly_linked_list_tail(const vs_doubly_linked_li
 
 - Parameters: `list`
 - Returns: current tail node, or `NULL` when list is empty.
+- Example: `vs_doubly_linked_list_node *tail = vs_doubly_linked_list_tail(list);`
 
 ### vs_doubly_linked_list_iterator
 
@@ -148,6 +167,7 @@ vs_iterator vs_doubly_linked_list_iterator(vs_doubly_linked_list_iterator_state 
 - Returns: iterator over list nodes from head to tail.
 - Notes: `state` must outlive the returned iterator. Yielded pointers are
   `const vs_doubly_linked_list_node *`. Use `VS_CONTAINER_OF` to recover the owning object.
+- Example: `vs_iterator iter = vs_doubly_linked_list_iterator(&state, list);`
 
 ### vs_doubly_linked_list_destroy
 
@@ -158,34 +178,4 @@ void vs_doubly_linked_list_destroy(vs_doubly_linked_list *list);
 - Parameters: `list`
 - Returns: none.
 - Notes: releases only the opaque list handle. Nodes remain caller-owned. Do not use `list` after this call.
-
-## EXAMPLE
-
-```c
-#include <vstd/datastruct/doubly_linked_list.h>
-#include <vstd/memory/utils.h>
-
-typedef struct job {
-    int id;
-    vs_doubly_linked_list_node node;
-} job;
-
-int main(void) {
-    vs_doubly_linked_list *list = vs_doubly_linked_list_create(NULL);
-    job first = {.id = 1};
-    job second = {.id = 2};
-    job third = {.id = 3};
-
-    vs_doubly_linked_list_push(list, &first.node);
-    vs_doubly_linked_list_push(list, &third.node);
-    vs_doubly_linked_list_insert_after(list, &first.node, &second.node);
-
-    vs_doubly_linked_list_remove(list, &second.node);
-
-    vs_doubly_linked_list_node *node = vs_doubly_linked_list_popback(list);
-    job *out = VS_CONTAINER_OF(node, job, node);
-
-    vs_doubly_linked_list_destroy(list);
-    return out->id == 3 ? 0 : 1;
-}
-```
+- Example: `vs_doubly_linked_list_destroy(list);`

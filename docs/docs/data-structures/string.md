@@ -16,6 +16,14 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 typedef char *vs_string;
 ```
 
+### vs_string_iterator_state
+
+```c
+typedef struct vs_string_iterator_state vs_string_iterator_state;
+```
+
+Caller-owned cursor state for `vs_string_iterator`.
+
 ## FUNCTIONS
 
 ### vs_string_create
@@ -30,6 +38,7 @@ vs_string vs_string_create(const char *initial, vs_allocator *allocator);
   `allocator` in its header and reuses it for growth and destroy. When
   `allocator` is `NULL`, uses the C library heap through
   `vs_malloc`/`vs_realloc`.
+- Example: `vs_string string = vs_string_create("hello", NULL);`
 
 ### vs_string_append
 
@@ -40,6 +49,7 @@ void vs_string_append(vs_string *string, const char *suffix);
 - Parameters: `string`, `suffix`
 - Returns: none.
 - Notes: may reallocate and update `*string`.
+- Example: `vs_string_append(&string, " world");`
 
 ### vs_string_prepend
 
@@ -50,6 +60,7 @@ void vs_string_prepend(vs_string *string, const char *prefix);
 - Parameters: `string`, `prefix`
 - Returns: none.
 - Notes: may reallocate and update `*string`.
+- Example: `vs_string_prepend(&string, "say ");`
 
 ### vs_string_contains
 
@@ -60,6 +71,7 @@ bool vs_string_contains(const vs_string string, const char *needle);
 - Parameters: `string`, `needle`
 - Returns: `true` when `needle` appears in `string`; otherwise `false`.
 - Notes: an empty `needle` matches.
+- Example: `bool found = vs_string_contains(string, "hello");`
 
 ### vs_string_starts_with
 
@@ -70,6 +82,7 @@ bool vs_string_starts_with(const vs_string string, const char *prefix);
 - Parameters: `string`, `prefix`
 - Returns: `true` when `string` begins with `prefix`; otherwise `false`.
 - Notes: an empty `prefix` matches.
+- Example: `bool ok = vs_string_starts_with(string, "say");`
 
 ### vs_string_ends_with
 
@@ -80,6 +93,7 @@ bool vs_string_ends_with(const vs_string string, const char *suffix);
 - Parameters: `string`, `suffix`
 - Returns: `true` when `string` ends with `suffix`; otherwise `false`.
 - Notes: an empty `suffix` matches.
+- Example: `bool ok = vs_string_ends_with(string, "world");`
 
 ### vs_string_clear
 
@@ -90,6 +104,7 @@ void vs_string_clear(vs_string string);
 - Parameters: `string`
 - Returns: none.
 - Notes: resets length to zero without releasing storage.
+- Example: `vs_string_clear(string);`
 
 ### vs_string_len
 
@@ -99,6 +114,7 @@ size_t vs_string_len(const vs_string string);
 
 - Parameters: `string`
 - Returns: number of bytes before the terminating NUL.
+- Example: `size_t len = vs_string_len(string);`
 
 ### vs_string_iterator
 
@@ -110,6 +126,7 @@ vs_iterator vs_string_iterator(vs_string_iterator_state *state, const vs_string 
 - Returns: iterator over bytes before the terminating NUL.
 - Notes: `state` must outlive the returned iterator. Yielded pointers are
   `const char *`. Do not mutate or reallocate the string while iterating.
+- Example: `vs_iterator iter = vs_string_iterator(&state, string);`
 
 ### vs_string_destroy
 
@@ -120,26 +137,5 @@ void vs_string_destroy(vs_string string);
 - Parameters: `string`
 - Returns: none.
 - Notes: releases the string allocation. Do not use `string` after this call.
+- Example: `vs_string_destroy(string);`
 
-## EXAMPLE
-
-```c
-#include <vstd/datastruct/string.h>
-#include <string.h>
-
-int main(void) {
-    int status = 0;
-    vs_string value = vs_string_create("hello", NULL);
-
-    vs_string_append(&value, " world");
-    vs_string_prepend(&value, "say ");
-    if (strcmp(value, "say hello world") != 0) {
-        status = 1;
-        goto cleanup;
-    }
-
-cleanup:
-    vs_string_destroy(value);
-    return status;
-}
-```
