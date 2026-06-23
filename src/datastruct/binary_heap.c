@@ -26,6 +26,7 @@
 
 #include "vstd/assert.h"
 #include "vstd/datastruct/binary_heap.h"
+#include "vstd/datastruct/iterator.h"
 #include "vstd/datastruct/vector.h"
 #include "vstd/memory/allocator.h"
 #include "vstd/memory/utils.h"
@@ -140,6 +141,29 @@ size_t vs_binary_heap_size(const vs_binary_heap *heap) {
     VSTD_ASSERT(heap != NULL, "fatal: vs_binary_heap_size invalid arguments");
 
     return vs_vector_size(heap->root);
+}
+
+static const void *vs_binary_heap_iterator_next(void *context) {
+    vs_binary_heap_iterator_state *state = context;
+    const vs_binary_heap *heap = state->heap;
+
+    if (state->index >= vs_vector_size(heap->root)) {
+        return NULL;
+    }
+
+    return vs_vector_get_const(heap->root, state->index++);
+}
+
+vs_iterator vs_binary_heap_iterator(
+    vs_binary_heap_iterator_state *state,
+    const vs_binary_heap *heap
+) {
+    VSTD_ASSERT(state != NULL, "fatal: vs_binary_heap_iterator invalid arguments");
+    VSTD_ASSERT(heap != NULL, "fatal: vs_binary_heap_iterator invalid arguments");
+
+    state->heap = heap;
+    state->index = 0;
+    return vs_iterator_from_callback(state, vs_binary_heap_iterator_next);
 }
 
 void vs_binary_heap_destroy(vs_binary_heap *heap) {

@@ -47,7 +47,7 @@ VS_TEST(allocator) {
     vs_test_allocator_reset_counts(&test_allocator);
 
     vs_hashset_insert(set, &value);
-    if (vs_test_equal(test_allocator.alloc_count, 1) != 0) {
+    if (test_allocator.alloc_count != 1) {
         return 1;
     }
 
@@ -147,7 +147,7 @@ VS_TEST(init) {
     vs_hashset *set;
 
     set = vs_hashset_create(sizeof(uint64_t), NULL, vs_test_allocator_adapter(&test_allocator));
-    if (vs_test_equal(vs_hashset_size(set), 0) != 0) {
+    if (vs_hashset_size(set) != 0) {
         return 1;
     }
 
@@ -172,7 +172,7 @@ VS_TEST(default_byte_equality) {
     if (vs_test_equal(vs_hashset_contains(set, &same_value), true) != 0) {
         return 1;
     }
-    if (vs_test_equal(vs_hashset_size(set), 1) != 0) {
+    if (vs_hashset_size(set) != 1) {
         return 1;
     }
 
@@ -202,7 +202,7 @@ VS_TEST(custom_equality) {
     if (vs_test_equal(vs_hashset_contains(set, &same_value), true) != 0) {
         return 1;
     }
-    if (vs_test_equal(vs_hashset_size(set), 1) != 0) {
+    if (vs_hashset_size(set) != 1) {
         return 1;
     }
     if (vs_test_equal(custom_eq_calls > 0, true) != 0) {
@@ -226,7 +226,7 @@ VS_TEST(insert) {
     uint64_t first = 42;
     vs_hashset_insert(set, &first);
     vs_hashset_insert(set, &first);
-    if (vs_test_equal(vs_hashset_size(set), 1) != 0) {
+    if (vs_hashset_size(set) != 1) {
         return 1;
     }
 
@@ -234,7 +234,7 @@ VS_TEST(insert) {
         vs_hashset_insert(set, &i);
     }
 
-    if (vs_test_equal(vs_hashset_size(set), 256) != 0) {
+    if (vs_hashset_size(set) != 256) {
         return 1;
     }
 
@@ -261,12 +261,12 @@ VS_TEST(remove) {
     if (vs_test_equal(!vs_hashset_contains(set, &removed), true) != 0) {
         return 1;
     }
-    if (vs_test_equal(vs_hashset_size(set), 255) != 0) {
+    if (vs_hashset_size(set) != 255) {
         return 1;
     }
 
     vs_hashset_remove(set, &removed);
-    if (vs_test_equal(vs_hashset_size(set), 255) != 0) {
+    if (vs_hashset_size(set) != 255) {
         return 1;
     }
 
@@ -280,7 +280,41 @@ VS_TEST(remove) {
     if (vs_test_equal(!vs_hashset_contains(set, &last), true) != 0) {
         return 1;
     }
-    if (vs_test_equal(vs_hashset_size(set), 253) != 0) {
+    if (vs_hashset_size(set) != 253) {
+        return 1;
+    }
+
+    vs_hashset_destroy(set);
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+VS_TEST(iterator_walks_elements) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_hashset *set;
+    vs_hashset_iterator_state state;
+    vs_iterator iter;
+    const uint64_t *elem;
+    uint64_t sum = 0;
+    size_t count = 0;
+
+    set = vs_hashset_create(sizeof(uint64_t), NULL, vs_test_allocator_adapter(&test_allocator));
+    for (uint64_t i = 1; i <= 4; i++) {
+        vs_hashset_insert(set, &i);
+    }
+
+    iter = vs_hashset_iterator(&state, set);
+    while ((elem = (const uint64_t *)vs_iterator_next(&iter)) != NULL) {
+        sum += *elem;
+        count += 1;
+    }
+    if (count != 4) {
+        return 1;
+    }
+    if (sum != 10) {
         return 1;
     }
 
@@ -299,5 +333,6 @@ VS_TEST_MAIN(
     VS_TEST_CASE(default_byte_equality),
     VS_TEST_CASE(custom_equality),
     VS_TEST_CASE(insert),
-    VS_TEST_CASE(remove)
+    VS_TEST_CASE(remove),
+    VS_TEST_CASE(iterator_walks_elements)
 )

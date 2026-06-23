@@ -24,9 +24,71 @@
 
 #include <stddef.h>
 
+#include "vstd/datastruct/iterator.h"
 #include "vstd/datastruct/vector.h"
 #include "vstd/memory/test_allocator.h"
 #include "vstd/testing.h"
+
+static int cmp_int(const void *lhs, const void *rhs) {
+    int a = *(const int *)lhs;
+    int b = *(const int *)rhs;
+
+    return (a > b) - (a < b);
+}
+
+static bool int_is_even(void *context, const void *item) {
+    (void)context;
+
+    return (*(const int *)item % 2) == 0;
+}
+
+static bool int_less_than(void *context, const void *item) {
+    int limit = *(const int *)context;
+
+    return *(const int *)item < limit;
+}
+
+static const void *int_square(void *context, const void *item) {
+    int *out = context;
+
+    *out = *(const int *)item * *(const int *)item;
+    return out;
+}
+
+typedef struct paged_array_iterator {
+    const int *items;
+    size_t size;
+    size_t index;
+    size_t page_size;
+    size_t page_remaining;
+    size_t pages_loaded;
+} paged_array_iterator;
+
+static const void *paged_array_next(void *context) {
+    paged_array_iterator *iter = context;
+
+    if (iter->index >= iter->size) {
+        return NULL;
+    }
+    if (iter->page_remaining == 0) {
+        iter->page_remaining = iter->page_size;
+        iter->pages_loaded += 1;
+    }
+
+    iter->index += 1;
+    iter->page_remaining -= 1;
+    return &iter->items[iter->index - 1];
+}
+
+static vs_iterator paged_array_iter(paged_array_iterator *state, const int *items, size_t size) {
+    state->items = items;
+    state->size = size;
+    state->index = 0;
+    state->page_size = 10;
+    state->page_remaining = 0;
+    state->pages_loaded = 0;
+    return vs_iterator_from_callback(state, paged_array_next);
+}
 
 VS_TEST(init) {
     vs_test_allocator test_allocator;
@@ -35,12 +97,12 @@ VS_TEST(init) {
     int value = 1;
 
     v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
-    if (vs_test_equal(vs_vector_size(v), 0) != 0) {
+    if (vs_vector_size(v) != 0) {
         return 1;
     }
 
     vs_vector_push(v, &value);
-    if (vs_test_equal(vs_vector_size(v), 1) != 0) {
+    if (vs_vector_size(v) != 1) {
         return 1;
     }
 
@@ -99,7 +161,7 @@ VS_TEST(push_single_element) {
     v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
     vs_vector_push(v, &value);
 
-    if (vs_test_equal(vs_vector_size(v), 1) != 0) {
+    if (vs_vector_size(v) != 1) {
         return 1;
     }
     if (vs_test_equal(*(int *)vs_vector_get(v, 0), value) != 0) {
@@ -124,7 +186,7 @@ VS_TEST(push_grows_storage) {
         vs_vector_push(v, &value);
     }
 
-    if (vs_test_equal(vs_vector_size(v), 17) != 0) {
+    if (vs_vector_size(v) != 17) {
         return 1;
     }
 
@@ -159,10 +221,217 @@ VS_TEST(push_preserves_existing_items_after_growth) {
     return 0;
 }
 
+VS_TEST(iterator_walks_vector) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_vector *v;
+    vs_vector_iterator_state state;
+    vs_iterator iter;
+    const int *item;
+    int expected = 0;
+
+    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    for (int i = 0; i < 4; i++) {
+        vs_vector_push(v, &i);
+    }
+
+    iter = vs_vector_iterator(&state, v);
+
+    while ((item = vs_iterator_next(&iter)) != NULL) {
+        if (vs_test_equal(*item, expected) != 0) {
+            return 1;
+        }
+        expected += 1;
+    }
+    if (vs_test_equal(expected, 4) != 0) {
+        return 1;
+    }
+
+    vs_vector_destroy(v);
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+VS_TEST(filter_map_take_while_iterators_compose) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_vector *v;
+    vs_vector_iterator_state vector_state;
+    vs_iterator base;
+    vs_iterator even;
+    vs_iterator squares;
+    vs_iterator small;
+    const int *item;
+    int mapped = 0;
+    int limit = 20;
+    int expected[] = {0, 4, 16};
+    size_t index = 0;
+
+    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    for (int i = 0; i < 8; i++) {
+        vs_vector_push(v, &i);
+    }
+
+    base = vs_vector_iterator(&vector_state, v);
+    even = vs_iterator_filter(&base, int_is_even, NULL);
+    squares = vs_iterator_map(&even, int_square, &mapped);
+    small = vs_iterator_take_while(&squares, int_less_than, &limit);
+
+    while ((item = vs_iterator_next(&small)) != NULL) {
+        if (index >= sizeof(expected) / sizeof(expected[0])) {
+            return 1;
+        }
+        if (vs_test_equal(*item, expected[index]) != 0) {
+            return 1;
+        }
+        index += 1;
+    }
+    if (index != 3) {
+        return 1;
+    }
+    if (vs_test_null(vs_iterator_next(&small)) != 0) {
+        return 1;
+    }
+
+    vs_vector_destroy(v);
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+VS_TEST(custom_callback_iterator_takes_ten_at_a_time) {
+    int values[25];
+    paged_array_iterator state;
+    vs_iterator iter;
+    const int *item;
+    int expected = 0;
+    size_t count = 0;
+
+    for (size_t i = 0; i < sizeof(values) / sizeof(values[0]); i++) {
+        values[i] = (int)i;
+    }
+
+    iter = paged_array_iter(&state, values, sizeof(values) / sizeof(values[0]));
+
+    while ((item = vs_iterator_next(&iter)) != NULL) {
+        if (vs_test_equal(*item, expected) != 0) {
+            return 1;
+        }
+        expected += 1;
+        count += 1;
+    }
+
+    if (count != 25) {
+        return 1;
+    }
+    if (state.page_remaining != 5) {
+        return 1;
+    }
+    if (state.pages_loaded != 3) {
+        return 1;
+    }
+
+    return 0;
+}
+
+VS_TEST(custom_callback_iterator_composes_with_adapters) {
+    int values[25];
+    paged_array_iterator state;
+    vs_iterator base;
+    vs_iterator even;
+    vs_iterator first_small;
+    const int *item;
+    int limit = 13;
+    int expected[] = {0, 2, 4, 6, 8, 10, 12};
+    size_t index = 0;
+
+    for (size_t i = 0; i < sizeof(values) / sizeof(values[0]); i++) {
+        values[i] = (int)i;
+    }
+
+    base = paged_array_iter(&state, values, sizeof(values) / sizeof(values[0]));
+    even = vs_iterator_filter(&base, int_is_even, NULL);
+    first_small = vs_iterator_take_while(&even, int_less_than, &limit);
+
+    while ((item = vs_iterator_next(&first_small)) != NULL) {
+        if (index >= sizeof(expected) / sizeof(expected[0])) {
+            return 1;
+        }
+        if (vs_test_equal(*item, expected[index]) != 0) {
+            return 1;
+        }
+        index += 1;
+    }
+
+    if (index != sizeof(expected) / sizeof(expected[0])) {
+        return 1;
+    }
+
+    return 0;
+}
+
+VS_TEST(binary_search_bounds) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_vector *v;
+    int values[] = {1, 2, 2, 2, 4, 8};
+    int key;
+
+    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    for (size_t i = 0; i < sizeof(values) / sizeof(values[0]); i++) {
+        vs_vector_push(v, &values[i]);
+    }
+
+    key = 2;
+    if (vs_vector_lower_bound(v, &key, cmp_int) != 1) {
+        return 1;
+    }
+    if (vs_vector_upper_bound(v, &key, cmp_int) != 4) {
+        return 1;
+    }
+    if (vs_vector_binary_search(v, &key, cmp_int) != 1) {
+        return 1;
+    }
+
+    key = 3;
+    if (vs_vector_lower_bound(v, &key, cmp_int) != 4) {
+        return 1;
+    }
+    if (vs_vector_upper_bound(v, &key, cmp_int) != 4) {
+        return 1;
+    }
+    if (vs_vector_binary_search(v, &key, cmp_int) != vs_vector_size(v)) {
+        return 1;
+    }
+
+    key = 0;
+    if (vs_vector_lower_bound(v, &key, cmp_int) != 0) {
+        return 1;
+    }
+    key = 9;
+    if (vs_vector_upper_bound(v, &key, cmp_int) != vs_vector_size(v)) {
+        return 1;
+    }
+
+    vs_vector_destroy(v);
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
 VS_TEST_MAIN(
     VS_TEST_CASE(init),
     VS_TEST_CASE(pop),
     VS_TEST_CASE(push_single_element),
     VS_TEST_CASE(push_grows_storage),
-    VS_TEST_CASE(push_preserves_existing_items_after_growth)
+    VS_TEST_CASE(push_preserves_existing_items_after_growth),
+    VS_TEST_CASE(iterator_walks_vector),
+    VS_TEST_CASE(filter_map_take_while_iterators_compose),
+    VS_TEST_CASE(custom_callback_iterator_takes_ten_at_a_time),
+    VS_TEST_CASE(custom_callback_iterator_composes_with_adapters),
+    VS_TEST_CASE(binary_search_bounds)
 )

@@ -27,6 +27,7 @@
 
 #include "vstd/assert.h"
 #include "vstd/datastruct/deque.h"
+#include "vstd/datastruct/iterator.h"
 #include "vstd/memory/allocator.h"
 
 #define VS_DEQUE_DEFAULT_CAPACITY 16
@@ -196,6 +197,29 @@ size_t vs_deque_size(const vs_deque *deque) {
     VSTD_ASSERT(deque != NULL, "fatal: vs_deque_size invalid arguments");
 
     return deque->size;
+}
+
+static const void *vs_deque_iterator_next(void *context) {
+    vs_deque_iterator_state *state = context;
+    const vs_deque *deque = state->deque;
+
+    if (state->index >= deque->size) {
+        return NULL;
+    }
+
+    size_t storage_index = (deque->head + state->index) % deque->capacity;
+    const uint8_t *base = (const uint8_t *)deque->buffer;
+    state->index += 1;
+    return base + (storage_index * deque->elem_size);
+}
+
+vs_iterator vs_deque_iterator(vs_deque_iterator_state *state, const vs_deque *deque) {
+    VSTD_ASSERT(state != NULL, "fatal: vs_deque_iterator invalid arguments");
+    VSTD_ASSERT(deque != NULL, "fatal: vs_deque_iterator invalid arguments");
+
+    state->deque = deque;
+    state->index = 0;
+    return vs_iterator_from_callback(state, vs_deque_iterator_next);
 }
 
 void vs_deque_destroy(vs_deque *deque) {

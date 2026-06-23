@@ -49,7 +49,7 @@ VS_TEST(init) {
     heap =
         vs_binary_heap_create(sizeof(int), cmp_int_asc, vs_test_allocator_adapter(&test_allocator));
 
-    if (vs_test_equal(vs_binary_heap_size(heap), 0) != 0) {
+    if (vs_binary_heap_size(heap) != 0) {
         return 1;
     }
 
@@ -140,7 +140,7 @@ VS_TEST(push) {
     if (vs_test_equal(*top, 1) != 0) {
         return 1;
     }
-    if (vs_test_equal(vs_binary_heap_size(heap), 4) != 0) {
+    if (vs_binary_heap_size(heap) != 4) {
         return 1;
     }
 
@@ -209,11 +209,48 @@ VS_TEST(custom_comparator) {
     return 0;
 }
 
+VS_TEST(iterator_walks_backing_storage) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_binary_heap *heap;
+    int values[] = {5, 2, 8, 1};
+    vs_binary_heap_iterator_state state;
+    vs_iterator iter;
+    const int *out;
+    int sum = 0;
+    size_t count = 0;
+
+    heap =
+        vs_binary_heap_create(sizeof(int), cmp_int_asc, vs_test_allocator_adapter(&test_allocator));
+    for (size_t i = 0; i < sizeof(values) / sizeof(values[0]); i++) {
+        vs_binary_heap_push(heap, &values[i]);
+    }
+
+    iter = vs_binary_heap_iterator(&state, heap);
+    while ((out = (const int *)vs_iterator_next(&iter)) != NULL) {
+        sum += *out;
+        count += 1;
+    }
+    if (count != sizeof(values) / sizeof(values[0])) {
+        return 1;
+    }
+    if (vs_test_equal(sum, 16) != 0) {
+        return 1;
+    }
+
+    vs_binary_heap_destroy(heap);
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
 VS_TEST_MAIN(
     VS_TEST_CASE(init),
     VS_TEST_CASE(peek),
     VS_TEST_CASE(pop),
     VS_TEST_CASE(push),
     VS_TEST_CASE(default_byte_ordering),
-    VS_TEST_CASE(custom_comparator)
+    VS_TEST_CASE(custom_comparator),
+    VS_TEST_CASE(iterator_walks_backing_storage)
 )

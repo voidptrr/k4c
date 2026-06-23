@@ -27,6 +27,7 @@
 #include <string.h>
 
 #include "vstd/assert.h"
+#include "vstd/datastruct/iterator.h"
 #include "vstd/datastruct/string.h"
 #include "vstd/memory/allocator.h"
 
@@ -174,6 +175,26 @@ size_t vs_string_len(const vs_string string) {
 
     vs_string_header *header = vs_string_header_from_buf(string);
     return header->len;
+}
+
+static const void *vs_string_iterator_next(void *context) {
+    vs_string_iterator_state *state = context;
+    const char *string = state->string;
+
+    if (state->index >= vs_string_len((vs_string)string)) {
+        return NULL;
+    }
+
+    return &string[state->index++];
+}
+
+vs_iterator vs_string_iterator(vs_string_iterator_state *state, const vs_string string) {
+    VSTD_ASSERT(state != NULL, "fatal: vs_string_iterator invalid arguments");
+    VSTD_ASSERT(string != NULL, "fatal: vs_string_iterator invalid arguments");
+
+    state->string = string;
+    state->index = 0;
+    return vs_iterator_from_callback(state, vs_string_iterator_next);
 }
 
 void vs_string_destroy(vs_string string) {

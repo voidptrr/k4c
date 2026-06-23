@@ -85,6 +85,53 @@ size_t vs_vector_size(const vs_vector *vector);
 - Parameters: `vector`
 - Returns: current element count.
 
+### vs_vector_iterator
+
+```c
+vs_iterator vs_vector_iterator(vs_vector_iterator_state *state, const vs_vector *vector);
+```
+
+- Parameters: `state`, `vector`
+- Returns: iterator over vector elements from index `0` to `size - 1`.
+- Notes: `state` must outlive the returned iterator. Yielded pointers refer to
+  vector-managed storage. Do not mutate the vector while iterating.
+
+### vs_vector_lower_bound
+
+```c
+size_t vs_vector_lower_bound(const vs_vector *vector,
+                             const void *key,
+                             vs_vector_cmp_fn cmp);
+```
+
+- Parameters: `vector`, `key`, `cmp`
+- Returns: first sorted index whose item is not less than `key`.
+- Notes: `vector` must already be sorted according to `cmp`.
+
+### vs_vector_upper_bound
+
+```c
+size_t vs_vector_upper_bound(const vs_vector *vector,
+                             const void *key,
+                             vs_vector_cmp_fn cmp);
+```
+
+- Parameters: `vector`, `key`, `cmp`
+- Returns: first sorted index whose item is greater than `key`.
+- Notes: `vector` must already be sorted according to `cmp`.
+
+### vs_vector_binary_search
+
+```c
+size_t vs_vector_binary_search(const vs_vector *vector,
+                               const void *key,
+                               vs_vector_cmp_fn cmp);
+```
+
+- Parameters: `vector`, `key`, `cmp`
+- Returns: sorted index containing `key`, or `vs_vector_size(vector)` when absent.
+- Notes: when duplicates exist, returns the lower-bound index for `key`.
+
 ### vs_vector_destroy
 
 ```c

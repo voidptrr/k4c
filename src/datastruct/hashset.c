@@ -29,6 +29,7 @@
 #include "datastruct/hash_common.h"
 #include "vstd/assert.h"
 #include "vstd/datastruct/hashset.h"
+#include "vstd/datastruct/iterator.h"
 #include "vstd/datastruct/linked_list.h"
 #include "vstd/memory/allocator.h"
 #include "vstd/memory/utils.h"
@@ -183,6 +184,35 @@ size_t vs_hashset_size(const vs_hashset *set) {
     VSTD_ASSERT(set != NULL, "fatal: vs_hashset_size invalid arguments");
 
     return set->size;
+}
+
+static const void *vs_hashset_iterator_next(void *context) {
+    vs_hashset_iterator_state *state = context;
+    const vs_hashset *set = state->set;
+
+    while (state->node == NULL && state->bucket < set->capacity) {
+        state->node = vs_linked_list_head(set->buckets[state->bucket]);
+        state->bucket += 1;
+    }
+
+    if (state->node == NULL) {
+        return NULL;
+    }
+
+    vs_linked_list_node *node = state->node;
+    vs_hashset_entry *entry = VS_CONTAINER_OF(node, vs_hashset_entry, node);
+    state->node = node->next;
+    return entry->data;
+}
+
+vs_iterator vs_hashset_iterator(vs_hashset_iterator_state *state, const vs_hashset *set) {
+    VSTD_ASSERT(state != NULL, "fatal: vs_hashset_iterator invalid arguments");
+    VSTD_ASSERT(set != NULL, "fatal: vs_hashset_iterator invalid arguments");
+
+    state->set = set;
+    state->bucket = 0;
+    state->node = NULL;
+    return vs_iterator_from_callback(state, vs_hashset_iterator_next);
 }
 
 void vs_hashset_destroy(vs_hashset *set) {

@@ -26,6 +26,7 @@
 
 #include "vstd/assert.h"
 #include "vstd/datastruct/doubly_linked_list.h"
+#include "vstd/datastruct/iterator.h"
 #include "vstd/memory/allocator.h"
 
 struct vs_doubly_linked_list {
@@ -189,6 +190,28 @@ vs_doubly_linked_list_node *vs_doubly_linked_list_tail(const vs_doubly_linked_li
     VSTD_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_tail invalid arguments");
 
     return list->tail;
+}
+
+static const void *vs_doubly_linked_list_iterator_next(void *context) {
+    vs_doubly_linked_list_iterator_state *state = context;
+    vs_doubly_linked_list_node *node = state->node;
+    if (node == NULL) {
+        return NULL;
+    }
+
+    state->node = node->next;
+    return node;
+}
+
+vs_iterator vs_doubly_linked_list_iterator(
+    vs_doubly_linked_list_iterator_state *state,
+    const vs_doubly_linked_list *list
+) {
+    VSTD_ASSERT(state != NULL, "fatal: vs_doubly_linked_list_iterator invalid arguments");
+    VSTD_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_iterator invalid arguments");
+
+    state->node = list->head;
+    return vs_iterator_from_callback(state, vs_doubly_linked_list_iterator_next);
 }
 
 void vs_doubly_linked_list_destroy(vs_doubly_linked_list *list) {

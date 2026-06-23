@@ -32,7 +32,7 @@ VS_TEST(init) {
     vs_deque *q;
 
     q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
-    if (vs_test_equal(vs_deque_size(q), 0) != 0) {
+    if (vs_deque_size(q) != 0) {
         return 1;
     }
 
@@ -163,7 +163,7 @@ VS_TEST(push) {
     vs_deque_push(q, &value);
 
     const int *out = vs_deque_peekback(q);
-    if (vs_test_equal(vs_deque_size(q), 1) != 0) {
+    if (vs_deque_size(q) != 1) {
         return 1;
     }
     if (vs_test_not_null(out) != 0) {
@@ -207,6 +207,42 @@ VS_TEST(pushfront) {
     return 0;
 }
 
+VS_TEST(iterator_walks_front_to_back) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_deque *q;
+    vs_deque_iterator_state state;
+    vs_iterator iter;
+    const int *out;
+    int expected[] = {1, 2, 3, 4};
+    size_t index = 0;
+
+    q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    for (size_t i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
+        vs_deque_push(q, &expected[i]);
+    }
+
+    iter = vs_deque_iterator(&state, q);
+    while ((out = (const int *)vs_iterator_next(&iter)) != NULL) {
+        if (index >= sizeof(expected) / sizeof(expected[0])) {
+            return 1;
+        }
+        if (vs_test_equal(*out, expected[index]) != 0) {
+            return 1;
+        }
+        index += 1;
+    }
+    if (index != sizeof(expected) / sizeof(expected[0])) {
+        return 1;
+    }
+
+    vs_deque_destroy(q);
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
 VS_TEST_MAIN(
     VS_TEST_CASE(init),
     VS_TEST_CASE(peekback),
@@ -214,5 +250,6 @@ VS_TEST_MAIN(
     VS_TEST_CASE(popback),
     VS_TEST_CASE(popleft),
     VS_TEST_CASE(push),
-    VS_TEST_CASE(pushfront)
+    VS_TEST_CASE(pushfront),
+    VS_TEST_CASE(iterator_walks_front_to_back)
 )
