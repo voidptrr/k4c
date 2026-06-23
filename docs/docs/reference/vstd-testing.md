@@ -5,8 +5,69 @@
 The testing module provides small helpers for C tests that return `0` on success
 and non-zero on failure.
 
-Test assertion macros live in `vstd/assert.h`. The malloc-backed tracking
-allocator lives in `vstd/memory/allocators/test_allocator.h`.
+Function-style test assertions live in this header. The malloc-backed tracking
+allocator lives in `vstd/memory/test_allocator.h`.
+
+## ASSERTIONS
+
+All assertion helpers return `0` on success and `1` on failure.
+
+### vs_test_equal
+
+```c
+int vs_test_equal(intmax_t actual, intmax_t expected);
+```
+
+Compares two scalar integer values. Boolean checks can use `true` or `false`
+as the expected value.
+
+### vs_test_not_equal
+
+```c
+int vs_test_not_equal(intmax_t actual, intmax_t expected);
+```
+
+Verifies that two scalar integer values differ.
+
+### vs_test_equal_ptr
+
+```c
+int vs_test_equal_ptr(const void *actual, const void *expected);
+```
+
+Compares two pointers.
+
+### vs_test_not_equal_ptr
+
+```c
+int vs_test_not_equal_ptr(const void *actual, const void *expected);
+```
+
+Verifies that two pointers differ.
+
+### vs_test_null
+
+```c
+int vs_test_null(const void *ptr);
+```
+
+Verifies that `ptr` is `NULL`.
+
+### vs_test_not_null
+
+```c
+int vs_test_not_null(const void *ptr);
+```
+
+Verifies that `ptr` is not `NULL`.
+
+### vs_test_equal_str
+
+```c
+int vs_test_equal_str(const char *actual, const char *expected);
+```
+
+Compares two C strings. Two `NULL` strings compare equal.
 
 ## TEST CASES
 
@@ -48,12 +109,13 @@ allocator lives in `vstd/memory/allocators/test_allocator.h`.
 ## EXAMPLE
 
 ```c
-#include <vstd/assert.h>
 #include <vstd/testing.h>
 
 VS_TEST(value_matches_expected) {
     int value = 7;
-    VS_ASSERT_EQ(value, 7);
+    if (vs_test_equal(value, 7) != 0) {
+        return 1;
+    }
     return 0;
 }
 

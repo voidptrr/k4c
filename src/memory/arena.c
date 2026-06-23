@@ -26,8 +26,8 @@
 #include <string.h>
 
 #include "vstd/assert.h"
-#include "vstd/memory/allocators/allocator.h"
-#include "vstd/memory/allocators/arena.h"
+#include "vstd/memory/allocator.h"
+#include "vstd/memory/arena.h"
 #include "vstd/memory/utils.h"
 
 typedef struct vs_arena_alloc_header {

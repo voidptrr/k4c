@@ -28,7 +28,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "vstd/memory/allocators/allocator.h"
+#include "vstd/memory/allocator.h"
 
 #define VS_TEST_ALLOCATOR_NO_FAILURE ((size_t)-1)
 

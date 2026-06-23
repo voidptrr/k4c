@@ -28,7 +28,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "vstd/memory/allocators/allocator.h"
+#include "vstd/memory/allocator.h"
 
 /*
  * Opaque generic contiguous dynamic array.

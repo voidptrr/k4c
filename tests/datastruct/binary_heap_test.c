@@ -25,9 +25,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "vstd/assert.h"
 #include "vstd/datastruct/binary_heap.h"
-#include "vstd/memory/allocators/test_allocator.h"
+#include "vstd/memory/test_allocator.h"
 #include "vstd/testing.h"
 
 static int cmp_int_asc(const void *a, const void *b) {
@@ -50,10 +49,14 @@ VS_TEST(init) {
     heap =
         vs_binary_heap_create(sizeof(int), cmp_int_asc, vs_test_allocator_adapter(&test_allocator));
 
-    VS_ASSERT_EQ(vs_binary_heap_size(heap), 0);
+    if (vs_test_equal(vs_binary_heap_size(heap), 0) != 0) {
+        return 1;
+    }
 
     vs_binary_heap_destroy(heap);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -67,15 +70,23 @@ VS_TEST(peek) {
     heap =
         vs_binary_heap_create(sizeof(int), cmp_int_asc, vs_test_allocator_adapter(&test_allocator));
 
-    VS_ASSERT_PTR_NULL(vs_binary_heap_peek(heap));
+    if (vs_test_null(vs_binary_heap_peek(heap)) != 0) {
+        return 1;
+    }
 
     vs_binary_heap_push(heap, &value);
     out = (const int *)vs_binary_heap_peek(heap);
-    VS_ASSERT_PTR_NOT_NULL(out);
-    VS_ASSERT_EQ(*out, 3);
+    if (vs_test_not_null(out) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(*out, 3) != 0) {
+        return 1;
+    }
 
     vs_binary_heap_destroy(heap);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -93,13 +104,19 @@ VS_TEST(pop) {
 
     for (size_t i = 0; i < 3; i++) {
         int *out = (int *)vs_binary_heap_pop(heap);
-        VS_ASSERT_PTR_NOT_NULL(out);
+        if (vs_test_not_null(out) != 0) {
+            return 1;
+        }
     }
 
-    VS_ASSERT_PTR_NULL(vs_binary_heap_pop(heap));
+    if (vs_test_null(vs_binary_heap_pop(heap)) != 0) {
+        return 1;
+    }
 
     vs_binary_heap_destroy(heap);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -117,12 +134,20 @@ VS_TEST(push) {
     }
 
     top = (const int *)vs_binary_heap_peek(heap);
-    VS_ASSERT_PTR_NOT_NULL(top);
-    VS_ASSERT_EQ(*top, 1);
-    VS_ASSERT_EQ(vs_binary_heap_size(heap), 4);
+    if (vs_test_not_null(top) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(*top, 1) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(vs_binary_heap_size(heap), 4) != 0) {
+        return 1;
+    }
 
     vs_binary_heap_destroy(heap);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -139,11 +164,17 @@ VS_TEST(default_byte_ordering) {
     }
 
     top = (const uint8_t *)vs_binary_heap_peek(heap);
-    VS_ASSERT_PTR_NOT_NULL(top);
-    VS_ASSERT_EQ(*top, 1);
+    if (vs_test_not_null(top) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(*top, 1) != 0) {
+        return 1;
+    }
 
     vs_binary_heap_destroy(heap);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -164,11 +195,17 @@ VS_TEST(custom_comparator) {
     }
 
     top = (const int *)vs_binary_heap_peek(heap);
-    VS_ASSERT_PTR_NOT_NULL(top);
-    VS_ASSERT_EQ(*top, 8);
+    if (vs_test_not_null(top) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(*top, 8) != 0) {
+        return 1;
+    }
 
     vs_binary_heap_destroy(heap);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 

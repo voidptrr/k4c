@@ -26,7 +26,7 @@
 
 #include "vstd/assert.h"
 #include "vstd/datastruct/linked_list.h"
-#include "vstd/memory/allocators/allocator.h"
+#include "vstd/memory/allocator.h"
 
 struct vs_linked_list {
     size_t size;

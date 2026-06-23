@@ -27,7 +27,7 @@
 
 #include <stddef.h>
 
-#include "vstd/memory/allocators/allocator.h"
+#include "vstd/memory/allocator.h"
 
 /*
  * Opaque intrusive doubly linked list.

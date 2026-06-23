@@ -7,50 +7,61 @@ const c_flags = &.{
     "-Wpedantic",
 };
 
-const sources = &.{
-    "src/assert.c",
-    "src/datastruct/binary_heap.c",
-    "src/datastruct/deque.c",
-    "src/datastruct/doubly_linked_list.c",
-    "src/datastruct/hash_common.c",
-    "src/datastruct/hashmap.c",
-    "src/datastruct/hashset.c",
-    "src/datastruct/linked_list.c",
-    "src/datastruct/string.c",
-    "src/datastruct/vector.c",
-    "src/memory/allocators/allocator.c",
-    "src/memory/allocators/arena.c",
-    "src/memory/allocators/general_heap.c",
-    "src/memory/allocators/test_allocator.c",
-    "src/memory/utils.c",
-    "src/testing.c",
-};
-
-const tests = &.{
-    .{ .name = "datastruct-binary-heap", .path = "tests/datastruct/binary_heap_test.c" },
-    .{ .name = "datastruct-deque", .path = "tests/datastruct/deque_test.c" },
-    .{ .name = "datastruct-hashmap", .path = "tests/datastruct/hashmap_test.c" },
-    .{ .name = "datastruct-hashset", .path = "tests/datastruct/hashset_test.c" },
-    .{ .name = "datastruct-linked-list", .path = "tests/datastruct/linked_list_test.c" },
-    .{ .name = "datastruct-string", .path = "tests/datastruct/string_test.c" },
-    .{ .name = "datastruct-vector", .path = "tests/datastruct/vector_test.c" },
-    .{ .name = "memory-arena-alloc", .path = "tests/memory/arena/alloc_test.c" },
-    .{ .name = "memory-arena-init", .path = "tests/memory/arena/init_test.c" },
-    .{ .name = "memory-arena-realloc", .path = "tests/memory/arena/realloc_test.c" },
-    .{ .name = "memory-arena-reset", .path = "tests/memory/arena/reset_test.c" },
-    .{ .name = "memory-heap-alloc-free", .path = "tests/memory/heap/alloc_free_test.c" },
-    .{ .name = "memory-heap-init", .path = "tests/memory/heap/init_test.c" },
-    .{ .name = "memory-heap-realloc", .path = "tests/memory/heap/realloc_test.c" },
-};
-
 fn addCommonSettings(b: *std.Build, module: *std.Build.Module) void {
     module.addIncludePath(b.path("include"));
     module.addIncludePath(b.path("src"));
 }
 
+fn pathLessThan(_: void, lhs: []const u8, rhs: []const u8) bool {
+    return std.mem.lessThan(u8, lhs, rhs);
+}
+
+fn discoverCFiles(b: *std.Build, root_path: []const u8) []const []const u8 {
+    const allocator = b.allocator;
+    const io = b.graph.io;
+    var root = std.Io.Dir.cwd().openDir(io, root_path, .{ .iterate = true }) catch |err| {
+        std.debug.panic("unable to open {s}: {s}", .{ root_path, @errorName(err) });
+    };
+    defer root.close(io);
+
+    var walker = root.walk(allocator) catch @panic("OOM");
+    defer walker.deinit();
+
+    var files = std.array_list.Managed([]const u8).init(allocator);
+    while (walker.next(io) catch |err| {
+        std.debug.panic("unable to walk {s}: {s}", .{ root_path, @errorName(err) });
+    }) |entry| {
+        if (entry.kind != .file or !std.mem.endsWith(u8, entry.path, ".c")) {
+            continue;
+        }
+
+        const path = std.fs.path.join(allocator, &.{ root_path, entry.path }) catch @panic("OOM");
+        files.append(path) catch @panic("OOM");
+    }
+
+    std.sort.heap([]const u8, files.items, {}, pathLessThan);
+    return files.toOwnedSlice() catch @panic("OOM");
+}
+
+fn testNameFromPath(b: *std.Build, path: []const u8) []const u8 {
+    const prefix = "tests/";
+    const suffix = "_test.c";
+    const relative = if (std.mem.startsWith(u8, path, prefix)) path[prefix.len..] else path;
+    const without_suffix = if (std.mem.endsWith(u8, relative, suffix))
+        relative[0 .. relative.len - suffix.len]
+    else
+        relative;
+    const name = b.allocator.dupe(u8, without_suffix) catch @panic("OOM");
+    std.mem.replaceScalar(u8, name, '/', '-');
+    std.mem.replaceScalar(u8, name, '_', '-');
+    return name;
+}
+
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
+    const sources = discoverCFiles(b, "src");
+    const tests = discoverCFiles(b, "tests");
 
     const lib_mod = b.createModule(.{
         .target = target,
@@ -76,7 +87,7 @@ pub fn build(b: *std.Build) void {
     }).step);
 
     const test_step = b.step("test", "Build and run the C test suite");
-    inline for (tests) |test_case| {
+    for (tests) |test_path| {
         const test_mod = b.createModule(.{
             .target = target,
             .optimize = optimize,
@@ -84,12 +95,12 @@ pub fn build(b: *std.Build) void {
         });
         addCommonSettings(b, test_mod);
         test_mod.addCSourceFile(.{
-            .file = b.path(test_case.path),
+            .file = b.path(test_path),
             .flags = c_flags,
         });
 
         const exe = b.addExecutable(.{
-            .name = test_case.name,
+            .name = testNameFromPath(b, test_path),
             .root_module = test_mod,
         });
         test_mod.linkLibrary(lib);

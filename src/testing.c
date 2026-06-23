@@ -27,79 +27,80 @@
 
 #include "vstd/testing.h"
 
-int vs_test_fail(const char *file, int line, const char *condition, const char *message) {
-    if (message == NULL) {
-        fprintf(stderr, "%s:%d: assertion failed: %s\n", file, line, condition);
-    } else {
-        fprintf(stderr, "%s:%d: assertion failed: %s: %s\n", file, line, condition, message);
-    }
-
-    return 1;
-}
-
-int vs_test_fail_eq(
-    const char *file,
-    int line,
-    const char *actual_expr,
-    const char *expected_expr
-) {
-    fprintf(stderr, "%s:%d: assertion failed: %s == %s\n", file, line, actual_expr, expected_expr);
-    return 1;
-}
-
-int vs_test_fail_ptr_null(const char *file, int line, const char *expr, const void *ptr) {
-    fprintf(stderr, "%s:%d: assertion failed: %s == NULL (actual %p)\n", file, line, expr, ptr);
-    return 1;
-}
-
-int vs_test_fail_ptr_eq(
-    const char *file,
-    int line,
-    const char *actual_expr,
-    const char *expected_expr,
-    const void *actual,
-    const void *expected
-) {
-    fprintf(
-        stderr,
-        "%s:%d: assertion failed: %s == %s (actual %p, expected %p)\n",
-        file,
-        line,
-        actual_expr,
-        expected_expr,
-        actual,
-        expected
-    );
-    return 1;
-}
-
-int vs_test_fail_str_eq(
-    const char *file,
-    int line,
-    const char *actual_expr,
-    const char *expected_expr,
-    const char *actual,
-    const char *expected
-) {
-    fprintf(
-        stderr,
-        "%s:%d: assertion failed: %s == %s (actual \"%s\", expected \"%s\")\n",
-        file,
-        line,
-        actual_expr,
-        expected_expr,
-        actual == NULL ? "(null)" : actual,
-        expected == NULL ? "(null)" : expected
-    );
-    return 1;
-}
-
 bool vs_test_str_eq(const char *actual, const char *expected) {
     if (actual == NULL || expected == NULL) {
         return actual == expected;
     }
 
     return strcmp(actual, expected) == 0;
+}
+
+int vs_test_equal(intmax_t actual, intmax_t expected) {
+    if (actual == expected) {
+        return 0;
+    }
+
+    fprintf(stderr, "test assertion failed: actual %jd, expected %jd\n", actual, expected);
+    return 1;
+}
+
+int vs_test_not_equal(intmax_t actual, intmax_t expected) {
+    if (actual != expected) {
+        return 0;
+    }
+
+    fprintf(stderr, "test assertion failed: values are equal (%jd)\n", actual);
+    return 1;
+}
+
+int vs_test_equal_ptr(const void *actual, const void *expected) {
+    if (actual == expected) {
+        return 0;
+    }
+
+    fprintf(stderr, "test assertion failed: actual %p, expected %p\n", actual, expected);
+    return 1;
+}
+
+int vs_test_not_equal_ptr(const void *actual, const void *expected) {
+    if (actual != expected) {
+        return 0;
+    }
+
+    fprintf(stderr, "test assertion failed: pointers are equal (%p)\n", actual);
+    return 1;
+}
+
+int vs_test_null(const void *ptr) {
+    if (ptr == NULL) {
+        return 0;
+    }
+
+    fprintf(stderr, "test assertion failed: expected NULL, got %p\n", ptr);
+    return 1;
+}
+
+int vs_test_not_null(const void *ptr) {
+    if (ptr != NULL) {
+        return 0;
+    }
+
+    fprintf(stderr, "test assertion failed: expected non-NULL pointer\n");
+    return 1;
+}
+
+int vs_test_equal_str(const char *actual, const char *expected) {
+    if (vs_test_str_eq(actual, expected)) {
+        return 0;
+    }
+
+    fprintf(
+        stderr,
+        "test assertion failed: actual \"%s\", expected \"%s\"\n",
+        actual == NULL ? "(null)" : actual,
+        expected == NULL ? "(null)" : expected
+    );
+    return 1;
 }
 
 int vs_test_run(const vs_test_case *cases, size_t count) {

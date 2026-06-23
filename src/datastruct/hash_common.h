@@ -30,7 +30,7 @@
 
 #include "hash.h"
 #include "vstd/datastruct/linked_list.h"
-#include "vstd/memory/allocators/allocator.h"
+#include "vstd/memory/allocator.h"
 
 #define VS_HASH_COMMON_DEFAULT_CAPACITY 16
 #define VS_HASH_COMMON_MAX_LOAD 0.75
