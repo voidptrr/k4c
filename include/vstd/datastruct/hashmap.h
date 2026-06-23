@@ -28,6 +28,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "vstd/datastruct/iterator.h"
 #include "vstd/memory/allocator.h"
 
 /*
@@ -92,6 +93,12 @@ void vs_hashmap_remove(vs_hashmap *map, const void *key);
 
 /* Return the number of stored entries. */
 size_t vs_hashmap_size(const vs_hashmap *map);
+
+/* Return an iterator over key/value entry views in bucket order. */
+vs_iterator vs_hashmap_iterator(const vs_hashmap *map);
+
+/* Advance a VS_ITERATOR_HASHMAP iterator. */
+const void *vs_hashmap_iterator_next(vs_iterator *iter);
 
 /*
  * Release all entries, bucket storage, and the hashmap handle.

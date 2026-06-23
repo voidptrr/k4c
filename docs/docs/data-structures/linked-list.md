@@ -101,6 +101,17 @@ vs_linked_list_node *vs_linked_list_head(const vs_linked_list *list);
 - Parameters: `list`
 - Returns: current head node, or `NULL` when list is empty.
 
+### vs_linked_list_iterator
+
+```c
+vs_iterator vs_linked_list_iterator(const vs_linked_list *list);
+```
+
+- Parameters: `list`
+- Returns: iterator over list nodes from head to tail.
+- Notes: yielded pointers are `const vs_linked_list_node *`. Use
+  `VS_CONTAINER_OF` to recover the owning object.
+
 ### vs_linked_list_destroy
 
 ```c

@@ -28,6 +28,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "vstd/datastruct/iterator.h"
 #include "vstd/memory/allocator.h"
 
 /*
@@ -74,6 +75,12 @@ void vs_string_clear(vs_string string);
 
 /* Return the number of bytes before the terminating NUL. */
 size_t vs_string_len(const vs_string string);
+
+/* Return an iterator over bytes before the terminating NUL. */
+vs_iterator vs_string_iterator(const vs_string string);
+
+/* Advance a VS_ITERATOR_STRING iterator. */
+const void *vs_string_iterator_next(vs_iterator *iter);
 
 /* Destroy and release owned storage. */
 void vs_string_destroy(vs_string string);

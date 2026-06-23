@@ -28,6 +28,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "vstd/datastruct/iterator.h"
 #include "vstd/memory/allocator.h"
 
 /*
@@ -96,6 +97,12 @@ void vs_hashset_remove(vs_hashset *set, const void *elem);
 
 /* Return the number of stored elements. */
 size_t vs_hashset_size(const vs_hashset *set);
+
+/* Return an iterator over stored elements in bucket order. */
+vs_iterator vs_hashset_iterator(const vs_hashset *set);
+
+/* Advance a VS_ITERATOR_HASHSET iterator. */
+const void *vs_hashset_iterator_next(vs_iterator *iter);
 
 /*
  * Release all entries and the hashset handle.

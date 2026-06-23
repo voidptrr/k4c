@@ -25,6 +25,7 @@
 #include <stddef.h>
 
 #include "vstd/assert.h"
+#include "vstd/datastruct/iterator.h"
 #include "vstd/datastruct/linked_list.h"
 #include "vstd/memory/allocator.h"
 
@@ -125,6 +126,32 @@ vs_linked_list_node *vs_linked_list_head(const vs_linked_list *list) {
     VSTD_ASSERT(list != NULL, "fatal: vs_linked_list_head invalid arguments");
 
     return list->head;
+}
+
+vs_iterator vs_linked_list_iterator(const vs_linked_list *list) {
+    vs_iterator out;
+
+    VSTD_ASSERT(list != NULL, "fatal: vs_linked_list_iterator invalid arguments");
+
+    out.type = VS_ITERATOR_LINKED_LIST;
+    out.as.linked_list.node = list->head;
+    return out;
+}
+
+const void *vs_linked_list_iterator_next(vs_iterator *iter) {
+    VSTD_ASSERT(iter != NULL, "fatal: vs_linked_list_iterator_next invalid arguments");
+    VSTD_ASSERT(
+        iter->type == VS_ITERATOR_LINKED_LIST,
+        "fatal: vs_linked_list_iterator_next invalid arguments"
+    );
+
+    vs_linked_list_node *node = iter->as.linked_list.node;
+    if (node == NULL) {
+        return NULL;
+    }
+
+    iter->as.linked_list.node = node->next;
+    return node;
 }
 
 void vs_linked_list_destroy(vs_linked_list *list) {

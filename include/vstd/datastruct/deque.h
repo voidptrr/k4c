@@ -28,6 +28,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "vstd/datastruct/iterator.h"
 #include "vstd/memory/allocator.h"
 
 /*
@@ -73,6 +74,12 @@ const void *vs_deque_peekback(const vs_deque *deque);
 
 /* Return the number of stored elements. */
 size_t vs_deque_size(const vs_deque *deque);
+
+/* Return an iterator over deque from front to back. */
+vs_iterator vs_deque_iterator(const vs_deque *deque);
+
+/* Advance a VS_ITERATOR_DEQUE iterator. */
+const void *vs_deque_iterator_next(vs_iterator *iter);
 
 /* Destroy and release owned storage. */
 void vs_deque_destroy(vs_deque *deque);

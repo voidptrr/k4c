@@ -43,6 +43,7 @@ nav = [
     ] },
   ] },
   { "Data structures" = [
+    { "Iterators" = "data-structures/iterator.md" },
     { "Hashmap" = "data-structures/hashmap.md" },
     { "Hashset" = "data-structures/hashset.md" },
     { "Binary heap" = "data-structures/binary-heap.md" },

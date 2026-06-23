@@ -100,6 +100,17 @@ size_t vs_string_len(const vs_string string);
 - Parameters: `string`
 - Returns: number of bytes before the terminating NUL.
 
+### vs_string_iterator
+
+```c
+vs_iterator vs_string_iterator(const vs_string string);
+```
+
+- Parameters: `string`
+- Returns: iterator over bytes before the terminating NUL.
+- Notes: yielded pointers are `const char *`. Do not mutate or reallocate the
+  string while iterating.
+
 ### vs_string_destroy
 
 ```c

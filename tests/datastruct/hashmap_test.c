@@ -52,7 +52,7 @@ VS_TEST(allocator) {
     vs_test_allocator_reset_counts(&test_allocator);
 
     vs_hashmap_put(map, &key, &value);
-    if (vs_test_equal(test_allocator.alloc_count, 1) != 0) {
+    if (test_allocator.alloc_count != 1) {
         return 1;
     }
 
@@ -74,7 +74,7 @@ VS_TEST(init) {
         NULL,
         vs_test_allocator_adapter(&test_allocator)
     );
-    if (vs_test_equal(vs_hashmap_size(map), 0) != 0) {
+    if (vs_hashmap_size(map) != 0) {
         return 1;
     }
 
@@ -200,7 +200,7 @@ VS_TEST(put_get) {
     if (vs_test_equal(*out, value2) != 0) {
         return 1;
     }
-    if (vs_test_equal(vs_hashmap_size(map), 1) != 0) {
+    if (vs_hashmap_size(map) != 1) {
         return 1;
     }
 
@@ -229,12 +229,57 @@ VS_TEST(remove_growth) {
         vs_hashmap_put(map, &i, &value);
     }
 
-    if (vs_test_equal(vs_hashmap_size(map), 256) != 0) {
+    if (vs_hashmap_size(map) != 256) {
         return 1;
     }
 
     vs_hashmap_remove(map, &key);
     if (vs_test_null(vs_hashmap_get(map, &key)) != 0) {
+        return 1;
+    }
+
+    vs_hashmap_destroy(map);
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+VS_TEST(iterator_walks_entries) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_hashmap *map;
+    vs_iterator iter;
+    const vs_hashmap_entry_view *entry;
+    uint64_t key_sum = 0;
+    uint64_t value_sum = 0;
+    size_t count = 0;
+
+    map = vs_hashmap_create(
+        sizeof(uint64_t),
+        sizeof(uint64_t),
+        NULL,
+        vs_test_allocator_adapter(&test_allocator)
+    );
+
+    for (uint64_t i = 1; i <= 4; i++) {
+        uint64_t value = i * 10;
+        vs_hashmap_put(map, &i, &value);
+    }
+
+    iter = vs_hashmap_iterator(map);
+    while ((entry = (const vs_hashmap_entry_view *)vs_iterator_next(&iter)) != NULL) {
+        key_sum += *(const uint64_t *)entry->key;
+        value_sum += *(const uint64_t *)entry->value;
+        count += 1;
+    }
+    if (count != 4) {
+        return 1;
+    }
+    if (key_sum != 10) {
+        return 1;
+    }
+    if (value_sum != 100) {
         return 1;
     }
 
@@ -251,5 +296,6 @@ VS_TEST_MAIN(
     VS_TEST_CASE(default_byte_equality),
     VS_TEST_CASE(custom_equality),
     VS_TEST_CASE(put_get),
-    VS_TEST_CASE(remove_growth)
+    VS_TEST_CASE(remove_growth),
+    VS_TEST_CASE(iterator_walks_entries)
 )

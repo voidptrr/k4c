@@ -84,6 +84,17 @@ size_t vs_deque_size(const vs_deque *deque);
 - Parameters: `deque`
 - Returns: current element count.
 
+### vs_deque_iterator
+
+```c
+vs_iterator vs_deque_iterator(const vs_deque *deque);
+```
+
+- Parameters: `deque`
+- Returns: iterator over deque elements from front to back.
+- Notes: yielded pointers refer to deque-managed storage. Do not mutate the
+  deque while iterating.
+
 ### vs_deque_destroy
 
 ```c

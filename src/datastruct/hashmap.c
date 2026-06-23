@@ -29,6 +29,7 @@
 #include "datastruct/hash_common.h"
 #include "vstd/assert.h"
 #include "vstd/datastruct/hashmap.h"
+#include "vstd/datastruct/iterator.h"
 #include "vstd/datastruct/linked_list.h"
 #include "vstd/memory/allocator.h"
 #include "vstd/memory/utils.h"
@@ -200,6 +201,45 @@ size_t vs_hashmap_size(const vs_hashmap *map) {
     VSTD_ASSERT(map != NULL, "fatal: vs_hashmap_size invalid arguments");
 
     return map->size;
+}
+
+vs_iterator vs_hashmap_iterator(const vs_hashmap *map) {
+    vs_iterator out;
+
+    VSTD_ASSERT(map != NULL, "fatal: vs_hashmap_iterator invalid arguments");
+
+    out.type = VS_ITERATOR_HASHMAP;
+    out.as.hashmap.map = map;
+    out.as.hashmap.bucket = 0;
+    out.as.hashmap.node = NULL;
+    out.as.hashmap.entry.key = NULL;
+    out.as.hashmap.entry.value = NULL;
+    return out;
+}
+
+const void *vs_hashmap_iterator_next(vs_iterator *iter) {
+    VSTD_ASSERT(iter != NULL, "fatal: vs_hashmap_iterator_next invalid arguments");
+    VSTD_ASSERT(
+        iter->type == VS_ITERATOR_HASHMAP,
+        "fatal: vs_hashmap_iterator_next invalid arguments"
+    );
+
+    const vs_hashmap *map = iter->as.hashmap.map;
+    while (iter->as.hashmap.node == NULL && iter->as.hashmap.bucket < map->capacity) {
+        iter->as.hashmap.node = vs_linked_list_head(map->buckets[iter->as.hashmap.bucket]);
+        iter->as.hashmap.bucket += 1;
+    }
+
+    if (iter->as.hashmap.node == NULL) {
+        return NULL;
+    }
+
+    vs_linked_list_node *node = iter->as.hashmap.node;
+    vs_hashmap_entry *entry = VS_CONTAINER_OF(node, vs_hashmap_entry, node);
+    iter->as.hashmap.node = node->next;
+    iter->as.hashmap.entry.key = entry->data;
+    iter->as.hashmap.entry.value = vs_hashmap_entry_value_const(map, entry);
+    return &iter->as.hashmap.entry;
 }
 
 void vs_hashmap_destroy(vs_hashmap *map) {

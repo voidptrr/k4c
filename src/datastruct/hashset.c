@@ -29,6 +29,7 @@
 #include "datastruct/hash_common.h"
 #include "vstd/assert.h"
 #include "vstd/datastruct/hashset.h"
+#include "vstd/datastruct/iterator.h"
 #include "vstd/datastruct/linked_list.h"
 #include "vstd/memory/allocator.h"
 #include "vstd/memory/utils.h"
@@ -183,6 +184,41 @@ size_t vs_hashset_size(const vs_hashset *set) {
     VSTD_ASSERT(set != NULL, "fatal: vs_hashset_size invalid arguments");
 
     return set->size;
+}
+
+vs_iterator vs_hashset_iterator(const vs_hashset *set) {
+    vs_iterator out;
+
+    VSTD_ASSERT(set != NULL, "fatal: vs_hashset_iterator invalid arguments");
+
+    out.type = VS_ITERATOR_HASHSET;
+    out.as.hashset.set = set;
+    out.as.hashset.bucket = 0;
+    out.as.hashset.node = NULL;
+    return out;
+}
+
+const void *vs_hashset_iterator_next(vs_iterator *iter) {
+    VSTD_ASSERT(iter != NULL, "fatal: vs_hashset_iterator_next invalid arguments");
+    VSTD_ASSERT(
+        iter->type == VS_ITERATOR_HASHSET,
+        "fatal: vs_hashset_iterator_next invalid arguments"
+    );
+
+    const vs_hashset *set = iter->as.hashset.set;
+    while (iter->as.hashset.node == NULL && iter->as.hashset.bucket < set->capacity) {
+        iter->as.hashset.node = vs_linked_list_head(set->buckets[iter->as.hashset.bucket]);
+        iter->as.hashset.bucket += 1;
+    }
+
+    if (iter->as.hashset.node == NULL) {
+        return NULL;
+    }
+
+    vs_linked_list_node *node = iter->as.hashset.node;
+    vs_hashset_entry *entry = VS_CONTAINER_OF(node, vs_hashset_entry, node);
+    iter->as.hashset.node = node->next;
+    return entry->data;
 }
 
 void vs_hashset_destroy(vs_hashset *set) {

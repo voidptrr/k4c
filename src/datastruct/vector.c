@@ -26,6 +26,7 @@
 #include <string.h>
 
 #include "vstd/assert.h"
+#include "vstd/datastruct/iterator.h"
 #include "vstd/datastruct/vector.h"
 #include "vstd/memory/allocator.h"
 
@@ -137,6 +138,89 @@ size_t vs_vector_size(const vs_vector *vector) {
     VSTD_ASSERT(vector != NULL, "fatal: vs_vector_size invalid arguments");
 
     return vector->size;
+}
+
+vs_iterator vs_vector_iterator(const vs_vector *vector) {
+    vs_iterator out;
+
+    VSTD_ASSERT(vector != NULL, "fatal: vs_vector_iterator invalid arguments");
+
+    out.type = VS_ITERATOR_VECTOR;
+    out.as.vector.vector = vector;
+    out.as.vector.index = 0;
+    return out;
+}
+
+const void *vs_vector_iterator_next(vs_iterator *iter) {
+    VSTD_ASSERT(iter != NULL, "fatal: vs_vector_iterator_next invalid arguments");
+    VSTD_ASSERT(
+        iter->type == VS_ITERATOR_VECTOR,
+        "fatal: vs_vector_iterator_next invalid arguments"
+    );
+
+    if (iter->as.vector.index >= vs_vector_size(iter->as.vector.vector)) {
+        return NULL;
+    }
+
+    return vs_vector_get_const(iter->as.vector.vector, iter->as.vector.index++);
+}
+
+size_t vs_vector_lower_bound(const vs_vector *vector, const void *key, vs_vector_cmp_fn cmp) {
+    VSTD_ASSERT(vector != NULL, "fatal: vs_vector_lower_bound invalid arguments");
+    VSTD_ASSERT(key != NULL, "fatal: vs_vector_lower_bound invalid arguments");
+    VSTD_ASSERT(cmp != NULL, "fatal: vs_vector_lower_bound invalid arguments");
+
+    size_t first = 0;
+    size_t count = vector->size;
+
+    while (count > 0) {
+        size_t step = count / 2;
+        size_t mid = first + step;
+        const void *item = vs_vector_get_const(vector, mid);
+
+        if (cmp(item, key) < 0) {
+            first = mid + 1;
+            count -= step + 1;
+        } else {
+            count = step;
+        }
+    }
+
+    return first;
+}
+
+size_t vs_vector_upper_bound(const vs_vector *vector, const void *key, vs_vector_cmp_fn cmp) {
+    VSTD_ASSERT(vector != NULL, "fatal: vs_vector_upper_bound invalid arguments");
+    VSTD_ASSERT(key != NULL, "fatal: vs_vector_upper_bound invalid arguments");
+    VSTD_ASSERT(cmp != NULL, "fatal: vs_vector_upper_bound invalid arguments");
+
+    size_t first = 0;
+    size_t count = vector->size;
+
+    while (count > 0) {
+        size_t step = count / 2;
+        size_t mid = first + step;
+        const void *item = vs_vector_get_const(vector, mid);
+
+        if (cmp(key, item) >= 0) {
+            first = mid + 1;
+            count -= step + 1;
+        } else {
+            count = step;
+        }
+    }
+
+    return first;
+}
+
+size_t vs_vector_binary_search(const vs_vector *vector, const void *key, vs_vector_cmp_fn cmp) {
+    size_t index = vs_vector_lower_bound(vector, key, cmp);
+
+    if (index < vs_vector_size(vector) && cmp(vs_vector_get_const(vector, index), key) == 0) {
+        return index;
+    }
+
+    return vs_vector_size(vector);
 }
 
 void vs_vector_destroy(vs_vector *vector) {

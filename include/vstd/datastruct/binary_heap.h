@@ -28,6 +28,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "vstd/datastruct/iterator.h"
 #include "vstd/memory/allocator.h"
 
 /*
@@ -76,6 +77,12 @@ const void *vs_binary_heap_peek(const vs_binary_heap *heap);
 
 /* Return the number of stored elements. */
 size_t vs_binary_heap_size(const vs_binary_heap *heap);
+
+/* Return an iterator over heap backing storage order. */
+vs_iterator vs_binary_heap_iterator(const vs_binary_heap *heap);
+
+/* Advance a VS_ITERATOR_BINARY_HEAP iterator. */
+const void *vs_binary_heap_iterator_next(vs_iterator *iter);
 
 /* Destroy and release owned storage. */
 void vs_binary_heap_destroy(vs_binary_heap *heap);

@@ -61,7 +61,7 @@ VS_TEST(init) {
     vs_linked_list *list;
     list = vs_linked_list_create(vs_test_allocator_adapter(&test_allocator));
 
-    if (vs_test_equal(vs_linked_list_size(list), 0) != 0) {
+    if (vs_linked_list_size(list) != 0) {
         return 1;
     }
 
@@ -133,7 +133,7 @@ VS_TEST(push) {
     if (vs_test_not_null(out_second_node) != 0) {
         return 1;
     }
-    if (vs_test_equal(vs_linked_list_size(list), 0) != 0) {
+    if (vs_linked_list_size(list) != 0) {
         return 1;
     }
 
@@ -172,7 +172,7 @@ VS_TEST(pushfront) {
     if (vs_test_not_null(out_first_node) != 0) {
         return 1;
     }
-    if (vs_test_equal(vs_linked_list_size(list), 0) != 0) {
+    if (vs_linked_list_size(list) != 0) {
         return 1;
     }
 
@@ -210,7 +210,7 @@ VS_TEST(remove_after) {
     if (vs_test_equal(removed_item->value, 2) != 0) {
         return 1;
     }
-    if (vs_test_equal(vs_linked_list_size(list), 2) != 0) {
+    if (vs_linked_list_size(list) != 2) {
         return 1;
     }
 
@@ -227,7 +227,42 @@ VS_TEST(remove_after) {
     if (vs_test_null(removed) != 0) {
         return 1;
     }
-    if (vs_test_equal(vs_linked_list_size(list), 1) != 0) {
+    if (vs_linked_list_size(list) != 1) {
+        return 1;
+    }
+
+    vs_linked_list_destroy(list);
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+VS_TEST(iterator_walks_nodes) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_linked_list *list;
+    test_item first = {.value = 1};
+    test_item second = {.value = 2};
+    test_item third = {.value = 3};
+    vs_iterator iter;
+    const vs_linked_list_node *node;
+    int expected = 1;
+
+    list = vs_linked_list_create(vs_test_allocator_adapter(&test_allocator));
+    vs_linked_list_push(list, &first.node);
+    vs_linked_list_push(list, &second.node);
+    vs_linked_list_push(list, &third.node);
+
+    iter = vs_linked_list_iterator(list);
+    while ((node = (const vs_linked_list_node *)vs_iterator_next(&iter)) != NULL) {
+        const test_item *item = VS_CONTAINER_OF(node, test_item, node);
+        if (vs_test_equal(item->value, expected) != 0) {
+            return 1;
+        }
+        expected += 1;
+    }
+    if (vs_test_equal(expected, 4) != 0) {
         return 1;
     }
 
@@ -244,5 +279,6 @@ VS_TEST_MAIN(
     VS_TEST_CASE(popleft),
     VS_TEST_CASE(push),
     VS_TEST_CASE(pushfront),
-    VS_TEST_CASE(remove_after)
+    VS_TEST_CASE(remove_after),
+    VS_TEST_CASE(iterator_walks_nodes)
 )

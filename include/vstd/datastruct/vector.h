@@ -28,6 +28,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "vstd/datastruct/iterator.h"
 #include "vstd/memory/allocator.h"
 
 /*
@@ -45,6 +46,9 @@
  * - get returns an item by index in O(1)
  */
 typedef struct vs_vector vs_vector;
+
+/* Comparator callback: negative if lhs < rhs, zero if equal, positive if lhs > rhs. */
+typedef int (*vs_vector_cmp_fn)(const void *lhs, const void *rhs);
 
 /* Create a vector with element size elem_size. */
 vs_vector *vs_vector_create(size_t elem_size, vs_allocator *allocator);
@@ -69,6 +73,21 @@ void *vs_vector_swap_remove(vs_vector *vector, size_t index);
 
 /* Return the number of stored elements. */
 size_t vs_vector_size(const vs_vector *vector);
+
+/* Return an iterator over vector from index 0 to size - 1. */
+vs_iterator vs_vector_iterator(const vs_vector *vector);
+
+/* Advance a VS_ITERATOR_VECTOR iterator. */
+const void *vs_vector_iterator_next(vs_iterator *iter);
+
+/* Return the first sorted index whose item is not less than key. */
+size_t vs_vector_lower_bound(const vs_vector *vector, const void *key, vs_vector_cmp_fn cmp);
+
+/* Return the first sorted index whose item is greater than key. */
+size_t vs_vector_upper_bound(const vs_vector *vector, const void *key, vs_vector_cmp_fn cmp);
+
+/* Return the sorted index containing key, or vs_vector_size(vector) when absent. */
+size_t vs_vector_binary_search(const vs_vector *vector, const void *key, vs_vector_cmp_fn cmp);
 
 /* Destroy and release owned storage. */
 void vs_vector_destroy(vs_vector *vector);

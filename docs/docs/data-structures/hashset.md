@@ -86,6 +86,17 @@ size_t vs_hashset_size(const vs_hashset *set);
 - Parameters: `set`
 - Returns: current element count.
 
+### vs_hashset_iterator
+
+```c
+vs_iterator vs_hashset_iterator(const vs_hashset *set);
+```
+
+- Parameters: `set`
+- Returns: iterator over stored elements in bucket order.
+- Notes: yielded pointers refer to set-managed storage. Do not mutate the set
+  while iterating.
+
 ### vs_hashset_destroy
 
 ```c

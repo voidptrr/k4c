@@ -61,6 +61,16 @@ size_t vs_binary_heap_size(const vs_binary_heap *heap);
 - Parameters: `heap`
 - Returns: current element count.
 
+### vs_binary_heap_iterator
+
+```c
+vs_iterator vs_binary_heap_iterator(const vs_binary_heap *heap);
+```
+
+- Parameters: `heap`
+- Returns: iterator over the heap's backing-storage order.
+- Notes: iteration order is not sorted order. Do not mutate the heap while iterating.
+
 ### vs_binary_heap_destroy
 
 ```c
