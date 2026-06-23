@@ -113,24 +113,7 @@ static void vs_log_write_timestamp(vs_log_timestamp timestamp) {
     }
 }
 
-void vs_log_set_level(vs_log_level level) {
-    vs_config.min_level = level;
-}
-
-void vs_log_set_timestamp(vs_log_timestamp timestamp) {
-    vs_config.timestamp = timestamp;
-}
-
-void vs_log_set_prefixes(const char *message_prefix, const char *error_prefix) {
-    vs_config.message_prefix = message_prefix;
-    vs_config.error_prefix = error_prefix;
-}
-
-void vs_log_set_color(bool enabled) {
-    vs_config.use_color = enabled;
-}
-
-static void vs_logv(vs_log_level level, const char *fmt, va_list args) {
+static void vs_internal_log(vs_log_level level, const char *fmt, va_list args) {
     const char *prefix;
     const char *level_name;
 
@@ -155,11 +138,28 @@ static void vs_logv(vs_log_level level, const char *fmt, va_list args) {
     printf("\n");
 }
 
+void vs_log_set_level(vs_log_level level) {
+    vs_config.min_level = level;
+}
+
+void vs_log_set_timestamp(vs_log_timestamp timestamp) {
+    vs_config.timestamp = timestamp;
+}
+
+void vs_log_set_prefixes(const char *message_prefix, const char *error_prefix) {
+    vs_config.message_prefix = message_prefix;
+    vs_config.error_prefix = error_prefix;
+}
+
+void vs_log_set_color(bool enabled) {
+    vs_config.use_color = enabled;
+}
+
 void vs_log_debug(const char *fmt, ...) {
     va_list args;
 
     va_start(args, fmt);
-    vs_logv(VS_LOG_LEVEL_DEBUG, fmt, args);
+    vs_internal_log(VS_LOG_LEVEL_DEBUG, fmt, args);
     va_end(args);
 }
 
@@ -167,7 +167,7 @@ void vs_log_info(const char *fmt, ...) {
     va_list args;
 
     va_start(args, fmt);
-    vs_logv(VS_LOG_LEVEL_INFO, fmt, args);
+    vs_internal_log(VS_LOG_LEVEL_INFO, fmt, args);
     va_end(args);
 }
 
@@ -175,7 +175,7 @@ void vs_log_warn(const char *fmt, ...) {
     va_list args;
 
     va_start(args, fmt);
-    vs_logv(VS_LOG_LEVEL_WARN, fmt, args);
+    vs_internal_log(VS_LOG_LEVEL_WARN, fmt, args);
     va_end(args);
 }
 
@@ -183,6 +183,6 @@ void vs_log_error(const char *fmt, ...) {
     va_list args;
 
     va_start(args, fmt);
-    vs_logv(VS_LOG_LEVEL_ERROR, fmt, args);
+    vs_internal_log(VS_LOG_LEVEL_ERROR, fmt, args);
     va_end(args);
 }
