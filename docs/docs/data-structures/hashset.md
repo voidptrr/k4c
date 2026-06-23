@@ -13,6 +13,16 @@ list nodes.
 
 This API is fail-fast: invalid required arguments are programmer errors and are asserted.
 
+## TYPES
+
+### vs_hashset_iterator_state
+
+```c
+typedef struct vs_hashset_iterator_state vs_hashset_iterator_state;
+```
+
+Caller-owned cursor state for `vs_hashset_iterator`.
+
 ## FUNCTIONS
 
 ### vs_hashset_create
@@ -29,6 +39,7 @@ vs_hashset *vs_hashset_create(size_t elem_size,
   rehashing, and destroy. When `allocator` is `NULL`, hashset uses the C
   library heap through `vs_malloc`. Custom `elem_eq` callbacks must be
   consistent with the byte hash used for bucket selection.
+- Example: `vs_hashset *set = vs_hashset_create(sizeof(uint64_t), NULL, NULL);`
 
 ### vs_hashset_insert
 
@@ -39,6 +50,7 @@ void vs_hashset_insert(vs_hashset *set, const void *elem);
 - Parameters: `set`, `elem`
 - Returns: none.
 - Notes: copies `elem` into set-managed storage when it is not already present.
+- Example: `vs_hashset_insert(set, &value);`
 
 ### vs_hashset_contains
 
@@ -48,6 +60,7 @@ bool vs_hashset_contains(const vs_hashset *set, const void *elem);
 
 - Parameters: `set`, `elem`
 - Returns: `true` when an equal element exists, otherwise `false`.
+- Example: `bool ok = vs_hashset_contains(set, &value);`
 
 ### vs_hashset_get
 
@@ -57,6 +70,7 @@ void *vs_hashset_get(vs_hashset *set, const void *elem);
 
 - Parameters: `set`, `elem`
 - Returns: pointer to stored element in set-managed storage, or `NULL` when element is missing.
+- Example: `uint64_t *stored = (uint64_t *)vs_hashset_get(set, &value);`
 
 ### vs_hashset_get_const
 
@@ -66,6 +80,7 @@ const void *vs_hashset_get_const(const vs_hashset *set, const void *elem);
 
 - Parameters: `set`, `elem`
 - Returns: const pointer to stored element in set-managed storage, or `NULL` when element is missing.
+- Example: `const uint64_t *stored = (const uint64_t *)vs_hashset_get_const(set, &value);`
 
 ### vs_hashset_remove
 
@@ -76,6 +91,7 @@ void vs_hashset_remove(vs_hashset *set, const void *elem);
 - Parameters: `set`, `elem`
 - Returns: none.
 - Notes: removes an equal element when present. Missing elements are ignored.
+- Example: `vs_hashset_remove(set, &value);`
 
 ### vs_hashset_size
 
@@ -85,6 +101,7 @@ size_t vs_hashset_size(const vs_hashset *set);
 
 - Parameters: `set`
 - Returns: current element count.
+- Example: `size_t count = vs_hashset_size(set);`
 
 ### vs_hashset_iterator
 
@@ -96,6 +113,7 @@ vs_iterator vs_hashset_iterator(vs_hashset_iterator_state *state, const vs_hashs
 - Returns: iterator over stored elements in bucket order.
 - Notes: `state` must outlive the returned iterator. Yielded pointers refer to
   set-managed storage. Do not mutate the set while iterating.
+- Example: `vs_iterator iter = vs_hashset_iterator(&state, set);`
 
 ### vs_hashset_destroy
 
@@ -106,36 +124,5 @@ void vs_hashset_destroy(vs_hashset *set);
 - Parameters: `set`
 - Returns: none.
 - Notes: releases entries, buckets, and the opaque handle. Do not use `set` after this call.
+- Example: `vs_hashset_destroy(set);`
 
-## EXAMPLE
-
-```c
-#include <vstd/datastruct/hashset.h>
-#include <stdint.h>
-
-int main(void) {
-    int status = 0;
-    vs_hashset *set;
-    uint64_t value = 42;
-    const uint64_t *found = NULL;
-
-    set = vs_hashset_create(sizeof(uint64_t), NULL, NULL);
-    vs_hashset_insert(set, &value);
-
-    found = (const uint64_t *)vs_hashset_get_const(set, &value);
-    if (found == NULL || *found != value) {
-        status = 1;
-        goto cleanup;
-    }
-
-    vs_hashset_remove(set, &value);
-    if (vs_hashset_contains(set, &value) || vs_hashset_size(set) != 0) {
-        status = 1;
-        goto cleanup;
-    }
-
-cleanup:
-    vs_hashset_destroy(set);
-    return status;
-}
-```

@@ -11,6 +11,11 @@ Iterators do not allocate. They borrow the data structure or caller-owned
 callback context they point at. Adapter iterators borrow their source iterator,
 so the source iterator must outlive any adapter built from it.
 
+The `context` parameter is intentionally generic. For `vs_iterator_from_callback`
+it is usually cursor state, such as an index into a vector. For adapter
+callbacks it is caller data for the predicate or map function. Pass `NULL` when
+a callback does not need extra data.
+
 This API is fail-fast: invalid required arguments are programmer errors and are asserted.
 
 ## TYPES
@@ -49,18 +54,6 @@ typedef const void *(*vs_iterator_map_fn)(void *context, const void *item);
 Map callback used by `map`. The returned pointer must remain valid long enough
 for the caller to consume it.
 
-### vs_hashmap_entry_view
-
-```c
-typedef struct vs_hashmap_entry_view {
-    const void *key;
-    const void *value;
-} vs_hashmap_entry_view;
-```
-
-Hashmap iterators yield pointers to this view. The view is stored inside the
-iterator and is overwritten by the next `vs_iterator_next` call on that iterator.
-
 ## FUNCTIONS
 
 ### vs_iterator_from_callback
@@ -72,6 +65,7 @@ vs_iterator vs_iterator_from_callback(void *context, vs_iterator_next_fn next);
 - Parameters: `context`, `next`
 - Returns: iterator backed by caller-owned state.
 - Notes: use this to integrate custom data structures with vstd adapters.
+- Example: `vs_iterator iter = vs_iterator_from_callback(&state, next_fn);`
 
 ### vs_iterator_next
 
@@ -81,6 +75,7 @@ const void *vs_iterator_next(vs_iterator *iter);
 
 - Parameters: `iter`
 - Returns: next item pointer, or `NULL` when exhausted.
+- Example: `while ((item = vs_iterator_next(&iter)) != NULL) { }`
 
 ### vs_iterator_filter
 
@@ -93,6 +88,7 @@ vs_iterator vs_iterator_filter(vs_iterator *source,
 - Parameters: `source`, `predicate`, `context`
 - Returns: iterator that yields only source items accepted by `predicate`.
 - Notes: `source` must outlive the returned iterator.
+- Example: `vs_iterator even = vs_iterator_filter(&base, int_is_even, NULL);`
 
 ### vs_iterator_map
 
@@ -103,6 +99,7 @@ vs_iterator vs_iterator_map(vs_iterator *source, vs_iterator_map_fn map, void *c
 - Parameters: `source`, `map`, `context`
 - Returns: iterator that yields `map(context, item)` for each source item.
 - Notes: `source` must outlive the returned iterator.
+- Example: `vs_iterator squares = vs_iterator_map(&base, int_square, &scratch);`
 
 ### vs_iterator_take_while
 
@@ -115,61 +112,4 @@ vs_iterator vs_iterator_take_while(vs_iterator *source,
 - Parameters: `source`, `predicate`, `context`
 - Returns: iterator that stops after the first source item rejected by `predicate`.
 - Notes: `source` must outlive the returned iterator.
-
-## EXAMPLE
-
-```c
-#include <vstd/datastruct/iterator.h>
-#include <vstd/datastruct/vector.h>
-
-static bool int_is_even(void *context, const void *item) {
-    (void)context;
-    return (*(const int *)item % 2) == 0;
-}
-
-int main(void) {
-    vs_vector *vector = vs_vector_create(sizeof(int), NULL);
-    for (int i = 0; i < 4; i++) {
-        vs_vector_push(vector, &i);
-    }
-
-    vs_vector_iterator_state vector_state;
-    vs_iterator base = vs_vector_iterator(&vector_state, vector);
-    vs_iterator even = vs_iterator_filter(&base, int_is_even, NULL);
-
-    const int *item;
-    while ((item = (const int *)vs_iterator_next(&even)) != NULL) {
-        /* use *item */
-    }
-
-    vs_vector_destroy(vector);
-    return 0;
-}
-```
-
-## CUSTOM ITERATORS
-
-```c
-typedef struct range_iter {
-    int current;
-    int end;
-} range_iter;
-
-static const void *range_next(void *context) {
-    range_iter *iter = context;
-    if (iter->current >= iter->end) {
-        return NULL;
-    }
-
-    iter->current += 1;
-    return &iter->current;
-}
-
-int main(void) {
-    range_iter state = {.current = 0, .end = 10};
-    vs_iterator iter = vs_iterator_from_callback(&state, range_next);
-    while (vs_iterator_next(&iter) != NULL) {
-    }
-    return 0;
-}
-```
+- Example: `vs_iterator prefix = vs_iterator_take_while(&base, int_less_than, &limit);`
