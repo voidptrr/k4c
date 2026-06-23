@@ -1,8 +1,8 @@
-# memory.allocators
+# memory.allocator
 
 ## DESCRIPTION
 
-The allocators module provides a generic allocator interface plus fail-fast
+The memory allocator API provides a generic allocator interface plus fail-fast
 allocation helpers used by `vstd` internals.
 
 Owning APIs follow a construction-time allocator convention: pass an allocator

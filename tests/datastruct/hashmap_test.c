@@ -26,9 +26,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "vstd/assert.h"
 #include "vstd/datastruct/hashmap.h"
-#include "vstd/memory/allocators/test_allocator.h"
+#include "vstd/memory/test_allocator.h"
 #include "vstd/testing.h"
 
 static size_t custom_eq_calls;
@@ -53,10 +52,14 @@ VS_TEST(allocator) {
     vs_test_allocator_reset_counts(&test_allocator);
 
     vs_hashmap_put(map, &key, &value);
-    VS_ASSERT_EQ(test_allocator.alloc_count, 1);
+    if (vs_test_equal(test_allocator.alloc_count, 1) != 0) {
+        return 1;
+    }
 
     vs_hashmap_destroy(map);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -71,10 +74,14 @@ VS_TEST(init) {
         NULL,
         vs_test_allocator_adapter(&test_allocator)
     );
-    VS_ASSERT_EQ(vs_hashmap_size(map), 0);
+    if (vs_test_equal(vs_hashmap_size(map), 0) != 0) {
+        return 1;
+    }
 
     vs_hashmap_destroy(map);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -96,11 +103,17 @@ VS_TEST(default_byte_equality) {
 
     vs_hashmap_put(map, &key, &value);
     out = (const uint64_t *)vs_hashmap_get(map, &same_key);
-    VS_ASSERT_PTR_NOT_NULL(out);
-    VS_ASSERT_EQ(*out, value);
+    if (vs_test_not_null(out) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(*out, value) != 0) {
+        return 1;
+    }
 
     vs_hashmap_destroy(map);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -123,12 +136,20 @@ VS_TEST(custom_equality) {
 
     vs_hashmap_put(map, &key, &value);
     out = (const uint64_t *)vs_hashmap_get(map, &same_key);
-    VS_ASSERT_PTR_NOT_NULL(out);
-    VS_ASSERT_EQ(*out, value);
-    VS_ASSERT(custom_eq_calls > 0);
+    if (vs_test_not_null(out) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(*out, value) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(custom_eq_calls > 0, true) != 0) {
+        return 1;
+    }
 
     vs_hashmap_destroy(map);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -149,26 +170,44 @@ VS_TEST(put_get) {
         vs_test_allocator_adapter(&test_allocator)
     );
 
-    VS_ASSERT_PTR_NULL(vs_hashmap_get(map, &key));
+    if (vs_test_null(vs_hashmap_get(map, &key)) != 0) {
+        return 1;
+    }
 
     vs_hashmap_put(map, &key, &value);
     out = (uint64_t *)vs_hashmap_get(map, &key);
-    VS_ASSERT_PTR_NOT_NULL(out);
-    VS_ASSERT_EQ(*out, value);
+    if (vs_test_not_null(out) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(*out, value) != 0) {
+        return 1;
+    }
 
     const_map = map;
     out = (const uint64_t *)vs_hashmap_get_const(const_map, &key);
-    VS_ASSERT_PTR_NOT_NULL(out);
-    VS_ASSERT_EQ(*out, value);
+    if (vs_test_not_null(out) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(*out, value) != 0) {
+        return 1;
+    }
 
     vs_hashmap_put(map, &key, &value2);
     out = (uint64_t *)vs_hashmap_get(map, &key);
-    VS_ASSERT_PTR_NOT_NULL(out);
-    VS_ASSERT_EQ(*out, value2);
-    VS_ASSERT_EQ(vs_hashmap_size(map), 1);
+    if (vs_test_not_null(out) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(*out, value2) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(vs_hashmap_size(map), 1) != 0) {
+        return 1;
+    }
 
     vs_hashmap_destroy(map);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -190,13 +229,19 @@ VS_TEST(remove_growth) {
         vs_hashmap_put(map, &i, &value);
     }
 
-    VS_ASSERT_EQ(vs_hashmap_size(map), 256);
+    if (vs_test_equal(vs_hashmap_size(map), 256) != 0) {
+        return 1;
+    }
 
     vs_hashmap_remove(map, &key);
-    VS_ASSERT_PTR_NULL(vs_hashmap_get(map, &key));
+    if (vs_test_null(vs_hashmap_get(map, &key)) != 0) {
+        return 1;
+    }
 
     vs_hashmap_destroy(map);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 

@@ -22,22 +22,40 @@
  * SOFTWARE.
  */
 
-#include "vstd/assert.h"
-#include "vstd/memory/allocators/allocator.h"
-#include "vstd/memory/allocators/arena.h"
+#include "vstd/memory/allocator.h"
+#include "vstd/memory/arena.h"
+#include "vstd/testing.h"
 
 int main(void) {
     vs_arena *arena = vs_arena_create(128);
     vs_allocator allocator = vs_arena_adapter(arena);
 
-    VS_ASSERT_PTR_EQ(allocator.ctx, arena);
-    VS_ASSERT(allocator.alloc != NULL);
-    VS_ASSERT(allocator.realloc != NULL);
-    VS_ASSERT(allocator.dealloc == NULL);
-    VS_ASSERT(allocator.features == (VS_ALLOCATOR_FEATURE_REALLOC | VS_ALLOCATOR_FEATURE_RESET));
+    if (vs_test_equal_ptr(allocator.ctx, arena) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(allocator.alloc != NULL, true) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(allocator.realloc != NULL, true) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(allocator.dealloc == NULL, true) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(
+            allocator.features == (VS_ALLOCATOR_FEATURE_REALLOC | VS_ALLOCATOR_FEATURE_RESET),
+            true
+        )
+        != 0) {
+        return 1;
+    }
 
-    VS_ASSERT(vs_arena_capacity(arena) >= 128);
-    VS_ASSERT_EQ(vs_arena_used(arena), 0);
+    if (vs_test_equal(vs_arena_capacity(arena) >= 128, true) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(vs_arena_used(arena), 0) != 0) {
+        return 1;
+    }
 
     vs_arena_destroy(arena);
     return 0;

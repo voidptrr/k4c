@@ -22,9 +22,8 @@
  * SOFTWARE.
  */
 
-#include "vstd/assert.h"
 #include "vstd/datastruct/linked_list.h"
-#include "vstd/memory/allocators/test_allocator.h"
+#include "vstd/memory/test_allocator.h"
 #include "vstd/memory/utils.h"
 #include "vstd/testing.h"
 
@@ -40,13 +39,19 @@ VS_TEST(head) {
     test_item first = {.value = 1};
 
     list = vs_linked_list_create(vs_test_allocator_adapter(&test_allocator));
-    VS_ASSERT_PTR_NULL(vs_linked_list_head(list));
+    if (vs_test_null(vs_linked_list_head(list)) != 0) {
+        return 1;
+    }
 
     vs_linked_list_push(list, &first.node);
-    VS_ASSERT_PTR_EQ(vs_linked_list_head(list), &first.node);
+    if (vs_test_equal_ptr(vs_linked_list_head(list), &first.node) != 0) {
+        return 1;
+    }
 
     vs_linked_list_destroy(list);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -56,10 +61,14 @@ VS_TEST(init) {
     vs_linked_list *list;
     list = vs_linked_list_create(vs_test_allocator_adapter(&test_allocator));
 
-    VS_ASSERT_EQ(vs_linked_list_size(list), 0);
+    if (vs_test_equal(vs_linked_list_size(list), 0) != 0) {
+        return 1;
+    }
 
     vs_linked_list_destroy(list);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -71,25 +80,37 @@ VS_TEST(popleft) {
     test_item second = {.value = 9};
 
     list = vs_linked_list_create(vs_test_allocator_adapter(&test_allocator));
-    VS_ASSERT_PTR_NULL(vs_linked_list_popleft(list));
+    if (vs_test_null(vs_linked_list_popleft(list)) != 0) {
+        return 1;
+    }
 
     vs_linked_list_push(list, &first.node);
     vs_linked_list_push(list, &second.node);
 
     vs_linked_list_node *out_node = vs_linked_list_popleft(list);
-    VS_ASSERT_PTR_NOT_NULL(out_node);
+    if (vs_test_not_null(out_node) != 0) {
+        return 1;
+    }
 
     test_item *out = VS_CONTAINER_OF(out_node, test_item, node);
-    VS_ASSERT_EQ(out->value, first.value);
+    if (vs_test_equal(out->value, first.value) != 0) {
+        return 1;
+    }
 
     out_node = vs_linked_list_popleft(list);
-    VS_ASSERT_PTR_NOT_NULL(out_node);
+    if (vs_test_not_null(out_node) != 0) {
+        return 1;
+    }
 
     out = VS_CONTAINER_OF(out_node, test_item, node);
-    VS_ASSERT_EQ(out->value, second.value);
+    if (vs_test_equal(out->value, second.value) != 0) {
+        return 1;
+    }
 
     vs_linked_list_destroy(list);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -106,17 +127,29 @@ VS_TEST(push) {
 
     vs_linked_list_node *out_first_node = vs_linked_list_popleft(list);
     vs_linked_list_node *out_second_node = vs_linked_list_popleft(list);
-    VS_ASSERT_PTR_NOT_NULL(out_first_node);
-    VS_ASSERT_PTR_NOT_NULL(out_second_node);
-    VS_ASSERT_EQ(vs_linked_list_size(list), 0);
+    if (vs_test_not_null(out_first_node) != 0) {
+        return 1;
+    }
+    if (vs_test_not_null(out_second_node) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(vs_linked_list_size(list), 0) != 0) {
+        return 1;
+    }
 
     test_item *out_first = VS_CONTAINER_OF(out_first_node, test_item, node);
     test_item *out_second = VS_CONTAINER_OF(out_second_node, test_item, node);
-    VS_ASSERT_EQ(out_first->value, first.value);
-    VS_ASSERT_EQ(out_second->value, second.value);
+    if (vs_test_equal(out_first->value, first.value) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(out_second->value, second.value) != 0) {
+        return 1;
+    }
 
     vs_linked_list_destroy(list);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -133,17 +166,29 @@ VS_TEST(pushfront) {
 
     vs_linked_list_node *out_second_node = vs_linked_list_popleft(list);
     vs_linked_list_node *out_first_node = vs_linked_list_popleft(list);
-    VS_ASSERT_PTR_NOT_NULL(out_second_node);
-    VS_ASSERT_PTR_NOT_NULL(out_first_node);
-    VS_ASSERT_EQ(vs_linked_list_size(list), 0);
+    if (vs_test_not_null(out_second_node) != 0) {
+        return 1;
+    }
+    if (vs_test_not_null(out_first_node) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(vs_linked_list_size(list), 0) != 0) {
+        return 1;
+    }
 
     test_item *out_second = VS_CONTAINER_OF(out_second_node, test_item, node);
     test_item *out_first = VS_CONTAINER_OF(out_first_node, test_item, node);
-    VS_ASSERT_EQ(out_second->value, second.value);
-    VS_ASSERT_EQ(out_first->value, first.value);
+    if (vs_test_equal(out_second->value, second.value) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(out_first->value, first.value) != 0) {
+        return 1;
+    }
 
     vs_linked_list_destroy(list);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -162,20 +207,34 @@ VS_TEST(remove_after) {
 
     vs_linked_list_node *removed = vs_linked_list_remove_after(list, &first.node);
     test_item *removed_item = VS_CONTAINER_OF(removed, test_item, node);
-    VS_ASSERT_EQ(removed_item->value, 2);
-    VS_ASSERT_EQ(vs_linked_list_size(list), 2);
+    if (vs_test_equal(removed_item->value, 2) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(vs_linked_list_size(list), 2) != 0) {
+        return 1;
+    }
 
     removed = vs_linked_list_remove_after(list, NULL);
     removed_item = VS_CONTAINER_OF(removed, test_item, node);
-    VS_ASSERT_EQ(removed_item->value, 1);
-    VS_ASSERT_PTR_EQ(vs_linked_list_head(list), &third.node);
+    if (vs_test_equal(removed_item->value, 1) != 0) {
+        return 1;
+    }
+    if (vs_test_equal_ptr(vs_linked_list_head(list), &third.node) != 0) {
+        return 1;
+    }
 
     removed = vs_linked_list_remove_after(list, &third.node);
-    VS_ASSERT_PTR_NULL(removed);
-    VS_ASSERT_EQ(vs_linked_list_size(list), 1);
+    if (vs_test_null(removed) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(vs_linked_list_size(list), 1) != 0) {
+        return 1;
+    }
 
     vs_linked_list_destroy(list);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 

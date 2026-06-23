@@ -119,7 +119,7 @@ void vs_arena_destroy(vs_arena *arena);
 ```c
 #include <stdint.h>
 
-#include <vstd/memory/allocators/arena.h>
+#include <vstd/memory/arena.h>
 
 int main(void) {
     int status = 0;

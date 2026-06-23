@@ -22,14 +22,18 @@
  * SOFTWARE.
  */
 
-#include "vstd/assert.h"
-#include "vstd/memory/allocators/general_heap.h"
+#include "vstd/memory/general_heap.h"
+#include "vstd/testing.h"
 
 int main(void) {
     vs_heap *heap = vs_heap_create(1024);
 
-    VS_ASSERT(vs_heap_capacity(heap) > 0);
-    VS_ASSERT(vs_heap_available(heap) > 0);
+    if (vs_test_equal(vs_heap_capacity(heap) > 0, true) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(vs_heap_available(heap) > 0, true) != 0) {
+        return 1;
+    }
 
     vs_heap_destroy(heap);
     return 0;

@@ -24,8 +24,8 @@
 
 #include <stdlib.h>
 
-#include "vstd/memory/allocators/allocator.h"
-#include "vstd/memory/allocators/test_allocator.h"
+#include "vstd/memory/allocator.h"
+#include "vstd/memory/test_allocator.h"
 
 static bool vs_test_allocator_should_fail(vs_test_allocator *test_allocator) {
     if (test_allocator->fail_after == VS_TEST_ALLOCATOR_NO_FAILURE) {

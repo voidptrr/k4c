@@ -24,9 +24,9 @@
 
 #include <stdint.h>
 
-#include "vstd/assert.h"
-#include "vstd/memory/allocators/arena.h"
+#include "vstd/memory/arena.h"
 #include "vstd/memory/utils.h"
+#include "vstd/testing.h"
 
 int main(void) {
     vs_arena *arena = vs_arena_create(128);
@@ -35,14 +35,26 @@ int main(void) {
 
     first = vs_arena_alloc(arena, 8);
     second = vs_arena_alloc(arena, 8);
-    VS_ASSERT_PTR_NOT_NULL(first);
-    VS_ASSERT_PTR_NOT_NULL(second);
-    VS_ASSERT_PTR_NE(first, second);
+    if (vs_test_not_null(first) != 0) {
+        return 1;
+    }
+    if (vs_test_not_null(second) != 0) {
+        return 1;
+    }
+    if (vs_test_not_equal_ptr(first, second) != 0) {
+        return 1;
+    }
 
-    VS_ASSERT_EQ((uintptr_t)first % VS_MEMORY_ALIGN, 0);
-    VS_ASSERT_EQ((uintptr_t)second % VS_MEMORY_ALIGN, 0);
+    if (vs_test_equal((uintptr_t)first % VS_MEMORY_ALIGN, 0) != 0) {
+        return 1;
+    }
+    if (vs_test_equal((uintptr_t)second % VS_MEMORY_ALIGN, 0) != 0) {
+        return 1;
+    }
 
-    VS_ASSERT_PTR_NULL(vs_arena_alloc(arena, vs_arena_capacity(arena)));
+    if (vs_test_null(vs_arena_alloc(arena, vs_arena_capacity(arena))) != 0) {
+        return 1;
+    }
 
     vs_arena_destroy(arena);
     return 0;

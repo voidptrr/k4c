@@ -1,4 +1,4 @@
-# memory.allocators.test_allocator
+# memory.test_allocator
 
 ## DESCRIPTION
 
@@ -8,14 +8,14 @@ adapter.
 
 It belongs with the memory allocator APIs rather than the assertion helpers in
 `vstd/testing.h`. Tests that use it should include both headers when they also
-use `VS_ASSERT*` macros.
+use testing helpers.
 
 ## TYPES
 
 ### vs_test_allocator
 
 ```c
-#include <vstd/memory/allocators/test_allocator.h>
+#include <vstd/memory/test_allocator.h>
 
 typedef struct vs_test_allocator {
     size_t alloc_count;
@@ -79,7 +79,7 @@ Returns whether every tracked allocation has been released.
 
 ```c
 #include <vstd/datastruct/vector.h>
-#include <vstd/memory/allocators/test_allocator.h>
+#include <vstd/memory/test_allocator.h>
 #include <vstd/testing.h>
 
 int main(void) {
@@ -90,10 +90,14 @@ int main(void) {
     int value = 7;
 
     vs_vector_push(vector, &value);
-    VS_ASSERT_EQ(vs_vector_size(vector), 1);
+    if (vs_test_equal(vs_vector_size(vector), 1) != 0) {
+        return 1;
+    }
 
     vs_vector_destroy(vector);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 ```

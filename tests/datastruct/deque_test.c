@@ -22,9 +22,8 @@
  * SOFTWARE.
  */
 
-#include "vstd/assert.h"
 #include "vstd/datastruct/deque.h"
-#include "vstd/memory/allocators/test_allocator.h"
+#include "vstd/memory/test_allocator.h"
 #include "vstd/testing.h"
 
 VS_TEST(init) {
@@ -33,10 +32,14 @@ VS_TEST(init) {
     vs_deque *q;
 
     q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
-    VS_ASSERT_EQ(vs_deque_size(q), 0);
+    if (vs_test_equal(vs_deque_size(q), 0) != 0) {
+        return 1;
+    }
 
     vs_deque_destroy(q);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -53,11 +56,17 @@ VS_TEST(peekback) {
     vs_deque_push(q, &second);
 
     out = (const int *)vs_deque_peekback(q);
-    VS_ASSERT_PTR_NOT_NULL(out);
-    VS_ASSERT_EQ(*out, second);
+    if (vs_test_not_null(out) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(*out, second) != 0) {
+        return 1;
+    }
 
     vs_deque_destroy(q);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -74,11 +83,17 @@ VS_TEST(peekleft) {
     vs_deque_push(q, &second);
 
     out = (const int *)vs_deque_peekleft(q);
-    VS_ASSERT_PTR_NOT_NULL(out);
-    VS_ASSERT_EQ(*out, first);
+    if (vs_test_not_null(out) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(*out, first) != 0) {
+        return 1;
+    }
 
     vs_deque_destroy(q);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -95,11 +110,17 @@ VS_TEST(popback) {
     vs_deque_push(q, &second);
 
     out = (int *)vs_deque_popback(q);
-    VS_ASSERT_PTR_NOT_NULL(out);
-    VS_ASSERT_EQ(*out, second);
+    if (vs_test_not_null(out) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(*out, second) != 0) {
+        return 1;
+    }
 
     vs_deque_destroy(q);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -111,16 +132,24 @@ VS_TEST(popleft) {
     int *out;
 
     q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
-    VS_ASSERT_PTR_NULL(vs_deque_popleft(q));
+    if (vs_test_null(vs_deque_popleft(q)) != 0) {
+        return 1;
+    }
 
     vs_deque_push(q, &values[0]);
     vs_deque_push(q, &values[1]);
     out = (int *)vs_deque_popleft(q);
-    VS_ASSERT_PTR_NOT_NULL(out);
-    VS_ASSERT_EQ(*out, values[0]);
+    if (vs_test_not_null(out) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(*out, values[0]) != 0) {
+        return 1;
+    }
 
     vs_deque_destroy(q);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -134,12 +163,20 @@ VS_TEST(push) {
     vs_deque_push(q, &value);
 
     const int *out = vs_deque_peekback(q);
-    VS_ASSERT_EQ(vs_deque_size(q), 1);
-    VS_ASSERT_PTR_NOT_NULL(out);
-    VS_ASSERT_EQ(*out, value);
+    if (vs_test_equal(vs_deque_size(q), 1) != 0) {
+        return 1;
+    }
+    if (vs_test_not_null(out) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(*out, value) != 0) {
+        return 1;
+    }
 
     vs_deque_destroy(q);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -156,11 +193,17 @@ VS_TEST(pushfront) {
     vs_deque_pushfront(q, &second);
 
     out = (int *)vs_deque_popleft(q);
-    VS_ASSERT_PTR_NOT_NULL(out);
-    VS_ASSERT_EQ(*out, second);
+    if (vs_test_not_null(out) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(*out, second) != 0) {
+        return 1;
+    }
 
     vs_deque_destroy(q);
-    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 

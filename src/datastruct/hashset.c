@@ -30,7 +30,7 @@
 #include "vstd/assert.h"
 #include "vstd/datastruct/hashset.h"
 #include "vstd/datastruct/linked_list.h"
-#include "vstd/memory/allocators/allocator.h"
+#include "vstd/memory/allocator.h"
 #include "vstd/memory/utils.h"
 
 typedef struct vs_hashset_entry {

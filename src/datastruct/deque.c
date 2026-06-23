@@ -27,7 +27,7 @@
 
 #include "vstd/assert.h"
 #include "vstd/datastruct/deque.h"
-#include "vstd/memory/allocators/allocator.h"
+#include "vstd/memory/allocator.h"
 
 #define VS_DEQUE_DEFAULT_CAPACITY 16
 

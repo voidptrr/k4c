@@ -27,7 +27,7 @@
 #include "vstd/assert.h"
 #include "vstd/datastruct/binary_heap.h"
 #include "vstd/datastruct/vector.h"
-#include "vstd/memory/allocators/allocator.h"
+#include "vstd/memory/allocator.h"
 #include "vstd/memory/utils.h"
 
 struct vs_binary_heap {

@@ -27,6 +27,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 typedef int (*vs_test_fn)(void);
 
@@ -43,34 +44,26 @@ typedef struct vs_test_case {
         return vs_test_run(vs_test_cases, sizeof(vs_test_cases) / sizeof(vs_test_cases[0])); \
     }
 
-/* Print an assertion failure and return 1 for direct use from test main. */
-int vs_test_fail(const char *file, int line, const char *condition, const char *message);
+/* Return 0 when scalar values are equal, otherwise print both values and return 1. */
+int vs_test_equal(intmax_t actual, intmax_t expected);
 
-/* Print an equality assertion failure and return 1 for direct use from test main. */
-int vs_test_fail_eq(const char *file, int line, const char *actual_expr, const char *expected_expr);
+/* Return 0 when scalar values differ, otherwise print both values and return 1. */
+int vs_test_not_equal(intmax_t actual, intmax_t expected);
 
-/* Print a non-NULL pointer assertion failure and return 1 for direct use from test main. */
-int vs_test_fail_ptr_null(const char *file, int line, const char *expr, const void *ptr);
+/* Return 0 when pointers are equal, otherwise print both addresses and return 1. */
+int vs_test_equal_ptr(const void *actual, const void *expected);
 
-/* Print a pointer equality assertion failure and return 1 for direct use from test main. */
-int vs_test_fail_ptr_eq(
-    const char *file,
-    int line,
-    const char *actual_expr,
-    const char *expected_expr,
-    const void *actual,
-    const void *expected
-);
+/* Return 0 when pointers differ, otherwise print both addresses and return 1. */
+int vs_test_not_equal_ptr(const void *actual, const void *expected);
 
-/* Print a string equality assertion failure and return 1 for direct use from test main. */
-int vs_test_fail_str_eq(
-    const char *file,
-    int line,
-    const char *actual_expr,
-    const char *expected_expr,
-    const char *actual,
-    const char *expected
-);
+/* Return 0 when ptr is NULL, otherwise print the address and return 1. */
+int vs_test_null(const void *ptr);
+
+/* Return 0 when ptr is not NULL, otherwise print a failure and return 1. */
+int vs_test_not_null(const void *ptr);
+
+/* Return 0 when C strings are equal, otherwise print both values and return 1. */
+int vs_test_equal_str(const char *actual, const char *expected);
 
 /* Return whether two C strings are equal, treating two NULL pointers as equal. */
 bool vs_test_str_eq(const char *actual, const char *expected);

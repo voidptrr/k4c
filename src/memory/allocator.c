@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #include "vstd/assert.h"
-#include "vstd/memory/allocators/allocator.h"
+#include "vstd/memory/allocator.h"
 
 void *vs_malloc(vs_allocator *allocator, size_t size) {
     void *ptr = NULL;

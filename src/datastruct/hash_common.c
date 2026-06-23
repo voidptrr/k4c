@@ -28,7 +28,7 @@
 #include "datastruct/hash_common.h"
 #include "vstd/assert.h"
 #include "vstd/datastruct/linked_list.h"
-#include "vstd/memory/allocators/allocator.h"
+#include "vstd/memory/allocator.h"
 
 static bool vs_hash_common_value_eq(
     const void *lhs,

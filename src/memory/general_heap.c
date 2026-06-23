@@ -28,8 +28,8 @@
 
 #include "vstd/assert.h"
 #include "vstd/datastruct/doubly_linked_list.h"
-#include "vstd/memory/allocators/allocator.h"
-#include "vstd/memory/allocators/general_heap.h"
+#include "vstd/memory/allocator.h"
+#include "vstd/memory/general_heap.h"
 #include "vstd/memory/utils.h"
 
 /* Header stored immediately before each heap-managed payload block. */

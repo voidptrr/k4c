@@ -25,92 +25,12 @@
 #ifndef VSTD_ASSERT_H
 #define VSTD_ASSERT_H
 
-#include "vstd/testing.h"
-
 _Noreturn void vs_panic(const char *message);
 
 #define VSTD_ASSERT(cond, message) \
     do { \
         if (!(cond)) { \
             vs_panic(message); \
-        } \
-    } while (0)
-
-#define VS_ASSERT(condition) \
-    do { \
-        if (!(condition)) { \
-            return vs_test_fail(__FILE__, __LINE__, #condition, NULL); \
-        } \
-    } while (0)
-
-#define VS_ASSERT_MSG(condition, message) \
-    do { \
-        if (!(condition)) { \
-            return vs_test_fail(__FILE__, __LINE__, #condition, message); \
-        } \
-    } while (0)
-
-#define VS_ASSERT_EQ(actual, expected) \
-    do { \
-        if ((actual) != (expected)) { \
-            return vs_test_fail_eq(__FILE__, __LINE__, #actual, #expected); \
-        } \
-    } while (0)
-
-#define VS_ASSERT_PTR_NULL(ptr) \
-    do { \
-        const void *vs_test_ptr = (ptr); \
-        if (vs_test_ptr != NULL) { \
-            return vs_test_fail_ptr_null(__FILE__, __LINE__, #ptr, vs_test_ptr); \
-        } \
-    } while (0)
-
-#define VS_ASSERT_PTR_NOT_NULL(ptr) \
-    do { \
-        const void *vs_test_ptr = (ptr); \
-        if (vs_test_ptr == NULL) { \
-            return vs_test_fail(__FILE__, __LINE__, #ptr " != NULL", NULL); \
-        } \
-    } while (0)
-
-#define VS_ASSERT_PTR_EQ(actual, expected) \
-    do { \
-        const void *vs_test_actual = (actual); \
-        const void *vs_test_expected = (expected); \
-        if (vs_test_actual != vs_test_expected) { \
-            return vs_test_fail_ptr_eq( \
-                __FILE__, \
-                __LINE__, \
-                #actual, \
-                #expected, \
-                vs_test_actual, \
-                vs_test_expected \
-            ); \
-        } \
-    } while (0)
-
-#define VS_ASSERT_PTR_NE(actual, expected) \
-    do { \
-        const void *vs_test_actual = (actual); \
-        const void *vs_test_expected = (expected); \
-        if (vs_test_actual == vs_test_expected) { \
-            return vs_test_fail(__FILE__, __LINE__, #actual " != " #expected, NULL); \
-        } \
-    } while (0)
-
-#define VS_ASSERT_STR_EQ(actual, expected) \
-    do { \
-        const char *vs_test_actual = (actual); \
-        const char *vs_test_expected = (expected); \
-        if (!vs_test_str_eq(vs_test_actual, vs_test_expected)) { \
-            return vs_test_fail_str_eq( \
-                __FILE__, \
-                __LINE__, \
-                #actual, \
-                #expected, \
-                vs_test_actual, \
-                vs_test_expected \
-            ); \
         } \
     } while (0)
 
