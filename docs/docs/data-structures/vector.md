@@ -88,13 +88,13 @@ size_t vs_vector_size(const vs_vector *vector);
 ### vs_vector_iterator
 
 ```c
-vs_iterator vs_vector_iterator(const vs_vector *vector);
+vs_iterator vs_vector_iterator(vs_vector_iterator_state *state, const vs_vector *vector);
 ```
 
-- Parameters: `vector`
+- Parameters: `state`, `vector`
 - Returns: iterator over vector elements from index `0` to `size - 1`.
-- Notes: yielded pointers refer to vector-managed storage. Do not mutate the
-  vector while iterating.
+- Notes: `state` must outlive the returned iterator. Yielded pointers refer to
+  vector-managed storage. Do not mutate the vector while iterating.
 
 ### vs_vector_lower_bound
 

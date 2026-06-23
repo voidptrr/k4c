@@ -103,13 +103,13 @@ size_t vs_string_len(const vs_string string);
 ### vs_string_iterator
 
 ```c
-vs_iterator vs_string_iterator(const vs_string string);
+vs_iterator vs_string_iterator(vs_string_iterator_state *state, const vs_string string);
 ```
 
-- Parameters: `string`
+- Parameters: `state`, `string`
 - Returns: iterator over bytes before the terminating NUL.
-- Notes: yielded pointers are `const char *`. Do not mutate or reallocate the
-  string while iterating.
+- Notes: `state` must outlive the returned iterator. Yielded pointers are
+  `const char *`. Do not mutate or reallocate the string while iterating.
 
 ### vs_string_destroy
 

@@ -64,12 +64,14 @@ size_t vs_binary_heap_size(const vs_binary_heap *heap);
 ### vs_binary_heap_iterator
 
 ```c
-vs_iterator vs_binary_heap_iterator(const vs_binary_heap *heap);
+vs_iterator vs_binary_heap_iterator(vs_binary_heap_iterator_state *state,
+                                    const vs_binary_heap *heap);
 ```
 
-- Parameters: `heap`
+- Parameters: `state`, `heap`
 - Returns: iterator over the heap's backing-storage order.
-- Notes: iteration order is not sorted order. Do not mutate the heap while iterating.
+- Notes: `state` must outlive the returned iterator. Iteration order is not
+  sorted order. Do not mutate the heap while iterating.
 
 ### vs_binary_heap_destroy
 

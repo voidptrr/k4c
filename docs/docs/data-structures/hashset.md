@@ -89,13 +89,13 @@ size_t vs_hashset_size(const vs_hashset *set);
 ### vs_hashset_iterator
 
 ```c
-vs_iterator vs_hashset_iterator(const vs_hashset *set);
+vs_iterator vs_hashset_iterator(vs_hashset_iterator_state *state, const vs_hashset *set);
 ```
 
-- Parameters: `set`
+- Parameters: `state`, `set`
 - Returns: iterator over stored elements in bucket order.
-- Notes: yielded pointers refer to set-managed storage. Do not mutate the set
-  while iterating.
+- Notes: `state` must outlive the returned iterator. Yielded pointers refer to
+  set-managed storage. Do not mutate the set while iterating.
 
 ### vs_hashset_destroy
 

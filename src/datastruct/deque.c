@@ -199,30 +199,27 @@ size_t vs_deque_size(const vs_deque *deque) {
     return deque->size;
 }
 
-vs_iterator vs_deque_iterator(const vs_deque *deque) {
-    vs_iterator out;
+static const void *vs_deque_iterator_next(void *context) {
+    vs_deque_iterator_state *state = context;
+    const vs_deque *deque = state->deque;
 
-    VSTD_ASSERT(deque != NULL, "fatal: vs_deque_iterator invalid arguments");
-
-    out.type = VS_ITERATOR_DEQUE;
-    out.as.deque.deque = deque;
-    out.as.deque.index = 0;
-    return out;
-}
-
-const void *vs_deque_iterator_next(vs_iterator *iter) {
-    VSTD_ASSERT(iter != NULL, "fatal: vs_deque_iterator_next invalid arguments");
-    VSTD_ASSERT(iter->type == VS_ITERATOR_DEQUE, "fatal: vs_deque_iterator_next invalid arguments");
-
-    const vs_deque *deque = iter->as.deque.deque;
-    if (iter->as.deque.index >= deque->size) {
+    if (state->index >= deque->size) {
         return NULL;
     }
 
-    size_t storage_index = (deque->head + iter->as.deque.index) % deque->capacity;
+    size_t storage_index = (deque->head + state->index) % deque->capacity;
     const uint8_t *base = (const uint8_t *)deque->buffer;
-    iter->as.deque.index += 1;
+    state->index += 1;
     return base + (storage_index * deque->elem_size);
+}
+
+vs_iterator vs_deque_iterator(vs_deque_iterator_state *state, const vs_deque *deque) {
+    VSTD_ASSERT(state != NULL, "fatal: vs_deque_iterator invalid arguments");
+    VSTD_ASSERT(deque != NULL, "fatal: vs_deque_iterator invalid arguments");
+
+    state->deque = deque;
+    state->index = 0;
+    return vs_iterator_from_callback(state, vs_deque_iterator_next);
 }
 
 void vs_deque_destroy(vs_deque *deque) {

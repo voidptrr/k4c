@@ -76,14 +76,15 @@ size_t vs_hashmap_size(const vs_hashmap *map);
 ### vs_hashmap_iterator
 
 ```c
-vs_iterator vs_hashmap_iterator(const vs_hashmap *map);
+vs_iterator vs_hashmap_iterator(vs_hashmap_iterator_state *state, const vs_hashmap *map);
 ```
 
-- Parameters: `map`
+- Parameters: `state`, `map`
 - Returns: iterator over key/value entry views in bucket order.
-- Notes: yielded pointers are `const vs_hashmap_entry_view *`. The view is
-  stored inside the iterator and is overwritten by the next `vs_iterator_next`
-  call on that iterator. Do not mutate the hashmap while iterating.
+- Notes: `state` must outlive the returned iterator. Yielded pointers are
+  `const vs_hashmap_entry_view *`. The view is stored inside `state` and is
+  overwritten by the next `vs_iterator_next` call on that iterator. Do not
+  mutate the hashmap while iterating.
 
 ### vs_hashmap_destroy
 

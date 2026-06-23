@@ -25,15 +25,7 @@
 #include <stddef.h>
 
 #include "vstd/assert.h"
-#include "vstd/datastruct/binary_heap.h"
-#include "vstd/datastruct/deque.h"
-#include "vstd/datastruct/doubly_linked_list.h"
-#include "vstd/datastruct/hashmap.h"
-#include "vstd/datastruct/hashset.h"
 #include "vstd/datastruct/iterator.h"
-#include "vstd/datastruct/linked_list.h"
-#include "vstd/datastruct/string.h"
-#include "vstd/datastruct/vector.h"
 
 static const void *vs_iterator_next_callback(vs_iterator *iter) {
     return iter->as.callback.next(iter->as.callback.context);
@@ -83,26 +75,10 @@ const void *vs_iterator_next(vs_iterator *iter) {
     switch (iter->type) {
         case VS_ITERATOR_CALLBACK:
             return vs_iterator_next_callback(iter);
-        case VS_ITERATOR_BINARY_HEAP:
-            return vs_binary_heap_iterator_next(iter);
-        case VS_ITERATOR_DEQUE:
-            return vs_deque_iterator_next(iter);
-        case VS_ITERATOR_DOUBLY_LINKED_LIST:
-            return vs_doubly_linked_list_iterator_next(iter);
-        case VS_ITERATOR_VECTOR:
-            return vs_vector_iterator_next(iter);
         case VS_ITERATOR_FILTER:
             return vs_iterator_next_filter(iter);
-        case VS_ITERATOR_HASHMAP:
-            return vs_hashmap_iterator_next(iter);
-        case VS_ITERATOR_HASHSET:
-            return vs_hashset_iterator_next(iter);
-        case VS_ITERATOR_LINKED_LIST:
-            return vs_linked_list_iterator_next(iter);
         case VS_ITERATOR_MAP:
             return vs_iterator_next_map(iter);
-        case VS_ITERATOR_STRING:
-            return vs_string_iterator_next(iter);
         case VS_ITERATOR_TAKE_WHILE:
             return vs_iterator_next_take_while(iter);
     }

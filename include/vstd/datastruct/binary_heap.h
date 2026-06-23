@@ -59,6 +59,11 @@ typedef int (*vs_binary_heap_cmp_fn)(const void *lhs, const void *rhs);
 
 typedef struct vs_binary_heap vs_binary_heap;
 
+typedef struct vs_binary_heap_iterator_state {
+    const vs_binary_heap *heap;
+    size_t index;
+} vs_binary_heap_iterator_state;
+
 /* Create a heap for elements of size elem_size. NULL cmp uses byte-wise ordering. */
 vs_binary_heap *vs_binary_heap_create(
     size_t elem_size,
@@ -79,10 +84,10 @@ const void *vs_binary_heap_peek(const vs_binary_heap *heap);
 size_t vs_binary_heap_size(const vs_binary_heap *heap);
 
 /* Return an iterator over heap backing storage order. */
-vs_iterator vs_binary_heap_iterator(const vs_binary_heap *heap);
-
-/* Advance a VS_ITERATOR_BINARY_HEAP iterator. */
-const void *vs_binary_heap_iterator_next(vs_iterator *iter);
+vs_iterator vs_binary_heap_iterator(
+    vs_binary_heap_iterator_state *state,
+    const vs_binary_heap *heap
+);
 
 /* Destroy and release owned storage. */
 void vs_binary_heap_destroy(vs_binary_heap *heap);

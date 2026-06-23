@@ -140,29 +140,23 @@ size_t vs_vector_size(const vs_vector *vector) {
     return vector->size;
 }
 
-vs_iterator vs_vector_iterator(const vs_vector *vector) {
-    vs_iterator out;
+static const void *vs_vector_iterator_next(void *context) {
+    vs_vector_iterator_state *state = context;
 
-    VSTD_ASSERT(vector != NULL, "fatal: vs_vector_iterator invalid arguments");
-
-    out.type = VS_ITERATOR_VECTOR;
-    out.as.vector.vector = vector;
-    out.as.vector.index = 0;
-    return out;
-}
-
-const void *vs_vector_iterator_next(vs_iterator *iter) {
-    VSTD_ASSERT(iter != NULL, "fatal: vs_vector_iterator_next invalid arguments");
-    VSTD_ASSERT(
-        iter->type == VS_ITERATOR_VECTOR,
-        "fatal: vs_vector_iterator_next invalid arguments"
-    );
-
-    if (iter->as.vector.index >= vs_vector_size(iter->as.vector.vector)) {
+    if (state->index >= vs_vector_size(state->vector)) {
         return NULL;
     }
 
-    return vs_vector_get_const(iter->as.vector.vector, iter->as.vector.index++);
+    return vs_vector_get_const(state->vector, state->index++);
+}
+
+vs_iterator vs_vector_iterator(vs_vector_iterator_state *state, const vs_vector *vector) {
+    VSTD_ASSERT(state != NULL, "fatal: vs_vector_iterator invalid arguments");
+    VSTD_ASSERT(vector != NULL, "fatal: vs_vector_iterator invalid arguments");
+
+    state->vector = vector;
+    state->index = 0;
+    return vs_iterator_from_callback(state, vs_vector_iterator_next);
 }
 
 size_t vs_vector_lower_bound(const vs_vector *vector, const void *key, vs_vector_cmp_fn cmp) {

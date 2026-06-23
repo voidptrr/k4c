@@ -203,43 +203,37 @@ size_t vs_hashmap_size(const vs_hashmap *map) {
     return map->size;
 }
 
-vs_iterator vs_hashmap_iterator(const vs_hashmap *map) {
-    vs_iterator out;
+static const void *vs_hashmap_iterator_next(void *context) {
+    vs_hashmap_iterator_state *state = context;
+    const vs_hashmap *map = state->map;
 
-    VSTD_ASSERT(map != NULL, "fatal: vs_hashmap_iterator invalid arguments");
-
-    out.type = VS_ITERATOR_HASHMAP;
-    out.as.hashmap.map = map;
-    out.as.hashmap.bucket = 0;
-    out.as.hashmap.node = NULL;
-    out.as.hashmap.entry.key = NULL;
-    out.as.hashmap.entry.value = NULL;
-    return out;
-}
-
-const void *vs_hashmap_iterator_next(vs_iterator *iter) {
-    VSTD_ASSERT(iter != NULL, "fatal: vs_hashmap_iterator_next invalid arguments");
-    VSTD_ASSERT(
-        iter->type == VS_ITERATOR_HASHMAP,
-        "fatal: vs_hashmap_iterator_next invalid arguments"
-    );
-
-    const vs_hashmap *map = iter->as.hashmap.map;
-    while (iter->as.hashmap.node == NULL && iter->as.hashmap.bucket < map->capacity) {
-        iter->as.hashmap.node = vs_linked_list_head(map->buckets[iter->as.hashmap.bucket]);
-        iter->as.hashmap.bucket += 1;
+    while (state->node == NULL && state->bucket < map->capacity) {
+        state->node = vs_linked_list_head(map->buckets[state->bucket]);
+        state->bucket += 1;
     }
 
-    if (iter->as.hashmap.node == NULL) {
+    if (state->node == NULL) {
         return NULL;
     }
 
-    vs_linked_list_node *node = iter->as.hashmap.node;
+    vs_linked_list_node *node = state->node;
     vs_hashmap_entry *entry = VS_CONTAINER_OF(node, vs_hashmap_entry, node);
-    iter->as.hashmap.node = node->next;
-    iter->as.hashmap.entry.key = entry->data;
-    iter->as.hashmap.entry.value = vs_hashmap_entry_value_const(map, entry);
-    return &iter->as.hashmap.entry;
+    state->node = node->next;
+    state->entry.key = entry->data;
+    state->entry.value = vs_hashmap_entry_value_const(map, entry);
+    return &state->entry;
+}
+
+vs_iterator vs_hashmap_iterator(vs_hashmap_iterator_state *state, const vs_hashmap *map) {
+    VSTD_ASSERT(state != NULL, "fatal: vs_hashmap_iterator invalid arguments");
+    VSTD_ASSERT(map != NULL, "fatal: vs_hashmap_iterator invalid arguments");
+
+    state->map = map;
+    state->bucket = 0;
+    state->node = NULL;
+    state->entry.key = NULL;
+    state->entry.value = NULL;
+    return vs_iterator_from_callback(state, vs_hashmap_iterator_next);
 }
 
 void vs_hashmap_destroy(vs_hashmap *map) {

@@ -186,39 +186,33 @@ size_t vs_hashset_size(const vs_hashset *set) {
     return set->size;
 }
 
-vs_iterator vs_hashset_iterator(const vs_hashset *set) {
-    vs_iterator out;
+static const void *vs_hashset_iterator_next(void *context) {
+    vs_hashset_iterator_state *state = context;
+    const vs_hashset *set = state->set;
 
-    VSTD_ASSERT(set != NULL, "fatal: vs_hashset_iterator invalid arguments");
-
-    out.type = VS_ITERATOR_HASHSET;
-    out.as.hashset.set = set;
-    out.as.hashset.bucket = 0;
-    out.as.hashset.node = NULL;
-    return out;
-}
-
-const void *vs_hashset_iterator_next(vs_iterator *iter) {
-    VSTD_ASSERT(iter != NULL, "fatal: vs_hashset_iterator_next invalid arguments");
-    VSTD_ASSERT(
-        iter->type == VS_ITERATOR_HASHSET,
-        "fatal: vs_hashset_iterator_next invalid arguments"
-    );
-
-    const vs_hashset *set = iter->as.hashset.set;
-    while (iter->as.hashset.node == NULL && iter->as.hashset.bucket < set->capacity) {
-        iter->as.hashset.node = vs_linked_list_head(set->buckets[iter->as.hashset.bucket]);
-        iter->as.hashset.bucket += 1;
+    while (state->node == NULL && state->bucket < set->capacity) {
+        state->node = vs_linked_list_head(set->buckets[state->bucket]);
+        state->bucket += 1;
     }
 
-    if (iter->as.hashset.node == NULL) {
+    if (state->node == NULL) {
         return NULL;
     }
 
-    vs_linked_list_node *node = iter->as.hashset.node;
+    vs_linked_list_node *node = state->node;
     vs_hashset_entry *entry = VS_CONTAINER_OF(node, vs_hashset_entry, node);
-    iter->as.hashset.node = node->next;
+    state->node = node->next;
     return entry->data;
+}
+
+vs_iterator vs_hashset_iterator(vs_hashset_iterator_state *state, const vs_hashset *set) {
+    VSTD_ASSERT(state != NULL, "fatal: vs_hashset_iterator invalid arguments");
+    VSTD_ASSERT(set != NULL, "fatal: vs_hashset_iterator invalid arguments");
+
+    state->set = set;
+    state->bucket = 0;
+    state->node = NULL;
+    return vs_iterator_from_callback(state, vs_hashset_iterator_next);
 }
 
 void vs_hashset_destroy(vs_hashset *set) {

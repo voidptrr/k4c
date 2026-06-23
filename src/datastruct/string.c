@@ -177,30 +177,24 @@ size_t vs_string_len(const vs_string string) {
     return header->len;
 }
 
-vs_iterator vs_string_iterator(const vs_string string) {
-    vs_iterator out;
+static const void *vs_string_iterator_next(void *context) {
+    vs_string_iterator_state *state = context;
+    const char *string = state->string;
 
-    VSTD_ASSERT(string != NULL, "fatal: vs_string_iterator invalid arguments");
-
-    out.type = VS_ITERATOR_STRING;
-    out.as.string.string = string;
-    out.as.string.index = 0;
-    return out;
-}
-
-const void *vs_string_iterator_next(vs_iterator *iter) {
-    VSTD_ASSERT(iter != NULL, "fatal: vs_string_iterator_next invalid arguments");
-    VSTD_ASSERT(
-        iter->type == VS_ITERATOR_STRING,
-        "fatal: vs_string_iterator_next invalid arguments"
-    );
-
-    const char *string = iter->as.string.string;
-    if (iter->as.string.index >= vs_string_len((vs_string)string)) {
+    if (state->index >= vs_string_len((vs_string)string)) {
         return NULL;
     }
 
-    return &string[iter->as.string.index++];
+    return &string[state->index++];
+}
+
+vs_iterator vs_string_iterator(vs_string_iterator_state *state, const vs_string string) {
+    VSTD_ASSERT(state != NULL, "fatal: vs_string_iterator invalid arguments");
+    VSTD_ASSERT(string != NULL, "fatal: vs_string_iterator invalid arguments");
+
+    state->string = string;
+    state->index = 0;
+    return vs_iterator_from_callback(state, vs_string_iterator_next);
 }
 
 void vs_string_destroy(vs_string string) {

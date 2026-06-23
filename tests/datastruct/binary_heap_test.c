@@ -214,6 +214,7 @@ VS_TEST(iterator_walks_backing_storage) {
     vs_test_allocator_init(&test_allocator);
     vs_binary_heap *heap;
     int values[] = {5, 2, 8, 1};
+    vs_binary_heap_iterator_state state;
     vs_iterator iter;
     const int *out;
     int sum = 0;
@@ -225,7 +226,7 @@ VS_TEST(iterator_walks_backing_storage) {
         vs_binary_heap_push(heap, &values[i]);
     }
 
-    iter = vs_binary_heap_iterator(heap);
+    iter = vs_binary_heap_iterator(&state, heap);
     while ((out = (const int *)vs_iterator_next(&iter)) != NULL) {
         sum += *out;
         count += 1;

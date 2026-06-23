@@ -60,6 +60,10 @@ typedef struct vs_doubly_linked_list_node {
 
 typedef struct vs_doubly_linked_list vs_doubly_linked_list;
 
+typedef struct vs_doubly_linked_list_iterator_state {
+    vs_doubly_linked_list_node *node;
+} vs_doubly_linked_list_iterator_state;
+
 /* Create an intrusive doubly linked list. */
 vs_doubly_linked_list *vs_doubly_linked_list_create(vs_allocator *allocator);
 
@@ -95,10 +99,10 @@ vs_doubly_linked_list_node *vs_doubly_linked_list_head(const vs_doubly_linked_li
 vs_doubly_linked_list_node *vs_doubly_linked_list_tail(const vs_doubly_linked_list *list);
 
 /* Return an iterator over list nodes from head to tail. */
-vs_iterator vs_doubly_linked_list_iterator(const vs_doubly_linked_list *list);
-
-/* Advance a VS_ITERATOR_DOUBLY_LINKED_LIST iterator. */
-const void *vs_doubly_linked_list_iterator_next(vs_iterator *iter);
+vs_iterator vs_doubly_linked_list_iterator(
+    vs_doubly_linked_list_iterator_state *state,
+    const vs_doubly_linked_list *list
+);
 
 /* Release the linked-list handle. Nodes remain caller-owned. */
 void vs_doubly_linked_list_destroy(vs_doubly_linked_list *list);

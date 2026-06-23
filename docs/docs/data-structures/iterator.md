@@ -2,9 +2,9 @@
 
 ## DESCRIPTION
 
-The iterator module provides a tagged generic iterator that can walk all vstd
-data structures with iterator support. Data structures own their iterator
-construction and advancement functions, while the generic iterator module owns
+The iterator module provides a generic iterator that can walk all vstd data
+structures with iterator support. Data structures own their iterator state,
+construction, and advancement functions, while the generic iterator module owns
 common adapters such as filter, map, and take-while.
 
 Iterators do not allocate. They borrow the data structure or caller-owned
@@ -21,8 +21,7 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 typedef struct vs_iterator vs_iterator;
 ```
 
-Tagged iterator value. Store it by value and pass its address to
-`vs_iterator_next`.
+Iterator value. Store it by value and pass its address to `vs_iterator_next`.
 
 ### vs_iterator_next_fn
 
@@ -134,7 +133,8 @@ int main(void) {
         vs_vector_push(vector, &i);
     }
 
-    vs_iterator base = vs_vector_iterator(vector);
+    vs_vector_iterator_state vector_state;
+    vs_iterator base = vs_vector_iterator(&vector_state, vector);
     vs_iterator even = vs_iterator_filter(&base, int_is_even, NULL);
 
     const int *item;

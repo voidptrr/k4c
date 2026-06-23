@@ -225,6 +225,7 @@ VS_TEST(iterator_walks_vector) {
     vs_test_allocator test_allocator;
     vs_test_allocator_init(&test_allocator);
     vs_vector *v;
+    vs_vector_iterator_state state;
     vs_iterator iter;
     const int *item;
     int expected = 0;
@@ -234,7 +235,7 @@ VS_TEST(iterator_walks_vector) {
         vs_vector_push(v, &i);
     }
 
-    iter = vs_vector_iterator(v);
+    iter = vs_vector_iterator(&state, v);
 
     while ((item = vs_iterator_next(&iter)) != NULL) {
         if (vs_test_equal(*item, expected) != 0) {
@@ -257,6 +258,7 @@ VS_TEST(filter_map_take_while_iterators_compose) {
     vs_test_allocator test_allocator;
     vs_test_allocator_init(&test_allocator);
     vs_vector *v;
+    vs_vector_iterator_state vector_state;
     vs_iterator base;
     vs_iterator even;
     vs_iterator squares;
@@ -272,7 +274,7 @@ VS_TEST(filter_map_take_while_iterators_compose) {
         vs_vector_push(v, &i);
     }
 
-    base = vs_vector_iterator(v);
+    base = vs_vector_iterator(&vector_state, v);
     even = vs_iterator_filter(&base, int_is_even, NULL);
     squares = vs_iterator_map(&even, int_square, &mapped);
     small = vs_iterator_take_while(&squares, int_less_than, &limit);

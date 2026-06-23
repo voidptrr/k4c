@@ -56,6 +56,19 @@
 typedef bool (*vs_hashmap_key_eq_fn)(const void *lhs, const void *rhs);
 
 typedef struct vs_hashmap vs_hashmap;
+typedef struct vs_linked_list_node vs_linked_list_node;
+
+typedef struct vs_hashmap_entry_view {
+    const void *key;
+    const void *value;
+} vs_hashmap_entry_view;
+
+typedef struct vs_hashmap_iterator_state {
+    const vs_hashmap *map;
+    size_t bucket;
+    vs_linked_list_node *node;
+    vs_hashmap_entry_view entry;
+} vs_hashmap_iterator_state;
 
 /*
  * Create a hash map with fixed key/value sizes.
@@ -95,10 +108,7 @@ void vs_hashmap_remove(vs_hashmap *map, const void *key);
 size_t vs_hashmap_size(const vs_hashmap *map);
 
 /* Return an iterator over key/value entry views in bucket order. */
-vs_iterator vs_hashmap_iterator(const vs_hashmap *map);
-
-/* Advance a VS_ITERATOR_HASHMAP iterator. */
-const void *vs_hashmap_iterator_next(vs_iterator *iter);
+vs_iterator vs_hashmap_iterator(vs_hashmap_iterator_state *state, const vs_hashmap *map);
 
 /*
  * Release all entries, bucket storage, and the hashmap handle.

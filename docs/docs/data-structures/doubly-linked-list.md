@@ -140,13 +140,14 @@ vs_doubly_linked_list_node *vs_doubly_linked_list_tail(const vs_doubly_linked_li
 ### vs_doubly_linked_list_iterator
 
 ```c
-vs_iterator vs_doubly_linked_list_iterator(const vs_doubly_linked_list *list);
+vs_iterator vs_doubly_linked_list_iterator(vs_doubly_linked_list_iterator_state *state,
+                                           const vs_doubly_linked_list *list);
 ```
 
-- Parameters: `list`
+- Parameters: `state`, `list`
 - Returns: iterator over list nodes from head to tail.
-- Notes: yielded pointers are `const vs_doubly_linked_list_node *`. Use
-  `VS_CONTAINER_OF` to recover the owning object.
+- Notes: `state` must outlive the returned iterator. Yielded pointers are
+  `const vs_doubly_linked_list_node *`. Use `VS_CONTAINER_OF` to recover the owning object.
 
 ### vs_doubly_linked_list_destroy
 
