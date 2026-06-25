@@ -25,12 +25,12 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    ctools.url = "github:voidptrr/ctools";
+    vtools.url = "github:voidptrr/vtools";
   };
 
   outputs = {
-    ctools,
     nixpkgs,
+    vtools,
     ...
   }: let
     systems = [
@@ -51,17 +51,17 @@
     });
 
     devShells = forEachSystem ({pkgs}: {
-      default = ctools.lib.mkCShell {
+      default = vtools.lib.mkShell {
         inherit pkgs;
+        src = ./.;
         extraPackages = [
-          pkgs.zig
           pkgs.zensical
         ];
       };
     });
 
     checks = forEachSystem ({pkgs}:
-      ctools.lib.mkZigCChecks {
+      vtools.lib.mkZigCChecks {
         inherit pkgs;
         src = ./.;
       });
