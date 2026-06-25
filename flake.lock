@@ -1,40 +1,6 @@
 {
   "nodes": {
-    "ctools": {
-      "inputs": {
-        "nixpkgs": "nixpkgs"
-      },
-      "locked": {
-        "lastModified": 1781874179,
-        "narHash": "sha256-XYZ03ZF0+cZIyTVqp9eaMKvg2RIB39TTYHDmjUexCtg=",
-        "owner": "voidptrr",
-        "repo": "ctools",
-        "rev": "2246015f1f288ff280dad2040ee8e51578841af9",
-        "type": "github"
-      },
-      "original": {
-        "owner": "voidptrr",
-        "repo": "ctools",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
-      "locked": {
-        "lastModified": 1777954456,
-        "narHash": "sha256-hGdgeU2Nk87RAuZyYjyDjFL6LK7dAZN5RE9+hrDTkDU=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "549bd84d6279f9852cae6225e372cc67fb91a4c1",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_2": {
       "locked": {
         "lastModified": 1781074563,
         "narHash": "sha256-md8WlXOlfnIeHeOScMTTHFyf2d6iaTwPl2apR5EQ3P4=",
@@ -50,10 +16,44 @@
         "type": "github"
       }
     },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1777954456,
+        "narHash": "sha256-hGdgeU2Nk87RAuZyYjyDjFL6LK7dAZN5RE9+hrDTkDU=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "549bd84d6279f9852cae6225e372cc67fb91a4c1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
-        "ctools": "ctools",
+        "nixpkgs": "nixpkgs",
+        "vtools": "vtools"
+      }
+    },
+    "vtools": {
+      "inputs": {
         "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1782391103,
+        "narHash": "sha256-UQso+mUxpxmu6icPq269Iugokn3Siv/7VCtGAjpNvvY=",
+        "owner": "voidptrr",
+        "repo": "vtools",
+        "rev": "941930869873d6e09056eac013e3b9457b941b3f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "voidptrr",
+        "repo": "vtools",
+        "type": "github"
       }
     }
   },
