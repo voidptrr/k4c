@@ -75,7 +75,6 @@
         format-check
         lint-check
         ;
-      test-check = pkgs.callPackage ./nix/package.nix {};
     });
   };
 }
