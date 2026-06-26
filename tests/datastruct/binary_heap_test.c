@@ -44,11 +44,8 @@ static int cmp_int_desc(const void *a, const void *b) {
 
 VS_TEST(init) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
-    vs_binary_heap *heap;
-
-    heap =
-        vs_binary_heap_create(sizeof(int), cmp_int_asc, vs_test_allocator_adapter(&test_allocator));
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
+    vs_binary_heap *heap = vs_binary_heap_create(sizeof(int), cmp_int_asc, allocator);
 
     if (vs_binary_heap_size(heap) != 0) {
         return 1;
@@ -63,20 +60,16 @@ VS_TEST(init) {
 
 VS_TEST(peek) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
-    vs_binary_heap *heap;
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
+    vs_binary_heap *heap = vs_binary_heap_create(sizeof(int), cmp_int_asc, allocator);
     int value = 3;
-    const int *out;
-
-    heap =
-        vs_binary_heap_create(sizeof(int), cmp_int_asc, vs_test_allocator_adapter(&test_allocator));
 
     if (vs_test_null(vs_binary_heap_peek(heap)) != 0) {
         return 1;
     }
 
     vs_binary_heap_push(heap, &value);
-    out = (const int *)vs_binary_heap_peek(heap);
+    const int *out = (const int *)vs_binary_heap_peek(heap);
     if (vs_test_not_null(out) != 0) {
         return 1;
     }
@@ -93,12 +86,10 @@ VS_TEST(peek) {
 
 VS_TEST(pop) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
-    vs_binary_heap *heap;
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
+    vs_binary_heap *heap = vs_binary_heap_create(sizeof(int), cmp_int_asc, allocator);
     int values[] = {4, 1, 3};
 
-    heap =
-        vs_binary_heap_create(sizeof(int), cmp_int_asc, vs_test_allocator_adapter(&test_allocator));
     for (size_t i = 0; i < 3; i++) {
         vs_binary_heap_push(heap, &values[i]);
     }
@@ -127,16 +118,11 @@ VS_TEST(pop) {
 
 VS_TEST(pop_uses_custom_comparator_order) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
-    vs_binary_heap *heap;
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
+    vs_binary_heap *heap = vs_binary_heap_create(sizeof(int), cmp_int_desc, allocator);
     int values[] = {5, 2, 8, 1};
     int expected[] = {8, 5, 2, 1};
 
-    heap = vs_binary_heap_create(
-        sizeof(int),
-        cmp_int_desc,
-        vs_test_allocator_adapter(&test_allocator)
-    );
     for (size_t i = 0; i < sizeof(values) / sizeof(values[0]); i++) {
         vs_binary_heap_push(heap, &values[i]);
     }
@@ -160,18 +146,15 @@ VS_TEST(pop_uses_custom_comparator_order) {
 
 VS_TEST(push) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
-    vs_binary_heap *heap;
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
+    vs_binary_heap *heap = vs_binary_heap_create(sizeof(int), cmp_int_asc, allocator);
     int values[] = {5, 2, 8, 1};
-    const int *top;
 
-    heap =
-        vs_binary_heap_create(sizeof(int), cmp_int_asc, vs_test_allocator_adapter(&test_allocator));
     for (size_t i = 0; i < 4; i++) {
         vs_binary_heap_push(heap, &values[i]);
     }
 
-    top = (const int *)vs_binary_heap_peek(heap);
+    const int *top = (const int *)vs_binary_heap_peek(heap);
     if (vs_test_not_null(top) != 0) {
         return 1;
     }
@@ -191,17 +174,15 @@ VS_TEST(push) {
 
 VS_TEST(default_byte_ordering) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
-    vs_binary_heap *heap;
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
+    vs_binary_heap *heap = vs_binary_heap_create(sizeof(uint8_t), NULL, allocator);
     uint8_t values[] = {5, 2, 8, 1};
-    const uint8_t *top;
 
-    heap = vs_binary_heap_create(sizeof(uint8_t), NULL, vs_test_allocator_adapter(&test_allocator));
     for (size_t i = 0; i < 4; i++) {
         vs_binary_heap_push(heap, &values[i]);
     }
 
-    top = (const uint8_t *)vs_binary_heap_peek(heap);
+    const uint8_t *top = (const uint8_t *)vs_binary_heap_peek(heap);
     if (vs_test_not_null(top) != 0) {
         return 1;
     }
@@ -218,21 +199,15 @@ VS_TEST(default_byte_ordering) {
 
 VS_TEST(custom_comparator) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
-    vs_binary_heap *heap;
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
+    vs_binary_heap *heap = vs_binary_heap_create(sizeof(int), cmp_int_desc, allocator);
     int values[] = {5, 2, 8, 1};
-    const int *top;
 
-    heap = vs_binary_heap_create(
-        sizeof(int),
-        cmp_int_desc,
-        vs_test_allocator_adapter(&test_allocator)
-    );
     for (size_t i = 0; i < 4; i++) {
         vs_binary_heap_push(heap, &values[i]);
     }
 
-    top = (const int *)vs_binary_heap_peek(heap);
+    const int *top = (const int *)vs_binary_heap_peek(heap);
     if (vs_test_not_null(top) != 0) {
         return 1;
     }
@@ -249,21 +224,18 @@ VS_TEST(custom_comparator) {
 
 VS_TEST(iterator_walks_backing_storage) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
-    vs_binary_heap *heap;
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
+    vs_binary_heap *heap = vs_binary_heap_create(sizeof(int), cmp_int_asc, allocator);
     int values[] = {5, 2, 8, 1};
-    vs_iterator iter;
     const int *out;
     int sum = 0;
     size_t count = 0;
 
-    heap =
-        vs_binary_heap_create(sizeof(int), cmp_int_asc, vs_test_allocator_adapter(&test_allocator));
     for (size_t i = 0; i < sizeof(values) / sizeof(values[0]); i++) {
         vs_binary_heap_push(heap, &values[i]);
     }
 
-    iter = vs_binary_heap_get_iterator(heap);
+    vs_iterator iter = vs_binary_heap_get_iterator(heap);
     while ((out = (const int *)vs_iterator_next(&iter)) != NULL) {
         sum += *out;
         count += 1;

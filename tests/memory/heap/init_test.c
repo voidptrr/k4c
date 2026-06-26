@@ -22,11 +22,33 @@
  * SOFTWARE.
  */
 
+#include "vstd/memory/allocator.h"
 #include "vstd/memory/general_heap.h"
 #include "vstd/testing.h"
 
 int main(void) {
     vs_heap *heap = vs_heap_create(1024);
+    vs_allocator *allocator = vs_heap_allocator(heap);
+
+    if (vs_test_equal_ptr(allocator->ctx, heap) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(allocator->alloc != NULL, true) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(allocator->realloc != NULL, true) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(allocator->dealloc != NULL, true) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(
+            allocator->features == (VS_ALLOCATOR_FEATURE_DEALLOC | VS_ALLOCATOR_FEATURE_REALLOC),
+            true
+        )
+        != 0) {
+        return 1;
+    }
 
     if (vs_test_equal(vs_heap_capacity(heap) > 0, true) != 0) {
         return 1;

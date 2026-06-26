@@ -43,13 +43,8 @@ VS_TEST(allocator) {
     uint64_t key = 7;
     uint64_t value = 11;
 
-    vs_test_allocator_init(&test_allocator);
-    vs_hashmap *map = vs_hashmap_create(
-        sizeof(uint64_t),
-        sizeof(uint64_t),
-        NULL,
-        vs_test_allocator_adapter(&test_allocator)
-    );
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
+    vs_hashmap *map = vs_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, allocator);
     vs_test_allocator_reset_counts(&test_allocator);
 
     vs_hashmap_put(map, &key, &value);
@@ -66,15 +61,8 @@ VS_TEST(allocator) {
 
 VS_TEST(init) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
-    vs_hashmap *map;
-
-    map = vs_hashmap_create(
-        sizeof(uint64_t),
-        sizeof(uint64_t),
-        NULL,
-        vs_test_allocator_adapter(&test_allocator)
-    );
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
+    vs_hashmap *map = vs_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, allocator);
     if (vs_hashmap_size(map) != 0) {
         return 1;
     }
@@ -88,22 +76,14 @@ VS_TEST(init) {
 
 VS_TEST(default_byte_equality) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
-    vs_hashmap *map;
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
+    vs_hashmap *map = vs_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, allocator);
     uint64_t key = 7;
     uint64_t same_key = 7;
     uint64_t value = 11;
-    const uint64_t *out;
-
-    map = vs_hashmap_create(
-        sizeof(uint64_t),
-        sizeof(uint64_t),
-        NULL,
-        vs_test_allocator_adapter(&test_allocator)
-    );
 
     vs_hashmap_put(map, &key, &value);
-    out = (const uint64_t *)vs_hashmap_get(map, &same_key);
+    const uint64_t *out = (const uint64_t *)vs_hashmap_get(map, &same_key);
     if (vs_test_not_null(out) != 0) {
         return 1;
     }
@@ -120,23 +100,17 @@ VS_TEST(default_byte_equality) {
 
 VS_TEST(custom_equality) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
-    vs_hashmap *map;
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     uint64_t key = 7;
     uint64_t same_key = 7;
     uint64_t value = 11;
-    const uint64_t *out;
 
     custom_eq_calls = 0;
-    map = vs_hashmap_create(
-        sizeof(uint64_t),
-        sizeof(uint64_t),
-        custom_u64_eq,
-        vs_test_allocator_adapter(&test_allocator)
-    );
+    vs_hashmap *map =
+        vs_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), custom_u64_eq, allocator);
 
     vs_hashmap_put(map, &key, &value);
-    out = (const uint64_t *)vs_hashmap_get(map, &same_key);
+    const uint64_t *out = (const uint64_t *)vs_hashmap_get(map, &same_key);
     if (vs_test_not_null(out) != 0) {
         return 1;
     }
@@ -156,27 +130,18 @@ VS_TEST(custom_equality) {
 
 VS_TEST(put_get) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
-    vs_hashmap *map;
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
+    vs_hashmap *map = vs_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, allocator);
     uint64_t key = 7;
     uint64_t value = 11;
     uint64_t value2 = 99;
-    const uint64_t *out;
-    const vs_hashmap *const_map;
-
-    map = vs_hashmap_create(
-        sizeof(uint64_t),
-        sizeof(uint64_t),
-        NULL,
-        vs_test_allocator_adapter(&test_allocator)
-    );
 
     if (vs_test_null(vs_hashmap_get(map, &key)) != 0) {
         return 1;
     }
 
     vs_hashmap_put(map, &key, &value);
-    out = (uint64_t *)vs_hashmap_get(map, &key);
+    const uint64_t *out = (const uint64_t *)vs_hashmap_get(map, &key);
     if (vs_test_not_null(out) != 0) {
         return 1;
     }
@@ -184,7 +149,7 @@ VS_TEST(put_get) {
         return 1;
     }
 
-    const_map = map;
+    const vs_hashmap *const_map = map;
     out = (const uint64_t *)vs_hashmap_get_const(const_map, &key);
     if (vs_test_not_null(out) != 0) {
         return 1;
@@ -194,7 +159,7 @@ VS_TEST(put_get) {
     }
 
     vs_hashmap_put(map, &key, &value2);
-    out = (uint64_t *)vs_hashmap_get(map, &key);
+    out = (const uint64_t *)vs_hashmap_get(map, &key);
     if (vs_test_not_null(out) != 0) {
         return 1;
     }
@@ -214,15 +179,8 @@ VS_TEST(put_get) {
 
 VS_TEST(reserve) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
-    vs_hashmap *map;
-
-    map = vs_hashmap_create(
-        sizeof(uint64_t),
-        sizeof(uint64_t),
-        NULL,
-        vs_test_allocator_adapter(&test_allocator)
-    );
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
+    vs_hashmap *map = vs_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, allocator);
     vs_hashmap_reserve(map, 512);
 
     for (uint64_t i = 0; i < 512; i++) {
@@ -249,16 +207,9 @@ VS_TEST(reserve) {
 
 VS_TEST(remove_growth) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
-    vs_hashmap *map;
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
+    vs_hashmap *map = vs_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, allocator);
     uint64_t key = 128;
-
-    map = vs_hashmap_create(
-        sizeof(uint64_t),
-        sizeof(uint64_t),
-        NULL,
-        vs_test_allocator_adapter(&test_allocator)
-    );
 
     for (uint64_t i = 0; i < 256; i++) {
         uint64_t value = i * 3;
@@ -283,8 +234,8 @@ VS_TEST(remove_growth) {
 
 VS_TEST(foreach_macros_walk_items) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
-    vs_hashmap *map;
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
+    vs_hashmap *map = vs_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, allocator);
     const vs_hashmap_entry_view *entry;
     const uint64_t *key;
     const uint64_t *value;
@@ -292,12 +243,6 @@ VS_TEST(foreach_macros_walk_items) {
     uint64_t value_sum = 0;
     size_t count = 0;
 
-    map = vs_hashmap_create(
-        sizeof(uint64_t),
-        sizeof(uint64_t),
-        NULL,
-        vs_test_allocator_adapter(&test_allocator)
-    );
     for (uint64_t i = 1; i <= 4; i++) {
         uint64_t stored = i * 10;
         vs_hashmap_put(map, &i, &stored);
@@ -333,27 +278,19 @@ VS_TEST(foreach_macros_walk_items) {
 
 VS_TEST(iterator_walks_entries) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
-    vs_hashmap *map;
-    vs_iterator iter;
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
+    vs_hashmap *map = vs_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, allocator);
     const vs_hashmap_entry_view *entry;
     uint64_t key_sum = 0;
     uint64_t value_sum = 0;
     size_t count = 0;
-
-    map = vs_hashmap_create(
-        sizeof(uint64_t),
-        sizeof(uint64_t),
-        NULL,
-        vs_test_allocator_adapter(&test_allocator)
-    );
 
     for (uint64_t i = 1; i <= 4; i++) {
         uint64_t value = i * 10;
         vs_hashmap_put(map, &i, &value);
     }
 
-    iter = vs_hashmap_get_iterator(map, VS_HASHMAP_ITERATOR_ENTRY);
+    vs_iterator iter = vs_hashmap_get_iterator(map, VS_HASHMAP_ITERATOR_ENTRY);
     while ((entry = (const vs_hashmap_entry_view *)vs_iterator_next(&iter)) != NULL) {
         key_sum += *(const uint64_t *)entry->key;
         value_sum += *(const uint64_t *)entry->value;
@@ -378,26 +315,18 @@ VS_TEST(iterator_walks_entries) {
 
 VS_TEST(key_iterator_walks_keys) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
-    vs_hashmap *map;
-    vs_iterator iter;
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
+    vs_hashmap *map = vs_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, allocator);
     const uint64_t *key;
     uint64_t key_sum = 0;
     size_t count = 0;
-
-    map = vs_hashmap_create(
-        sizeof(uint64_t),
-        sizeof(uint64_t),
-        NULL,
-        vs_test_allocator_adapter(&test_allocator)
-    );
 
     for (uint64_t i = 1; i <= 4; i++) {
         uint64_t value = i * 10;
         vs_hashmap_put(map, &i, &value);
     }
 
-    iter = vs_hashmap_get_iterator(map, VS_HASHMAP_ITERATOR_KEY);
+    vs_iterator iter = vs_hashmap_get_iterator(map, VS_HASHMAP_ITERATOR_KEY);
     while ((key = (const uint64_t *)vs_iterator_next(&iter)) != NULL) {
         key_sum += *key;
         count += 1;
@@ -418,26 +347,18 @@ VS_TEST(key_iterator_walks_keys) {
 
 VS_TEST(value_iterator_walks_values) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
-    vs_hashmap *map;
-    vs_iterator iter;
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
+    vs_hashmap *map = vs_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, allocator);
     const uint64_t *value;
     uint64_t value_sum = 0;
     size_t count = 0;
-
-    map = vs_hashmap_create(
-        sizeof(uint64_t),
-        sizeof(uint64_t),
-        NULL,
-        vs_test_allocator_adapter(&test_allocator)
-    );
 
     for (uint64_t i = 1; i <= 4; i++) {
         uint64_t stored = i * 10;
         vs_hashmap_put(map, &i, &stored);
     }
 
-    iter = vs_hashmap_get_iterator(map, VS_HASHMAP_ITERATOR_VALUE);
+    vs_iterator iter = vs_hashmap_get_iterator(map, VS_HASHMAP_ITERATOR_VALUE);
     while ((value = (const uint64_t *)vs_iterator_next(&iter)) != NULL) {
         value_sum += *value;
         count += 1;

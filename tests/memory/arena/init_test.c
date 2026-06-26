@@ -30,22 +30,22 @@
 
 int main(void) {
     vs_arena *arena = vs_arena_create(128);
-    vs_allocator allocator = vs_arena_adapter(arena);
+    vs_allocator *allocator = vs_arena_allocator(arena);
 
-    if (vs_test_equal_ptr(allocator.ctx, arena) != 0) {
+    if (vs_test_equal_ptr(allocator->ctx, arena) != 0) {
         return 1;
     }
-    if (vs_test_equal(allocator.alloc != NULL, true) != 0) {
+    if (vs_test_equal(allocator->alloc != NULL, true) != 0) {
         return 1;
     }
-    if (vs_test_equal(allocator.realloc != NULL, true) != 0) {
+    if (vs_test_equal(allocator->realloc != NULL, true) != 0) {
         return 1;
     }
-    if (vs_test_equal(allocator.dealloc == NULL, true) != 0) {
+    if (vs_test_equal(allocator->dealloc == NULL, true) != 0) {
         return 1;
     }
     if (vs_test_equal(
-            allocator.features == (VS_ALLOCATOR_FEATURE_REALLOC | VS_ALLOCATOR_FEATURE_RESET),
+            allocator->features == (VS_ALLOCATOR_FEATURE_REALLOC | VS_ALLOCATOR_FEATURE_RESET),
             true
         )
         != 0) {

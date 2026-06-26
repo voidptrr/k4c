@@ -2,13 +2,13 @@
 
 ## DESCRIPTION
 
-The arena module provides a bump allocator backed by an internal contiguous
+The arena module provides a bump arena backed by an internal contiguous
 region. Allocation moves an offset forward, and `vs_arena_reset` releases all
 arena allocations together by moving the offset back to zero.
 
 Arena allocations are useful for short-lived groups of memory with the same
-lifetime. Individual deallocation is unsupported, so the allocator adapter does
-not advertise `VS_ALLOCATOR_FEATURE_DEALLOC` and does not provide a dealloc
+lifetime. Individual deallocation is unsupported, so the generic allocator view
+does not advertise `VS_ALLOCATOR_FEATURE_DEALLOC` and does not provide a dealloc
 callback.
 
 This API is fail-fast for required initialization/teardown preconditions.
@@ -34,16 +34,16 @@ vs_arena *vs_arena_create(size_t capacity);
 
 - Parameters: `capacity`
 - Returns: arena pointer.
-- Notes: capacity is aligned up to the allocator's internal memory alignment.
+- Notes: capacity is aligned up to the arena's internal memory alignment.
 
-### vs_arena_adapter
+### vs_arena_allocator
 
 ```c
-vs_allocator vs_arena_adapter(vs_arena *arena);
+vs_allocator *vs_arena_allocator(vs_arena *arena);
 ```
 
 - Parameters: `arena`
-- Returns: allocator adapter bound to `arena`.
+- Returns: generic allocator view owned by `arena`.
 - Notes: the returned allocator advertises `VS_ALLOCATOR_FEATURE_REALLOC | VS_ALLOCATOR_FEATURE_RESET`.
 
 ### vs_arena_alloc
@@ -54,7 +54,7 @@ void *vs_arena_alloc(vs_arena *arena, size_t size);
 
 - Parameters: `arena`, `size`
 - Returns: allocated pointer, or `NULL` when allocation cannot be satisfied.
-- Notes: returned pointers are aligned to the allocator's internal memory alignment.
+- Notes: returned pointers are aligned to the arena's internal memory alignment.
 
 ### vs_arena_realloc
 
@@ -124,8 +124,6 @@ void vs_arena_destroy(vs_arena *arena);
 int main(void) {
     int status = 0;
     vs_arena *arena = vs_arena_create(1024);
-    vs_allocator allocator = vs_arena_adapter(arena);
-
     uint64_t *value = vs_arena_alloc(arena, sizeof(uint64_t));
     if (value == NULL) {
         status = 1;
@@ -139,7 +137,6 @@ int main(void) {
 cleanup:
     vs_arena_destroy(arena);
 
-    (void)allocator;
     return status;
 }
 ```

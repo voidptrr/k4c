@@ -30,15 +30,15 @@ vs_heap *vs_heap_create(size_t capacity);
 - Parameters: `capacity`
 - Returns: heap pointer.
 
-### vs_heap_adapter
+### vs_heap_allocator
 
 ```c
-vs_allocator vs_heap_adapter(vs_heap *heap);
+vs_allocator *vs_heap_allocator(vs_heap *heap);
 ```
 
 - Parameters: `heap`
-- Returns: allocator adapter bound to `heap`.
-- Notes: the returned allocator advertises `VS_ALLOCATOR_FEATURE_DEALLOC | VS_ALLOCATOR_FEATURE_REALLOC`.
+- Returns: generic allocator view owned by `heap`.
+- Notes: the returned allocator is owned by `heap` and advertises `VS_ALLOCATOR_FEATURE_DEALLOC | VS_ALLOCATOR_FEATURE_REALLOC`.
 
 ### vs_heap_alloc
 
