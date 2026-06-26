@@ -33,10 +33,10 @@ Typed cursor for walking vector elements.
 VS_VECTOR_PUSH_AS(vector, int, 42);
 ```
 
-### VS_VECTOR_FOR_EACH
+### vs_vector_for_each
 
 ```c
-#define VS_VECTOR_FOR_EACH(type, item, vector)
+#define vs_vector_for_each(type, item, vector)
 ```
 
 - Parameters: `type`, `item`, `vector`
@@ -44,7 +44,7 @@ VS_VECTOR_PUSH_AS(vector, int, 42);
 - Example:
 
 ```c
-VS_VECTOR_FOR_EACH(int, item, vector) {
+vs_vector_for_each(int, item, vector) {
     /* use *item */
 }
 ```

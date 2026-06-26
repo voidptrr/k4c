@@ -60,10 +60,10 @@ destination storage has the element size passed to `vs_iterator_collect_map`.
 const int *item = VS_ITER_NEXT_AS(int, &iter);
 ```
 
-### VS_ITERATOR_FOR_EACH
+### vs_iterator_for_each
 
 ```c
-#define VS_ITERATOR_FOR_EACH(type, item, iter)
+#define vs_iterator_for_each(type, item, iter)
 ```
 
 - Parameters: `type`, `item`, `iter`
@@ -71,7 +71,7 @@ const int *item = VS_ITER_NEXT_AS(int, &iter);
 - Example:
 
 ```c
-VS_ITERATOR_FOR_EACH(int, item, &iter) {
+vs_iterator_for_each(int, item, &iter) {
     /* use *item */
 }
 ```
