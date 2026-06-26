@@ -35,40 +35,13 @@ typedef struct vs_arena_alloc_header {
 } vs_arena_alloc_header;
 
 struct vs_arena {
+    vs_allocator allocator;
     void *buffer;
     size_t capacity;
     size_t offset;
 };
 
-vs_arena *vs_arena_create(size_t capacity) {
-    vs_arena *arena;
-
-    capacity = vs_align_up(capacity, VS_MEMORY_ALIGN);
-    VSTD_ASSERT(capacity > 0, "fatal: vs_arena_create invalid capacity");
-
-    arena = vs_malloc(NULL, sizeof(vs_arena));
-    arena->buffer = vs_malloc(NULL, capacity);
-    arena->capacity = capacity;
-    arena->offset = 0;
-
-    return arena;
-}
-
-vs_allocator vs_arena_adapter(vs_arena *arena) {
-    VSTD_ASSERT(arena != NULL, "fatal: vs_arena_adapter invalid arguments");
-    VSTD_ASSERT(arena->buffer != NULL, "fatal: vs_arena_adapter invalid arena");
-
-    vs_allocator allocator;
-    allocator.ctx = arena;
-    allocator.features = VS_ALLOCATOR_FEATURE_REALLOC | VS_ALLOCATOR_FEATURE_RESET;
-    allocator.alloc = (vs_alloc_fn)vs_arena_alloc;
-    allocator.realloc = (vs_realloc_fn)vs_arena_realloc;
-    allocator.dealloc = NULL;
-
-    return allocator;
-}
-
-void *vs_arena_alloc(vs_arena *arena, size_t size) {
+static void *vs_arena_alloc_impl(vs_arena *arena, size_t size) {
     VSTD_ASSERT(arena != NULL, "fatal: vs_arena_alloc invalid arguments");
     VSTD_ASSERT(arena->buffer != NULL, "fatal: vs_arena_alloc invalid arena");
     VSTD_ASSERT(size > 0, "fatal: vs_arena_alloc invalid arguments");
@@ -88,12 +61,12 @@ void *vs_arena_alloc(vs_arena *arena, size_t size) {
     return ptr + header_size;
 }
 
-void *vs_arena_realloc(vs_arena *arena, void *ptr, size_t size) {
+static void *vs_arena_realloc_impl(vs_arena *arena, void *ptr, size_t size) {
     VSTD_ASSERT(arena != NULL, "fatal: vs_arena_realloc invalid arguments");
     VSTD_ASSERT(arena->buffer != NULL, "fatal: vs_arena_realloc invalid arena");
 
     if (ptr == NULL) {
-        return vs_arena_alloc(arena, size);
+        return vs_arena_alloc_impl(arena, size);
     }
 
     if (size == 0) {
@@ -109,13 +82,57 @@ void *vs_arena_realloc(vs_arena *arena, void *ptr, size_t size) {
         return ptr;
     }
 
-    void *new_ptr = vs_arena_alloc(arena, size);
+    void *new_ptr = vs_arena_alloc_impl(arena, size);
     if (new_ptr == NULL) {
         return NULL;
     }
 
     memcpy(new_ptr, ptr, header->size);
     return new_ptr;
+}
+
+static void *vs_arena_alloc_callback(void *ctx, size_t size) {
+    return vs_arena_alloc_impl(ctx, size);
+}
+
+static void *vs_arena_realloc_callback(void *ctx, void *ptr, size_t size) {
+    return vs_arena_realloc_impl(ctx, ptr, size);
+}
+
+vs_arena *vs_arena_create(size_t capacity) {
+    vs_arena *arena;
+
+    capacity = vs_align_up(capacity, VS_MEMORY_ALIGN);
+    VSTD_ASSERT(capacity > 0, "fatal: vs_arena_create invalid capacity");
+
+    arena = vs_malloc(NULL, sizeof(vs_arena));
+    arena->buffer = vs_malloc(NULL, capacity);
+    arena->capacity = capacity;
+    arena->offset = 0;
+    arena->allocator = (vs_allocator){
+        .ctx = arena,
+        .features = VS_ALLOCATOR_FEATURE_REALLOC | VS_ALLOCATOR_FEATURE_RESET,
+        .alloc = vs_arena_alloc_callback,
+        .realloc = vs_arena_realloc_callback,
+        .dealloc = NULL,
+    };
+
+    return arena;
+}
+
+vs_allocator *vs_arena_allocator(vs_arena *arena) {
+    VSTD_ASSERT(arena != NULL, "fatal: vs_arena_allocator invalid arguments");
+    VSTD_ASSERT(arena->buffer != NULL, "fatal: vs_arena_allocator invalid arena");
+
+    return &arena->allocator;
+}
+
+void *vs_arena_alloc(vs_arena *arena, size_t size) {
+    return vs_arena_alloc_impl(arena, size);
+}
+
+void *vs_arena_realloc(vs_arena *arena, void *ptr, size_t size) {
+    return vs_arena_realloc_impl(arena, ptr, size);
 }
 
 void vs_arena_reset(vs_arena *arena) {

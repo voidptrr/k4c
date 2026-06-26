@@ -53,9 +53,9 @@ typedef struct vs_arena vs_arena;
 vs_arena *vs_arena_create(size_t capacity);
 
 /*
- * Return an allocator adapter that routes through this arena.
+ * Return the generic allocator view owned by this arena.
  */
-vs_allocator vs_arena_adapter(vs_arena *arena);
+vs_allocator *vs_arena_allocator(vs_arena *arena);
 
 /*
  * Allocate `size` bytes from arena.

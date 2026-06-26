@@ -58,9 +58,9 @@ typedef struct vs_heap vs_heap;
 vs_heap *vs_heap_create(size_t capacity);
 
 /*
- * Return an allocator adapter that routes through this heap.
+ * Return the generic allocator view owned by this heap.
  */
-vs_allocator vs_heap_adapter(vs_heap *heap);
+vs_allocator *vs_heap_allocator(vs_heap *heap);
 
 /*
  * Allocate `size` bytes from heap.
