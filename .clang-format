@@ -10,10 +10,6 @@ InsertNewlineAtEOF: true
 ColumnLimit: 100
 
 BreakBeforeBraces: Attach
-BraceWrapping:
-  AfterFunction: false
-  BeforeElse: false
-  BeforeWhile: false
 
 AlignAfterOpenBracket: BlockIndent
 AlignConsecutiveAssignments: false
@@ -32,6 +28,22 @@ BreakBeforeTernaryOperators: true
 BreakStringLiterals: true
 PenaltyReturnTypeOnItsOwnLine: 1000000
 
+# Keep foreach-style macros parsed as loop constructs.
+ForEachMacros:
+  - 'vs_binary_heap_for_each'
+  - 'vs_deque_for_each'
+  - 'vs_doubly_linked_list_for_each_entry'
+  - 'vs_doubly_linked_list_for_each_node'
+  - 'vs_hashmap_for_each_entry'
+  - 'vs_hashmap_for_each_key'
+  - 'vs_hashmap_for_each_value'
+  - 'vs_hashset_for_each'
+  - 'vs_iterator_for_each'
+  - 'vs_linked_list_for_each_entry'
+  - 'vs_linked_list_for_each_node'
+  - 'vs_string_for_each_char'
+  - 'vs_vector_for_each'
+
 AllowShortFunctionsOnASingleLine: Empty
 AllowShortBlocksOnASingleLine: Never
 AllowShortCaseLabelsOnASingleLine: false
@@ -44,7 +56,7 @@ PointerAlignment: Right
 SpaceAroundPointerQualifiers: Default
 SpaceAfterCStyleCast: false
 
-SpaceBeforeParens: ControlStatements
+SpaceBeforeParens: ControlStatementsExceptForEachMacros
 
 IncludeBlocks: Regroup
 IncludeCategories:

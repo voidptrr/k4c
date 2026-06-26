@@ -31,11 +31,11 @@
 #include "vstd/datastruct/iterator.h"
 #include "vstd/memory/allocator.h"
 
-#define VS_BINARY_HEAP_FOR_EACH(type, item, heap) \
+#define vs_binary_heap_for_each(type, item, heap) \
     for (vs_iterator item##_vs_iter__ = vs_binary_heap_get_iterator((heap)); \
          item##_vs_iter__.next != NULL; \
          item##_vs_iter__.next = NULL) \
-    VS_ITERATOR_FOR_EACH(type, item, &item##_vs_iter__)
+        vs_iterator_for_each(type, item, &item##_vs_iter__)
 
 /*
  * Opaque binary heap.

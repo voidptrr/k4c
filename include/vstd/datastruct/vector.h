@@ -37,11 +37,11 @@
         vs_vector_push((vector), &vs_vector_push_value__); \
     } while (0)
 
-#define VS_VECTOR_FOR_EACH(type, item, vector) \
+#define vs_vector_for_each(type, item, vector) \
     for (vs_iterator item##_vs_iter__ = vs_vector_get_iterator((vector)); \
          item##_vs_iter__.next != NULL; \
          item##_vs_iter__.next = NULL) \
-    VS_ITERATOR_FOR_EACH(type, item, &item##_vs_iter__)
+        vs_iterator_for_each(type, item, &item##_vs_iter__)
 
 /*
  * Opaque generic contiguous dynamic array.

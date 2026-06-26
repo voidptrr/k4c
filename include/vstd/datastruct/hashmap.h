@@ -31,15 +31,15 @@
 #include "vstd/datastruct/iterator.h"
 #include "vstd/memory/allocator.h"
 
-#define VS_HASHMAP_FOR_EACH_ENTRY(item, map) \
+#define vs_hashmap_for_each_entry(item, map) \
     for (vs_iterator item##_vs_iter__ = vs_hashmap_get_iterator((map), VS_HASHMAP_ITERATOR_ENTRY); \
          ((item) = VS_ITER_NEXT_AS(vs_hashmap_entry_view, &item##_vs_iter__)) != NULL;)
 
-#define VS_HASHMAP_FOR_EACH_KEY(type, item, map) \
+#define vs_hashmap_for_each_key(type, item, map) \
     for (vs_iterator item##_vs_iter__ = vs_hashmap_get_iterator((map), VS_HASHMAP_ITERATOR_KEY); \
          ((item) = VS_ITER_NEXT_AS(type, &item##_vs_iter__)) != NULL;)
 
-#define VS_HASHMAP_FOR_EACH_VALUE(type, item, map) \
+#define vs_hashmap_for_each_value(type, item, map) \
     for (vs_iterator item##_vs_iter__ = vs_hashmap_get_iterator((map), VS_HASHMAP_ITERATOR_VALUE); \
          ((item) = VS_ITER_NEXT_AS(type, &item##_vs_iter__)) != NULL;)
 
