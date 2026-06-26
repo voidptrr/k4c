@@ -31,7 +31,7 @@
 
 #define VS_ITER_NEXT_AS(type, iter) ((const type *)vs_iterator_next((iter)))
 
-#define VS_ITERATOR_FOR_EACH(type, item, iter) \
+#define vs_iterator_for_each(type, item, iter) \
     for (const type *(item) = VS_ITER_NEXT_AS(type, (iter)); (item) != NULL; \
          (item) = VS_ITER_NEXT_AS(type, (iter)))
 

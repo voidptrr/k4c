@@ -306,7 +306,7 @@ VS_TEST(foreach_macro_walks_elements) {
         vs_hashset_insert(set, &i);
     }
 
-    VS_HASHSET_FOR_EACH(uint64_t, elem, set) {
+    vs_hashset_for_each(uint64_t, elem, set) {
         sum += *elem;
         count += 1;
     }

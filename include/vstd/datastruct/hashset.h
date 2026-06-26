@@ -31,7 +31,7 @@
 #include "vstd/datastruct/iterator.h"
 #include "vstd/memory/allocator.h"
 
-#define VS_HASHSET_FOR_EACH(type, item, set) \
+#define vs_hashset_for_each(type, item, set) \
     for (vs_iterator item##_vs_iter__ = vs_hashset_get_iterator((set)); \
          ((item) = VS_ITER_NEXT_AS(type, &item##_vs_iter__)) != NULL;)
 

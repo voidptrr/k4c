@@ -277,7 +277,7 @@ VS_TEST(vector_for_each_macro_walks_items) {
         VS_VECTOR_PUSH_AS(v, int, i);
     }
 
-    VS_VECTOR_FOR_EACH(int, item, v) {
+    vs_vector_for_each(int, item, v) {
         sum += *item;
         count += 1;
     }

@@ -1,3 +1,10 @@
+# Disabled check rationale:
+# - bugprone-easily-swappable-parameters flags conventional C APIs and fixed
+#   callback signatures such as (ctx, ptr), (key_size, value_size), and
+#   symmetric utilities.
+# - clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
+#   recommends Annex K *_s functions for memcpy/fprintf/etc.; those are not
+#   portable enough for this C library.
 Checks: >-
   -*,
   bugprone-*,
@@ -9,5 +16,3 @@ Checks: >-
   -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
 WarningsAsErrors: '*'
 HeaderFilterRegex: '^.*/(src|include)/.*'
-CheckOptions:
-  bugprone-macro-parentheses.IgnoredMacros: 'VS_ITERATOR_FOR_EACH;VS_VECTOR_FOR_EACH;VS_DEQUE_FOR_EACH;VS_BINARY_HEAP_FOR_EACH;VS_STRING_FOR_EACH_CHAR;VS_LINKED_LIST_FOR_EACH_NODE;VS_LINKED_LIST_FOR_EACH_ENTRY;VS_DOUBLY_LINKED_LIST_FOR_EACH_NODE;VS_DOUBLY_LINKED_LIST_FOR_EACH_ENTRY;VS_HASHMAP_FOR_EACH_ENTRY;VS_HASHMAP_FOR_EACH_KEY;VS_HASHMAP_FOR_EACH_VALUE;VS_HASHSET_FOR_EACH'

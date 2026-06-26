@@ -248,14 +248,14 @@ VS_TEST(foreach_macros_walk_items) {
         vs_hashmap_put(map, &i, &stored);
     }
 
-    VS_HASHMAP_FOR_EACH_ENTRY(entry, map) {
+    vs_hashmap_for_each_entry(entry, map) {
         key_sum += *(const uint64_t *)entry->key;
         count += 1;
     }
-    VS_HASHMAP_FOR_EACH_KEY(uint64_t, key, map) {
+    vs_hashmap_for_each_key(uint64_t, key, map) {
         key_sum += *key;
     }
-    VS_HASHMAP_FOR_EACH_VALUE(uint64_t, value, map) {
+    vs_hashmap_for_each_value(uint64_t, value, map) {
         value_sum += *value;
     }
 
