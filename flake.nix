@@ -74,6 +74,7 @@
         code-check
         format-check
         lint-check
+        test-check
         ;
     });
   };
