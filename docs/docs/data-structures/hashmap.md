@@ -38,10 +38,10 @@ Selects whether `vs_hashmap_get_iterator` yields entry views, keys, or values.
 
 ## FUNCTIONS
 
-### VS_HASHMAP_FOR_EACH_ENTRY
+### vs_hashmap_for_each_entry
 
 ```c
-#define VS_HASHMAP_FOR_EACH_ENTRY(item, map)
+#define vs_hashmap_for_each_entry(item, map)
 ```
 
 - Parameters: `item`, `map`
@@ -51,24 +51,24 @@ Selects whether `vs_hashmap_get_iterator` yields entry views, keys, or values.
 
 ```c
 const vs_hashmap_entry_view *entry;
-VS_HASHMAP_FOR_EACH_ENTRY(entry, map) {
+vs_hashmap_for_each_entry(entry, map) {
     /* use entry->key and entry->value */
 }
 ```
 
-### VS_HASHMAP_FOR_EACH_KEY
+### vs_hashmap_for_each_key
 
 ```c
-#define VS_HASHMAP_FOR_EACH_KEY(type, item, map)
+#define vs_hashmap_for_each_key(type, item, map)
 ```
 
 - Parameters: `type`, `item`, `map`
 - Notes: assigns each key pointer to a caller-declared `const type *item`.
 
-### VS_HASHMAP_FOR_EACH_VALUE
+### vs_hashmap_for_each_value
 
 ```c
-#define VS_HASHMAP_FOR_EACH_VALUE(type, item, map)
+#define vs_hashmap_for_each_value(type, item, map)
 ```
 
 - Parameters: `type`, `item`, `map`

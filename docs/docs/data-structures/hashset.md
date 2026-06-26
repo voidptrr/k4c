@@ -17,10 +17,10 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## FUNCTIONS
 
-### VS_HASHSET_FOR_EACH
+### vs_hashset_for_each
 
 ```c
-#define VS_HASHSET_FOR_EACH(type, item, set)
+#define vs_hashset_for_each(type, item, set)
 ```
 
 - Parameters: `type`, `item`, `set`
@@ -29,7 +29,7 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ```c
 const uint64_t *value;
-VS_HASHSET_FOR_EACH(uint64_t, value, set) {
+vs_hashset_for_each(uint64_t, value, set) {
     /* use *value */
 }
 ```
