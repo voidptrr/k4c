@@ -4,5 +4,5 @@ set -eu
 build_dir="${1:-build/ctests}"
 
 cmake -S . -B "$build_dir"
-cmake --build "$build_dir" --target vstd_ctests
+cmake --build "$build_dir" --target k4c_ctests
 ctest --test-dir "$build_dir" --output-on-failure

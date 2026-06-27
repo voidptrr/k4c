@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(vstd VERSION 0.2.2 LANGUAGES C)
+project(k4c VERSION 0.2.2 LANGUAGES C)
 
 include(CTest)
 include(GNUInstallDirs)
@@ -16,30 +16,30 @@ file(GLOB_RECURSE LIBRARY_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
 )
 
-add_library(vstd STATIC ${LIBRARY_SOURCES})
-add_library(vstd::vstd ALIAS vstd)
+add_library(k4c STATIC ${LIBRARY_SOURCES})
+add_library(k4c::k4c ALIAS k4c)
 
-target_compile_features(vstd PUBLIC c_std_17)
+target_compile_features(k4c PUBLIC c_std_17)
 target_include_directories(
-    vstd
+    k4c
     PUBLIC
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
         "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
     PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
-target_compile_options(vstd PRIVATE
+target_compile_options(k4c PRIVATE
     -Wall
     -Wextra
     -Wpedantic
 )
 
 set_target_properties(
-    vstd
+    k4c
     PROPERTIES
         VERSION "${PROJECT_VERSION}"
         SOVERSION "${PROJECT_VERSION_MAJOR}"
-        EXPORT_NAME vstd
+        EXPORT_NAME k4c
 )
 
 include(cmake/install.cmake)
@@ -49,7 +49,7 @@ file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS
 )
 list(SORT TEST_SOURCES)
 
-add_custom_target(vstd_ctests)
+add_custom_target(k4c_ctests)
 
 foreach(test_source IN LISTS TEST_SOURCES)
     file(RELATIVE_PATH test_relative "${CMAKE_CURRENT_SOURCE_DIR}/tests" "${test_source}")
@@ -67,7 +67,7 @@ foreach(test_source IN LISTS TEST_SOURCES)
         -Wextra
         -Wpedantic
     )
-    target_link_libraries("${test_name}" PRIVATE vstd::vstd)
-    add_dependencies(vstd_ctests "${test_name}")
+    target_link_libraries("${test_name}" PRIVATE k4c::k4c)
+    add_dependencies(k4c_ctests "${test_name}")
     add_test(NAME "${test_name}" COMMAND "${test_name}")
 endforeach()

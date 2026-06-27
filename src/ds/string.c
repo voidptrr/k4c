@@ -26,46 +26,46 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "vstd/assert.h"
-#include "vstd/ds/iterator.h"
-#include "vstd/ds/string.h"
-#include "vstd/error.h"
-#include "vstd/memory/allocator.h"
-#include "vstd/memory/utils.h"
+#include "k4c/assert.h"
+#include "k4c/ds/iterator.h"
+#include "k4c/ds/string.h"
+#include "k4c/error.h"
+#include "k4c/memory/allocator.h"
+#include "k4c/memory/utils.h"
 
-#define STRING_DEFAULT_CAPACITY 16
+#define K4C_STRING_DEFAULT_CAPACITY 16
 
-typedef struct string_header {
+typedef struct k4c_string_header {
     size_t len;
     size_t capacity;
-    allocator *allocator;
+    k4c_allocator *k4c_allocator;
     char buf[];
-} string_header;
+} k4c_string_header;
 
-typedef struct string_iterator_state {
+typedef struct k4c_string_iterator_state {
     const char *cursor;
     const char *end;
-} string_iterator_state;
+} k4c_string_iterator_state;
 
 _Static_assert(
-    sizeof(string_iterator_state) <= ITERATOR_STATE_SIZE,
-    "string_iterator_state must fit in iterator"
+    sizeof(k4c_string_iterator_state) <= K4C_ITERATOR_STATE_SIZE,
+    "k4c_string_iterator_state must fit in k4c_iterator"
 );
 
-static string_header *string_header_from_buf(string string) {
-    if (string == NULL) {
+static k4c_string_header *k4c_string_header_from_buf(k4c_string k4c_string) {
+    if (k4c_string == NULL) {
         return NULL;
     }
 
-    return (string_header *)((uint8_t *)string - offsetof(string_header, buf));
+    return (k4c_string_header *)((uint8_t *)k4c_string - offsetof(k4c_string_header, buf));
 }
 
-static status string_capacity_grow(size_t capacity, size_t min_capacity, size_t *out) {
-    ASSERT(out != NULL, "fatal: string_capacity_grow invalid arguments");
+static k4c_status k4c_string_capacity_grow(size_t capacity, size_t min_capacity, size_t *out) {
+    K4C_ASSERT(out != NULL, "fatal: k4c_string_capacity_grow invalid arguments");
 
     if (capacity >= min_capacity) {
         *out = capacity;
-        return STATUS_OK;
+        return K4C_STATUS_OK;
     }
 
     while (capacity < min_capacity) {
@@ -75,7 +75,7 @@ static status string_capacity_grow(size_t capacity, size_t min_capacity, size_t 
         }
 
         size_t next = 0;
-        if (size_add_overflow(capacity, increment, &next)) {
+        if (k4c_size_add_overflow(capacity, increment, &next)) {
             capacity = min_capacity;
             break;
         }
@@ -84,85 +84,89 @@ static status string_capacity_grow(size_t capacity, size_t min_capacity, size_t 
     }
 
     *out = capacity;
-    return STATUS_OK;
+    return K4C_STATUS_OK;
 }
 
-static status string_capacity_for(size_t len, size_t *out) {
-    ASSERT(out != NULL, "fatal: string_capacity_for invalid arguments");
+static k4c_status k4c_string_capacity_for(size_t len, size_t *out) {
+    K4C_ASSERT(out != NULL, "fatal: k4c_string_capacity_for invalid arguments");
 
     size_t min_capacity = 0;
-    if (size_add_overflow(len, 1, &min_capacity)) {
-        return STATUS_OVERFLOW;
+    if (k4c_size_add_overflow(len, 1, &min_capacity)) {
+        return K4C_STATUS_OVERFLOW;
     }
 
-    return string_capacity_grow(STRING_DEFAULT_CAPACITY, min_capacity, out);
+    return k4c_string_capacity_grow(K4C_STRING_DEFAULT_CAPACITY, min_capacity, out);
 }
 
-static status string_ensure_capacity(string *string, size_t len, string_header **out) {
-    ASSERT(out != NULL, "fatal: string_ensure_capacity invalid arguments");
+static k4c_status k4c_string_ensure_capacity(
+    k4c_string *k4c_string,
+    size_t len,
+    k4c_string_header **out
+) {
+    K4C_ASSERT(out != NULL, "fatal: k4c_string_ensure_capacity invalid arguments");
 
-    string_header *header = string_header_from_buf(*string);
+    k4c_string_header *header = k4c_string_header_from_buf(*k4c_string);
     if (len < header->capacity) {
         *out = header;
-        return STATUS_OK;
+        return K4C_STATUS_OK;
     }
 
     size_t new_capacity = 0;
-    RETURN_IF_ERROR(string_capacity_for(len, &new_capacity));
+    K4C_RETURN_IF_ERROR(k4c_string_capacity_for(len, &new_capacity));
 
     size_t alloc_size = 0;
-    if (size_add_overflow(sizeof(string_header), new_capacity, &alloc_size)) {
-        return STATUS_OVERFLOW;
+    if (k4c_size_add_overflow(sizeof(k4c_string_header), new_capacity, &alloc_size)) {
+        return K4C_STATUS_OVERFLOW;
     }
 
-    allocator *allocator = header->allocator;
-    string_header *tmp = NULL;
-    status st = resize(allocator, header, alloc_size, (void **)&tmp);
-    if (st != STATUS_OK) {
+    k4c_allocator *k4c_allocator = header->k4c_allocator;
+    k4c_string_header *tmp = NULL;
+    k4c_status st = k4c_resize(k4c_allocator, header, alloc_size, (void **)&tmp);
+    if (st != K4C_STATUS_OK) {
         return st;
     }
 
     tmp->capacity = new_capacity;
-    *string = tmp->buf;
+    *k4c_string = tmp->buf;
     *out = tmp;
-    return STATUS_OK;
+    return K4C_STATUS_OK;
 }
 
-static const void *string_iterator_next(void *context) {
-    ASSERT(context != NULL, "fatal: string_iterator_next invalid arguments");
+static const void *k4c_string_iterator_next(void *context) {
+    K4C_ASSERT(context != NULL, "fatal: k4c_string_iterator_next invalid arguments");
 
-    string_iterator_state *iterator = context;
+    k4c_string_iterator_state *k4c_iterator = context;
 
-    if (iterator->cursor == iterator->end) {
+    if (k4c_iterator->cursor == k4c_iterator->end) {
         return NULL;
     }
 
-    return iterator->cursor++;
+    return k4c_iterator->cursor++;
 }
 
-status string_create(const char *initial, allocator *allocator, string *out) {
-    ASSERT(out != NULL, "fatal: string_create invalid arguments");
+k4c_status k4c_string_create(const char *initial, k4c_allocator *k4c_allocator, k4c_string *out) {
+    K4C_ASSERT(out != NULL, "fatal: k4c_string_create invalid arguments");
 
     *out = NULL;
 
     size_t len = initial == NULL ? 0 : strlen(initial);
     size_t capacity = 0;
-    RETURN_IF_ERROR(string_capacity_for(len, &capacity));
+    K4C_RETURN_IF_ERROR(k4c_string_capacity_for(len, &capacity));
 
     size_t alloc_size = 0;
-    if (size_add_overflow(sizeof(string_header), capacity, &alloc_size)) {
-        return STATUS_OVERFLOW;
+    if (k4c_size_add_overflow(sizeof(k4c_string_header), capacity, &alloc_size)) {
+        return K4C_STATUS_OVERFLOW;
     }
 
-    string_header *header = NULL;
-    status st = alloc(allocator, alloc_size, (void **)&header);
-    if (st != STATUS_OK) {
+    k4c_string_header *header = NULL;
+    k4c_status st = k4c_alloc(k4c_allocator, alloc_size, (void **)&header);
+    if (st != K4C_STATUS_OK) {
         return st;
     }
 
     header->len = len;
     header->capacity = capacity;
-    header->allocator = allocator;
+    header->k4c_allocator = k4c_allocator;
 
     if (len > 0) {
         memcpy(header->buf, initial, len);
@@ -170,55 +174,55 @@ status string_create(const char *initial, allocator *allocator, string *out) {
     header->buf[len] = '\0';
 
     *out = header->buf;
-    return STATUS_OK;
+    return K4C_STATUS_OK;
 }
 
-status string_append(string *string, const char *suffix) {
-    ASSERT(string != NULL, "fatal: string_append invalid arguments");
-    ASSERT(*string != NULL, "fatal: string_append invalid arguments");
-    ASSERT(suffix != NULL, "fatal: string_append invalid arguments");
+k4c_status k4c_string_append(k4c_string *k4c_string, const char *suffix) {
+    K4C_ASSERT(k4c_string != NULL, "fatal: k4c_string_append invalid arguments");
+    K4C_ASSERT(*k4c_string != NULL, "fatal: k4c_string_append invalid arguments");
+    K4C_ASSERT(suffix != NULL, "fatal: k4c_string_append invalid arguments");
 
     size_t suffix_len = strlen(suffix);
     if (suffix_len == 0) {
-        return STATUS_OK;
+        return K4C_STATUS_OK;
     }
 
-    string_header *header = string_header_from_buf(*string);
+    k4c_string_header *header = k4c_string_header_from_buf(*k4c_string);
     size_t new_len = 0;
-    if (size_add_overflow(header->len, suffix_len, &new_len)) {
-        return STATUS_OVERFLOW;
+    if (k4c_size_add_overflow(header->len, suffix_len, &new_len)) {
+        return K4C_STATUS_OVERFLOW;
     }
 
-    status st = string_ensure_capacity(string, new_len, &header);
-    if (st != STATUS_OK) {
+    k4c_status st = k4c_string_ensure_capacity(k4c_string, new_len, &header);
+    if (st != K4C_STATUS_OK) {
         return st;
     }
 
     memcpy(header->buf + header->len, suffix, suffix_len);
     header->len = new_len;
     header->buf[header->len] = '\0';
-    return STATUS_OK;
+    return K4C_STATUS_OK;
 }
 
-status string_prepend(string *string, const char *prefix) {
-    ASSERT(string != NULL, "fatal: string_prepend invalid arguments");
-    ASSERT(*string != NULL, "fatal: string_prepend invalid arguments");
-    ASSERT(prefix != NULL, "fatal: string_prepend invalid arguments");
+k4c_status k4c_string_prepend(k4c_string *k4c_string, const char *prefix) {
+    K4C_ASSERT(k4c_string != NULL, "fatal: k4c_string_prepend invalid arguments");
+    K4C_ASSERT(*k4c_string != NULL, "fatal: k4c_string_prepend invalid arguments");
+    K4C_ASSERT(prefix != NULL, "fatal: k4c_string_prepend invalid arguments");
 
     size_t prefix_len = strlen(prefix);
     if (prefix_len == 0) {
-        return STATUS_OK;
+        return K4C_STATUS_OK;
     }
 
-    string_header *header = string_header_from_buf(*string);
+    k4c_string_header *header = k4c_string_header_from_buf(*k4c_string);
     size_t old_len = header->len;
     size_t new_len = 0;
-    if (size_add_overflow(old_len, prefix_len, &new_len)) {
-        return STATUS_OVERFLOW;
+    if (k4c_size_add_overflow(old_len, prefix_len, &new_len)) {
+        return K4C_STATUS_OVERFLOW;
     }
 
-    status st = string_ensure_capacity(string, new_len, &header);
-    if (st != STATUS_OK) {
+    k4c_status st = k4c_string_ensure_capacity(k4c_string, new_len, &header);
+    if (st != K4C_STATUS_OK) {
         return st;
     }
 
@@ -229,71 +233,71 @@ status string_prepend(string *string, const char *prefix) {
     buf[prefix_len] = old_first;
 
     header->len = new_len;
-    return STATUS_OK;
+    return K4C_STATUS_OK;
 }
 
-bool string_contains(const string string, const char *needle) {
-    if (string == NULL || needle == NULL) {
+bool k4c_string_contains(const k4c_string k4c_string, const char *needle) {
+    if (k4c_string == NULL || needle == NULL) {
         return false;
     }
 
-    return strstr(string, needle) != NULL;
+    return strstr(k4c_string, needle) != NULL;
 }
 
-bool string_starts_with(const string string, const char *prefix) {
-    if (string == NULL || prefix == NULL) {
+bool k4c_string_starts_with(const k4c_string k4c_string, const char *prefix) {
+    if (k4c_string == NULL || prefix == NULL) {
         return false;
     }
 
     size_t prefix_len = strlen(prefix);
-    return strncmp(string, prefix, prefix_len) == 0;
+    return strncmp(k4c_string, prefix, prefix_len) == 0;
 }
 
-bool string_ends_with(const string string, const char *suffix) {
-    if (string == NULL || suffix == NULL) {
+bool k4c_string_ends_with(const k4c_string k4c_string, const char *suffix) {
+    if (k4c_string == NULL || suffix == NULL) {
         return false;
     }
 
-    size_t len = string_len(string);
+    size_t len = k4c_string_len(k4c_string);
     size_t suffix_len = strlen(suffix);
     if (suffix_len > len) {
         return false;
     }
 
-    return memcmp(string + len - suffix_len, suffix, suffix_len) == 0;
+    return memcmp(k4c_string + len - suffix_len, suffix, suffix_len) == 0;
 }
 
-void string_clear(string string) {
-    ASSERT(string != NULL, "fatal: string_clear invalid arguments");
+void k4c_string_clear(k4c_string k4c_string) {
+    K4C_ASSERT(k4c_string != NULL, "fatal: k4c_string_clear invalid arguments");
 
-    string_header *header = string_header_from_buf(string);
+    k4c_string_header *header = k4c_string_header_from_buf(k4c_string);
     header->len = 0;
     header->buf[0] = '\0';
 }
 
-size_t string_len(const string string) {
-    ASSERT(string != NULL, "fatal: string_len invalid arguments");
+size_t k4c_string_len(const k4c_string k4c_string) {
+    K4C_ASSERT(k4c_string != NULL, "fatal: k4c_string_len invalid arguments");
 
-    string_header *header = string_header_from_buf(string);
+    k4c_string_header *header = k4c_string_header_from_buf(k4c_string);
     return header->len;
 }
 
-iterator string_get_iterator(const string string) {
-    ASSERT(string != NULL, "fatal: string_get_iterator invalid arguments");
+k4c_iterator k4c_string_get_iterator(const k4c_string k4c_string) {
+    K4C_ASSERT(k4c_string != NULL, "fatal: k4c_string_get_iterator invalid arguments");
 
-    size_t len = string_len(string);
-    iterator iter = iterator_from_state(string_iterator_next);
-    string_iterator_state *state = iterator_state(&iter);
-    state->cursor = string;
-    state->end = string + len;
-    iterator_set_size_hint(&iter, len);
+    size_t len = k4c_string_len(k4c_string);
+    k4c_iterator iter = k4c_iterator_from_state(k4c_string_iterator_next);
+    k4c_string_iterator_state *state = k4c_iterator_state(&iter);
+    state->cursor = k4c_string;
+    state->end = k4c_string + len;
+    k4c_iterator_set_size_hint(&iter, len);
     return iter;
 }
 
-void string_destroy(string string) {
-    ASSERT(string != NULL, "fatal: string_destroy invalid arguments");
+void k4c_string_destroy(k4c_string k4c_string) {
+    K4C_ASSERT(k4c_string != NULL, "fatal: k4c_string_destroy invalid arguments");
 
-    string_header *header = string_header_from_buf(string);
-    allocator *allocator = header->allocator;
-    dealloc(allocator, header);
+    k4c_string_header *header = k4c_string_header_from_buf(k4c_string);
+    k4c_allocator *k4c_allocator = header->k4c_allocator;
+    k4c_dealloc(k4c_allocator, header);
 }

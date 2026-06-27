@@ -1,274 +1,247 @@
-# ds.vector
+# ds.k4c_vector
 
 ## DESCRIPTION
 
-The vector module provides a generic contiguous growable array for fixed-size elements.
-Elements are copied into vector-owned storage on push.
+The k4c_vector module provides a generic contiguous growable array for fixed-size elements.
+Elements are copied into k4c_vector-owned storage on push.
 
 This API is fail-fast: invalid required arguments are programmer errors and are asserted.
 
 ## TYPES
 
-### vector_iterator
+### k4c_vector_iterator
 
 ```c
-typedef struct vector_iterator vector_iterator;
+typedef struct k4c_vector_iterator k4c_vector_iterator;
 ```
 
-Typed cursor for walking vector elements.
+Typed cursor for walking k4c_vector elements.
 
 ## FUNCTIONS
 
-### vector_for_each
+### k4c_vector_for_each
 
 ```c
-#define vector_for_each(type, item, vector)
+#define k4c_vector_for_each(type, item, k4c_vector)
 ```
 
-- Parameters: `type`, `item`, `vector`
+- Parameters: `type`, `item`, `k4c_vector`
 - Notes: declares `const type *item` scoped to the loop body.
 - Example:
 
 ```c
-vector_for_each(int, item, vector) {
+k4c_vector_for_each(int, item, k4c_vector) {
     /* use *item */
 }
 ```
 
-### vector_create
+### k4c_vector_create
 
 ```c
-status vector_create(size_t elem_size, allocator *allocator, vector **out);
+k4c_status k4c_vector_create(size_t elem_size, k4c_allocator *k4c_allocator, k4c_vector **out);
 ```
 
-- Parameters: `elem_size`, `allocator`, `out`
-- Returns: `STATUS_OK` on success, or an error status.
-- Writes: opaque vector handle to `*out` on success.
-- Notes: the vector stores `allocator` and reuses it for growth and destroy.
-  When `allocator` is `NULL`, vector uses the C library heap through
-  `alloc`/`resize`.
+- Parameters: `elem_size`, `k4c_allocator`, `out`
+- Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
+- Writes: opaque k4c_vector handle to `*out` on success.
+- Notes: the k4c_vector stores `k4c_allocator` and reuses it for growth and destroy.
+  When `k4c_allocator` is `NULL`, k4c_vector uses the C library k4c_heap through
+  `k4c_alloc`/`k4c_resize`.
 - Example:
 
 ```c
-vector *vector = NULL;
-if (vector_create(sizeof(int), NULL, &vector) != STATUS_OK) {
+k4c_vector *k4c_vector = NULL;
+if (k4c_vector_create(sizeof(int), NULL, &k4c_vector) != K4C_STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### vector_create_with_capacity
+### k4c_vector_create_with_capacity
 
 ```c
-status vector_create_with_capacity(size_t elem_size,
+k4c_status k4c_vector_create_with_capacity(size_t elem_size,
                                         size_t capacity,
-                                        allocator *allocator,
-                                        vector **out);
+                                        k4c_allocator *k4c_allocator,
+                                        k4c_vector **out);
 ```
 
-- Parameters: `elem_size`, `capacity`, `allocator`, `out`
-- Returns: `STATUS_OK` on success, or an error status.
-- Writes: opaque vector handle with at least `capacity` slots allocated to `*out`.
+- Parameters: `elem_size`, `capacity`, `k4c_allocator`, `out`
+- Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
+- Writes: opaque k4c_vector handle with at least `capacity` slots allocated to `*out`.
 - Example:
 
 ```c
-vector *vector = NULL;
-if (vector_create_with_capacity(sizeof(int), 128, NULL, &vector) != STATUS_OK) {
+k4c_vector *k4c_vector = NULL;
+if (k4c_vector_create_with_capacity(sizeof(int), 128, NULL, &k4c_vector) != K4C_STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### vector_reserve
+### k4c_vector_reserve
 
 ```c
-status vector_reserve(vector *vector, size_t capacity);
+k4c_status k4c_vector_reserve(k4c_vector *k4c_vector, size_t capacity);
 ```
 
-- Parameters: `vector`, `capacity`
-- Returns: `STATUS_OK` on success, or an error status.
+- Parameters: `k4c_vector`, `capacity`
+- Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
 - Notes: grows backing storage when needed; existing items are preserved.
 - Example:
 
 ```c
-if (vector_reserve(vector, 1024) != STATUS_OK) {
+if (k4c_vector_reserve(k4c_vector, 1024) != K4C_STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### vector_push
+### k4c_vector_push
 
 ```c
-status vector_push(vector *vector, const void *element);
+k4c_status k4c_vector_push(k4c_vector *k4c_vector, const void *element);
 ```
 
-- Parameters: `vector`, `element`
-- Returns: `STATUS_OK` on success, or an error status.
+- Parameters: `k4c_vector`, `element`
+- Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
 - Example:
 
 ```c
 int value = 42;
-if (vector_push(vector, &value) != STATUS_OK) {
+if (k4c_vector_push(k4c_vector, &value) != K4C_STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### vector_pop
+### k4c_vector_pop
 
 ```c
-void *vector_pop(vector *vector);
+void *k4c_vector_pop(k4c_vector *k4c_vector);
 ```
 
-- Parameters: `vector`
-- Returns: pointer to the removed element within vector-managed storage, or `NULL` when the vector is empty.
+- Parameters: `k4c_vector`
+- Returns: pointer to the removed element within k4c_vector-managed storage, or `NULL` when the k4c_vector is empty.
 - Example:
 
 ```c
-int *last = (int *)vector_pop(vector);
+int *last = (int *)k4c_vector_pop(k4c_vector);
 if (last != NULL) {
     /* use *last */
 }
 ```
 
-### vector_get
+### k4c_vector_get
 
 ```c
-void *vector_get(vector *vector, size_t index);
+void *k4c_vector_get(const k4c_vector *k4c_vector, size_t index);
 ```
 
-- Parameters: `vector`, `index`
+- Parameters: `k4c_vector`, `index`
 - Returns: pointer to item at `index`, or `NULL` when out of range.
 - Example:
 
 ```c
-int *item = (int *)vector_get(vector, 0);
+int *item = (int *)k4c_vector_get(k4c_vector, 0);
 if (item != NULL) {
     *item = 10;
 }
 ```
 
-### vector_get_const
+### k4c_vector_elem_size
 
 ```c
-const void *vector_get_const(const vector *vector, size_t index);
+size_t k4c_vector_elem_size(const k4c_vector *k4c_vector);
 ```
 
-- Parameters: `vector`, `index`
-- Returns: const pointer to item at `index`, or `NULL` when out of range.
-- Example:
-
-```c
-const int *item = (const int *)vector_get_const(vector, 0);
-if (item != NULL) {
-    int value = *item;
-}
-```
-
-### vector_elem_size
-
-```c
-size_t vector_elem_size(const vector *vector);
-```
-
-- Parameters: `vector`
+- Parameters: `k4c_vector`
 - Returns: configured element size.
 - Example:
 
 ```c
-size_t elem_size = vector_elem_size(vector);
+size_t elem_size = k4c_vector_elem_size(k4c_vector);
 ```
 
-### vector_capacity
+### k4c_vector_capacity
 
 ```c
-size_t vector_capacity(const vector *vector);
+size_t k4c_vector_capacity(const k4c_vector *k4c_vector);
 ```
 
-- Parameters: `vector`
+- Parameters: `k4c_vector`
 - Returns: number of elements that fit without another allocation.
 
-### vector_data
+### k4c_vector_data
 
 ```c
-void *vector_data(vector *vector);
+void *k4c_vector_data(const k4c_vector *k4c_vector);
 ```
 
-- Parameters: `vector`
-- Returns: mutable pointer to vector backing storage.
+- Parameters: `k4c_vector`
+- Returns: pointer to k4c_vector backing storage.
 - Notes: the pointer may be invalidated by later growth.
 
-### vector_data_const
+### k4c_vector_swap_remove
 
 ```c
-const void *vector_data_const(const vector *vector);
+void *k4c_vector_swap_remove(k4c_vector *k4c_vector, size_t index);
 ```
 
-- Parameters: `vector`
-- Returns: const pointer to vector backing storage.
-- Notes: the pointer may be invalidated by later growth.
-
-### vector_swap_remove
-
-```c
-void *vector_swap_remove(vector *vector, size_t index);
-```
-
-- Parameters: `vector`, `index`
+- Parameters: `k4c_vector`, `index`
 - Returns: pointer to the slot where the removed item lived, or `NULL` when out of range.
 - Notes: removal does not preserve order; the last item is moved into `index`.
 - Example:
 
 ```c
-int *slot = (int *)vector_swap_remove(vector, 0);
+int *slot = (int *)k4c_vector_swap_remove(k4c_vector, 0);
 if (slot != NULL) {
     /* slot now contains the item moved from the old last position */
 }
 ```
 
-### vector_size
+### k4c_vector_size
 
 ```c
-size_t vector_size(const vector *vector);
+size_t k4c_vector_size(const k4c_vector *k4c_vector);
 ```
 
-- Parameters: `vector`
+- Parameters: `k4c_vector`
 - Returns: current element count.
 - Example:
 
 ```c
-size_t count = vector_size(vector);
+size_t count = k4c_vector_size(k4c_vector);
 ```
 
-### vector_get_iterator
+### k4c_vector_get_iterator
 
 ```c
-iterator vector_get_iterator(const vector *vector);
+k4c_iterator k4c_vector_get_iterator(const k4c_vector *k4c_vector);
 ```
 
-- Parameters: `vector`
-- Returns: iterator over vector elements from index `0` to `size - 1`.
-- Notes: yielded pointers refer to vector-managed storage. Do not mutate the
-  vector while iterating.
+- Parameters: `k4c_vector`
+- Returns: k4c_iterator over k4c_vector elements from index `0` to `size - 1`.
+- Notes: yielded pointers refer to k4c_vector-managed storage. Do not mutate the
+  k4c_vector while iterating.
 - Example:
 
 ```c
-iterator iter = vector_get_iterator(vector);
+k4c_iterator iter = k4c_vector_get_iterator(k4c_vector);
 
 const int *item;
-while ((item = (const int *)iterator_next(&iter)) != NULL) {
+while ((item = (const int *)k4c_iterator_next(&iter)) != NULL) {
     /* use *item */
 }
 ```
 
-### vector_lower_bound
+### k4c_vector_lower_bound
 
 ```c
-size_t vector_lower_bound(const vector *vector,
+size_t k4c_vector_lower_bound(const k4c_vector *k4c_vector,
                              const void *key,
-                             vector_cmp_fn cmp);
+                             k4c_vector_cmp_fn cmp);
 ```
 
-- Parameters: `vector`, `key`, `cmp`
+- Parameters: `k4c_vector`, `key`, `cmp`
 - Returns: first sorted index whose item is not less than `key`.
-- Notes: `vector` must already be sorted according to `cmp`.
+- Notes: `k4c_vector` must already be sorted according to `cmp`.
 - Example:
 
 ```c
@@ -279,59 +252,59 @@ static int cmp_int(const void *lhs, const void *rhs) {
 }
 
 int key = 20;
-size_t index = vector_lower_bound(vector, &key, cmp_int);
+size_t index = k4c_vector_lower_bound(k4c_vector, &key, cmp_int);
 ```
 
-### vector_upper_bound
+### k4c_vector_upper_bound
 
 ```c
-size_t vector_upper_bound(const vector *vector,
+size_t k4c_vector_upper_bound(const k4c_vector *k4c_vector,
                              const void *key,
-                             vector_cmp_fn cmp);
+                             k4c_vector_cmp_fn cmp);
 ```
 
-- Parameters: `vector`, `key`, `cmp`
+- Parameters: `k4c_vector`, `key`, `cmp`
 - Returns: first sorted index whose item is greater than `key`.
-- Notes: `vector` must already be sorted according to `cmp`.
+- Notes: `k4c_vector` must already be sorted according to `cmp`.
 - Example:
 
 ```c
 int key = 20;
-size_t index = vector_upper_bound(vector, &key, cmp_int);
+size_t index = k4c_vector_upper_bound(k4c_vector, &key, cmp_int);
 ```
 
-### vector_binary_search
+### k4c_vector_binary_search
 
 ```c
-size_t vector_binary_search(const vector *vector,
+size_t k4c_vector_binary_search(const k4c_vector *k4c_vector,
                                const void *key,
-                               vector_cmp_fn cmp);
+                               k4c_vector_cmp_fn cmp);
 ```
 
-- Parameters: `vector`, `key`, `cmp`
-- Returns: sorted index containing `key`, or `vector_size(vector)` when absent.
+- Parameters: `k4c_vector`, `key`, `cmp`
+- Returns: sorted index containing `key`, or `k4c_vector_size(k4c_vector)` when absent.
 - Notes: when duplicates exist, returns the lower-bound index for `key`.
 - Example:
 
 ```c
 int key = 20;
-size_t index = vector_binary_search(vector, &key, cmp_int);
-if (index != vector_size(vector)) {
-    const int *found = (const int *)vector_get_const(vector, index);
+size_t index = k4c_vector_binary_search(k4c_vector, &key, cmp_int);
+if (index != k4c_vector_size(k4c_vector)) {
+    const int *found = (const int *)k4c_vector_get(k4c_vector, index);
 }
 ```
 
-### vector_destroy
+### k4c_vector_destroy
 
 ```c
-void vector_destroy(vector *vector);
+void k4c_vector_destroy(k4c_vector *k4c_vector);
 ```
 
-- Parameters: `vector`
+- Parameters: `k4c_vector`
 - Returns: none.
-- Notes: releases vector storage and the opaque handle. Do not use `vector` after this call.
+- Notes: releases k4c_vector storage and the opaque handle. Do not use `k4c_vector` after this call.
 - Example:
 
 ```c
-vector_destroy(vector);
+k4c_vector_destroy(k4c_vector);
 ```

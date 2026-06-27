@@ -25,40 +25,40 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "vstd/assert.h"
-#include "vstd/ds/iterator.h"
-#include "vstd/ds/vector.h"
-#include "vstd/error.h"
-#include "vstd/memory/allocator.h"
-#include "vstd/memory/utils.h"
+#include "k4c/assert.h"
+#include "k4c/ds/iterator.h"
+#include "k4c/ds/vector.h"
+#include "k4c/error.h"
+#include "k4c/memory/allocator.h"
+#include "k4c/memory/utils.h"
 
-#define VECTOR_DEFAULT_CAPACITY 16
+#define K4C_VECTOR_DEFAULT_CAPACITY 16
 
-struct vector {
+struct k4c_vector {
     size_t size;
     size_t elem_size;
     size_t capacity;
     void *buffer;
-    allocator *allocator;
+    k4c_allocator *k4c_allocator;
 };
 
-typedef struct vector_iterator_state {
+typedef struct k4c_vector_iterator_state {
     const uint8_t *cursor;
     size_t elem_size;
     size_t remaining;
-} vector_iterator_state;
+} k4c_vector_iterator_state;
 
 _Static_assert(
-    sizeof(vector_iterator_state) <= ITERATOR_STATE_SIZE,
-    "vector_iterator_state must fit in iterator"
+    sizeof(k4c_vector_iterator_state) <= K4C_ITERATOR_STATE_SIZE,
+    "k4c_vector_iterator_state must fit in k4c_iterator"
 );
 
-static status vector_capacity_grow(size_t capacity, size_t min_capacity, size_t *out) {
-    ASSERT(out != NULL, "fatal: vector_capacity_grow invalid arguments");
+static k4c_status k4c_vector_capacity_grow(size_t capacity, size_t min_capacity, size_t *out) {
+    K4C_ASSERT(out != NULL, "fatal: k4c_vector_capacity_grow invalid arguments");
 
     if (capacity >= min_capacity) {
         *out = capacity;
-        return STATUS_OK;
+        return K4C_STATUS_OK;
     }
 
     while (capacity < min_capacity) {
@@ -68,7 +68,7 @@ static status vector_capacity_grow(size_t capacity, size_t min_capacity, size_t 
         }
 
         size_t next = 0;
-        if (size_add_overflow(capacity, increment, &next)) {
+        if (k4c_size_add_overflow(capacity, increment, &next)) {
             capacity = min_capacity;
             break;
         }
@@ -77,222 +77,218 @@ static status vector_capacity_grow(size_t capacity, size_t min_capacity, size_t 
     }
 
     *out = capacity;
-    return STATUS_OK;
+    return K4C_STATUS_OK;
 }
 
-static const void *vector_iterator_next(void *context) {
-    ASSERT(context != NULL, "fatal: vector_iterator_next invalid arguments");
+static const void *k4c_vector_iterator_next(void *context) {
+    K4C_ASSERT(context != NULL, "fatal: k4c_vector_iterator_next invalid arguments");
 
-    vector_iterator_state *iterator = context;
-    if (iterator->remaining == 0) {
+    k4c_vector_iterator_state *k4c_iterator = context;
+    if (k4c_iterator->remaining == 0) {
         return NULL;
     }
 
-    const void *item = iterator->cursor;
-    iterator->cursor += iterator->elem_size;
-    iterator->remaining -= 1;
+    const void *item = k4c_iterator->cursor;
+    k4c_iterator->cursor += k4c_iterator->elem_size;
+    k4c_iterator->remaining -= 1;
     return item;
 }
 
-status vector_create(size_t elem_size, allocator *allocator, vector **out) {
-    return vector_create_with_capacity(elem_size, VECTOR_DEFAULT_CAPACITY, allocator, out);
+k4c_status k4c_vector_create(size_t elem_size, k4c_allocator *k4c_allocator, k4c_vector **out) {
+    return k4c_vector_create_with_capacity(
+        elem_size,
+        K4C_VECTOR_DEFAULT_CAPACITY,
+        k4c_allocator,
+        out
+    );
 }
 
-status vector_create_with_capacity(
+k4c_status k4c_vector_create_with_capacity(
     size_t elem_size,
     size_t capacity,
-    allocator *allocator,
-    vector **out
+    k4c_allocator *k4c_allocator,
+    k4c_vector **out
 ) {
-    ASSERT(elem_size > 0, "fatal: vector_create invalid arguments");
-    ASSERT(capacity > 0, "fatal: vector_create invalid arguments");
-    ASSERT(out != NULL, "fatal: vector_create invalid arguments");
+    K4C_ASSERT(elem_size > 0, "fatal: k4c_vector_create invalid arguments");
+    K4C_ASSERT(capacity > 0, "fatal: k4c_vector_create invalid arguments");
+    K4C_ASSERT(out != NULL, "fatal: k4c_vector_create invalid arguments");
 
     *out = NULL;
 
-    vector *vector = NULL;
-    status st = alloc(allocator, sizeof(*vector), (void **)&vector);
-    if (st != STATUS_OK) {
+    k4c_vector *k4c_vector = NULL;
+    k4c_status st = k4c_alloc(k4c_allocator, sizeof(*k4c_vector), (void **)&k4c_vector);
+    if (st != K4C_STATUS_OK) {
         return st;
     }
-    vector->allocator = allocator;
+    k4c_vector->k4c_allocator = k4c_allocator;
 
     size_t alloc_size = 0;
-    if (size_mul_overflow(elem_size, capacity, &alloc_size)) {
-        dealloc(allocator, vector);
-        return STATUS_OVERFLOW;
+    if (k4c_size_mul_overflow(elem_size, capacity, &alloc_size)) {
+        k4c_dealloc(k4c_allocator, k4c_vector);
+        return K4C_STATUS_OVERFLOW;
     }
 
     void *buffer = NULL;
-    st = alloc(allocator, alloc_size, &buffer);
-    if (st != STATUS_OK) {
-        dealloc(allocator, vector);
+    st = k4c_alloc(k4c_allocator, alloc_size, &buffer);
+    if (st != K4C_STATUS_OK) {
+        k4c_dealloc(k4c_allocator, k4c_vector);
         return st;
     }
 
-    vector->buffer = buffer;
-    vector->size = 0;
-    vector->elem_size = elem_size;
-    vector->capacity = capacity;
+    k4c_vector->buffer = buffer;
+    k4c_vector->size = 0;
+    k4c_vector->elem_size = elem_size;
+    k4c_vector->capacity = capacity;
 
-    *out = vector;
-    return STATUS_OK;
+    *out = k4c_vector;
+    return K4C_STATUS_OK;
 }
 
-status vector_reserve(vector *vector, size_t capacity) {
-    ASSERT(vector != NULL, "fatal: vector_reserve invalid arguments");
+k4c_status k4c_vector_reserve(k4c_vector *k4c_vector, size_t capacity) {
+    K4C_ASSERT(k4c_vector != NULL, "fatal: k4c_vector_reserve invalid arguments");
 
-    if (capacity <= vector->capacity) {
-        return STATUS_OK;
+    if (capacity <= k4c_vector->capacity) {
+        return K4C_STATUS_OK;
     }
 
     size_t alloc_size = 0;
-    if (size_mul_overflow(capacity, vector->elem_size, &alloc_size)) {
-        return STATUS_OVERFLOW;
+    if (k4c_size_mul_overflow(capacity, k4c_vector->elem_size, &alloc_size)) {
+        return K4C_STATUS_OVERFLOW;
     }
 
     void *buffer = NULL;
-    status st = resize(vector->allocator, vector->buffer, alloc_size, &buffer);
-    if (st != STATUS_OK) {
+    k4c_status st = k4c_resize(k4c_vector->k4c_allocator, k4c_vector->buffer, alloc_size, &buffer);
+    if (st != K4C_STATUS_OK) {
         return st;
     }
 
-    vector->buffer = buffer;
-    vector->capacity = capacity;
-    return STATUS_OK;
+    k4c_vector->buffer = buffer;
+    k4c_vector->capacity = capacity;
+    return K4C_STATUS_OK;
 }
 
-status vector_push(vector *vector, const void *element) {
-    ASSERT(vector != NULL, "fatal: vector_push invalid arguments");
-    ASSERT(element != NULL, "fatal: vector_push invalid arguments");
+k4c_status k4c_vector_push(k4c_vector *k4c_vector, const void *element) {
+    K4C_ASSERT(k4c_vector != NULL, "fatal: k4c_vector_push invalid arguments");
+    K4C_ASSERT(element != NULL, "fatal: k4c_vector_push invalid arguments");
 
-    if (vector->size == vector->capacity) {
+    if (k4c_vector->size == k4c_vector->capacity) {
         size_t min_capacity = 0;
-        if (size_add_overflow(vector->size, 1, &min_capacity)) {
-            return STATUS_OVERFLOW;
+        if (k4c_size_add_overflow(k4c_vector->size, 1, &min_capacity)) {
+            return K4C_STATUS_OVERFLOW;
         }
 
         size_t new_capacity = 0;
-        RETURN_IF_ERROR(vector_capacity_grow(vector->capacity, min_capacity, &new_capacity));
+        K4C_RETURN_IF_ERROR(
+            k4c_vector_capacity_grow(k4c_vector->capacity, min_capacity, &new_capacity)
+        );
 
-        status st = vector_reserve(vector, new_capacity);
-        if (st != STATUS_OK) {
+        k4c_status st = k4c_vector_reserve(k4c_vector, new_capacity);
+        if (st != K4C_STATUS_OK) {
             return st;
         }
     }
 
-    uint8_t *base = (uint8_t *)vector->buffer;
-    void *dst = base + (vector->size * vector->elem_size);
-    memcpy(dst, element, vector->elem_size);
-    vector->size += 1;
-    return STATUS_OK;
+    uint8_t *base = (uint8_t *)k4c_vector->buffer;
+    void *dst = base + (k4c_vector->size * k4c_vector->elem_size);
+    memcpy(dst, element, k4c_vector->elem_size);
+    k4c_vector->size += 1;
+    return K4C_STATUS_OK;
 }
 
-void *vector_pop(vector *vector) {
-    ASSERT(vector != NULL, "fatal: vector_pop invalid arguments");
+void *k4c_vector_pop(k4c_vector *k4c_vector) {
+    K4C_ASSERT(k4c_vector != NULL, "fatal: k4c_vector_pop invalid arguments");
 
-    if (vector->size == 0) {
+    if (k4c_vector->size == 0) {
         return NULL;
     }
 
-    vector->size -= 1;
+    k4c_vector->size -= 1;
 
-    uint8_t *base = (uint8_t *)vector->buffer;
-    return base + (vector->size * vector->elem_size);
+    uint8_t *base = (uint8_t *)k4c_vector->buffer;
+    return base + (k4c_vector->size * k4c_vector->elem_size);
 }
 
-void *vector_get(vector *vector, size_t index) {
-    if (vector == NULL || index >= vector->size) {
+void *k4c_vector_get(const k4c_vector *k4c_vector, size_t index) {
+    if (k4c_vector == NULL || index >= k4c_vector->size) {
         return NULL;
     }
 
-    uint8_t *base = (uint8_t *)vector->buffer;
-    return base + (index * vector->elem_size);
+    uint8_t *base = (uint8_t *)k4c_vector->buffer;
+    return base + (index * k4c_vector->elem_size);
 }
 
-const void *vector_get_const(const vector *vector, size_t index) {
-    if (vector == NULL || index >= vector->size) {
+size_t k4c_vector_elem_size(const k4c_vector *k4c_vector) {
+    K4C_ASSERT(k4c_vector != NULL, "fatal: k4c_vector_elem_size invalid arguments");
+
+    return k4c_vector->elem_size;
+}
+
+size_t k4c_vector_capacity(const k4c_vector *k4c_vector) {
+    K4C_ASSERT(k4c_vector != NULL, "fatal: k4c_vector_capacity invalid arguments");
+
+    return k4c_vector->capacity;
+}
+
+void *k4c_vector_data(const k4c_vector *k4c_vector) {
+    K4C_ASSERT(k4c_vector != NULL, "fatal: k4c_vector_data invalid arguments");
+
+    return k4c_vector->buffer;
+}
+
+void *k4c_vector_swap_remove(k4c_vector *k4c_vector, size_t index) {
+    K4C_ASSERT(k4c_vector != NULL, "fatal: k4c_vector_swap_remove invalid arguments");
+
+    if (index >= k4c_vector->size) {
         return NULL;
     }
 
-    const uint8_t *base = (const uint8_t *)vector->buffer;
-    return base + (index * vector->elem_size);
-}
-
-size_t vector_elem_size(const vector *vector) {
-    ASSERT(vector != NULL, "fatal: vector_elem_size invalid arguments");
-
-    return vector->elem_size;
-}
-
-size_t vector_capacity(const vector *vector) {
-    ASSERT(vector != NULL, "fatal: vector_capacity invalid arguments");
-
-    return vector->capacity;
-}
-
-void *vector_data(vector *vector) {
-    ASSERT(vector != NULL, "fatal: vector_data invalid arguments");
-
-    return vector->buffer;
-}
-
-const void *vector_data_const(const vector *vector) {
-    ASSERT(vector != NULL, "fatal: vector_data_const invalid arguments");
-
-    return vector->buffer;
-}
-
-void *vector_swap_remove(vector *vector, size_t index) {
-    ASSERT(vector != NULL, "fatal: vector_swap_remove invalid arguments");
-
-    if (index >= vector->size) {
-        return NULL;
-    }
-
-    uint8_t *base = (uint8_t *)vector->buffer;
-    void *slot = base + (index * vector->elem_size);
-    size_t last = vector->size - 1;
+    uint8_t *base = (uint8_t *)k4c_vector->buffer;
+    void *slot = base + (index * k4c_vector->elem_size);
+    size_t last = k4c_vector->size - 1;
 
     if (index != last) {
-        void *last_slot = base + (last * vector->elem_size);
-        memcpy(slot, last_slot, vector->elem_size);
+        void *last_slot = base + (last * k4c_vector->elem_size);
+        memcpy(slot, last_slot, k4c_vector->elem_size);
     }
 
-    vector->size = last;
+    k4c_vector->size = last;
     return slot;
 }
 
-size_t vector_size(const vector *vector) {
-    ASSERT(vector != NULL, "fatal: vector_size invalid arguments");
+size_t k4c_vector_size(const k4c_vector *k4c_vector) {
+    K4C_ASSERT(k4c_vector != NULL, "fatal: k4c_vector_size invalid arguments");
 
-    return vector->size;
+    return k4c_vector->size;
 }
 
-iterator vector_get_iterator(const vector *vector) {
-    ASSERT(vector != NULL, "fatal: vector_get_iterator invalid arguments");
+k4c_iterator k4c_vector_get_iterator(const k4c_vector *k4c_vector) {
+    K4C_ASSERT(k4c_vector != NULL, "fatal: k4c_vector_get_iterator invalid arguments");
 
-    iterator iter = iterator_from_state(vector_iterator_next);
-    vector_iterator_state *state = iterator_state(&iter);
-    state->cursor = (const uint8_t *)vector->buffer;
-    state->elem_size = vector->elem_size;
-    state->remaining = vector->size;
-    iterator_set_size_hint(&iter, vector->size);
+    k4c_iterator iter = k4c_iterator_from_state(k4c_vector_iterator_next);
+    k4c_vector_iterator_state *state = k4c_iterator_state(&iter);
+    state->cursor = (const uint8_t *)k4c_vector->buffer;
+    state->elem_size = k4c_vector->elem_size;
+    state->remaining = k4c_vector->size;
+    k4c_iterator_set_size_hint(&iter, k4c_vector->size);
     return iter;
 }
 
-size_t vector_lower_bound(const vector *vector, const void *key, vector_cmp_fn cmp) {
-    ASSERT(vector != NULL, "fatal: vector_lower_bound invalid arguments");
-    ASSERT(key != NULL, "fatal: vector_lower_bound invalid arguments");
-    ASSERT(cmp != NULL, "fatal: vector_lower_bound invalid arguments");
+size_t k4c_vector_lower_bound(
+    const k4c_vector *k4c_vector,
+    const void *key,
+    k4c_vector_cmp_fn cmp
+) {
+    K4C_ASSERT(k4c_vector != NULL, "fatal: k4c_vector_lower_bound invalid arguments");
+    K4C_ASSERT(key != NULL, "fatal: k4c_vector_lower_bound invalid arguments");
+    K4C_ASSERT(cmp != NULL, "fatal: k4c_vector_lower_bound invalid arguments");
 
     size_t first = 0;
-    size_t count = vector->size;
+    size_t count = k4c_vector->size;
 
     while (count > 0) {
         size_t step = count / 2;
         size_t mid = first + step;
-        const void *item = vector_get_const(vector, mid);
+        const void *item = k4c_vector_get(k4c_vector, mid);
 
         if (cmp(item, key) < 0) {
             first = mid + 1;
@@ -305,18 +301,22 @@ size_t vector_lower_bound(const vector *vector, const void *key, vector_cmp_fn c
     return first;
 }
 
-size_t vector_upper_bound(const vector *vector, const void *key, vector_cmp_fn cmp) {
-    ASSERT(vector != NULL, "fatal: vector_upper_bound invalid arguments");
-    ASSERT(key != NULL, "fatal: vector_upper_bound invalid arguments");
-    ASSERT(cmp != NULL, "fatal: vector_upper_bound invalid arguments");
+size_t k4c_vector_upper_bound(
+    const k4c_vector *k4c_vector,
+    const void *key,
+    k4c_vector_cmp_fn cmp
+) {
+    K4C_ASSERT(k4c_vector != NULL, "fatal: k4c_vector_upper_bound invalid arguments");
+    K4C_ASSERT(key != NULL, "fatal: k4c_vector_upper_bound invalid arguments");
+    K4C_ASSERT(cmp != NULL, "fatal: k4c_vector_upper_bound invalid arguments");
 
     size_t first = 0;
-    size_t count = vector->size;
+    size_t count = k4c_vector->size;
 
     while (count > 0) {
         size_t step = count / 2;
         size_t mid = first + step;
-        const void *item = vector_get_const(vector, mid);
+        const void *item = k4c_vector_get(k4c_vector, mid);
 
         if (cmp(key, item) >= 0) {
             first = mid + 1;
@@ -329,20 +329,24 @@ size_t vector_upper_bound(const vector *vector, const void *key, vector_cmp_fn c
     return first;
 }
 
-size_t vector_binary_search(const vector *vector, const void *key, vector_cmp_fn cmp) {
-    size_t index = vector_lower_bound(vector, key, cmp);
+size_t k4c_vector_binary_search(
+    const k4c_vector *k4c_vector,
+    const void *key,
+    k4c_vector_cmp_fn cmp
+) {
+    size_t index = k4c_vector_lower_bound(k4c_vector, key, cmp);
 
-    if (index < vector_size(vector) && cmp(vector_get_const(vector, index), key) == 0) {
+    if (index < k4c_vector_size(k4c_vector) && cmp(k4c_vector_get(k4c_vector, index), key) == 0) {
         return index;
     }
 
-    return vector_size(vector);
+    return k4c_vector_size(k4c_vector);
 }
 
-void vector_destroy(vector *vector) {
-    ASSERT(vector != NULL, "fatal: vector_destroy invalid arguments");
+void k4c_vector_destroy(k4c_vector *k4c_vector) {
+    K4C_ASSERT(k4c_vector != NULL, "fatal: k4c_vector_destroy invalid arguments");
 
-    allocator *allocator = vector->allocator;
-    dealloc(allocator, vector->buffer);
-    dealloc(allocator, vector);
+    k4c_allocator *k4c_allocator = k4c_vector->k4c_allocator;
+    k4c_dealloc(k4c_allocator, k4c_vector->buffer);
+    k4c_dealloc(k4c_allocator, k4c_vector);
 }

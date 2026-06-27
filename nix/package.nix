@@ -27,7 +27,7 @@
   ninja,
 }:
 stdenv.mkDerivation {
-  pname = "vstd";
+  pname = "k4c";
   version = "0.2.2";
 
   src = ../.;

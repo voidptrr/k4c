@@ -26,9 +26,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "vstd/testing.h"
+#include "k4c/testing.h"
 
-int test_equal_intmax(intmax_t actual, intmax_t expected) {
+int k4c_test_equal_intmax(intmax_t actual, intmax_t expected) {
     if (actual == expected) {
         return 0;
     }
@@ -37,7 +37,7 @@ int test_equal_intmax(intmax_t actual, intmax_t expected) {
     return 1;
 }
 
-int test_not_equal_intmax(intmax_t actual, intmax_t expected) {
+int k4c_test_not_equal_intmax(intmax_t actual, intmax_t expected) {
     if (actual != expected) {
         return 0;
     }
@@ -46,7 +46,7 @@ int test_not_equal_intmax(intmax_t actual, intmax_t expected) {
     return 1;
 }
 
-int test_equal_ptr(const void *actual, const void *expected) {
+int k4c_test_equal_ptr(const void *actual, const void *expected) {
     if (actual == expected) {
         return 0;
     }
@@ -55,7 +55,7 @@ int test_equal_ptr(const void *actual, const void *expected) {
     return 1;
 }
 
-int test_not_equal_ptr(const void *actual, const void *expected) {
+int k4c_test_not_equal_ptr(const void *actual, const void *expected) {
     if (actual != expected) {
         return 0;
     }
@@ -64,7 +64,7 @@ int test_not_equal_ptr(const void *actual, const void *expected) {
     return 1;
 }
 
-int test_null(const void *ptr) {
+int k4c_test_null(const void *ptr) {
     if (ptr == NULL) {
         return 0;
     }
@@ -73,7 +73,7 @@ int test_null(const void *ptr) {
     return 1;
 }
 
-int test_not_null(const void *ptr) {
+int k4c_test_not_null(const void *ptr) {
     if (ptr != NULL) {
         return 0;
     }
@@ -82,7 +82,7 @@ int test_not_null(const void *ptr) {
     return 1;
 }
 
-int test_equal_str(const char *actual, const char *expected) {
+int k4c_test_equal_str(const char *actual, const char *expected) {
     if ((actual == NULL || expected == NULL) ? actual == expected : strcmp(actual, expected) == 0) {
         return 0;
     }
@@ -96,7 +96,7 @@ int test_equal_str(const char *actual, const char *expected) {
     return 1;
 }
 
-bool test_str_eq(const char *actual, const char *expected) {
+bool k4c_test_str_eq(const char *actual, const char *expected) {
     if (actual == NULL || expected == NULL) {
         return actual == expected;
     }
@@ -104,12 +104,12 @@ bool test_str_eq(const char *actual, const char *expected) {
     return strcmp(actual, expected) == 0;
 }
 
-int test_run(const test_case *cases, size_t count) {
+int k4c_test_run(const k4c_test_case *cases, size_t count) {
     int failed = 0;
 
     for (size_t i = 0; i < count; i++) {
-        int status = cases[i].fn();
-        if (status != 0) {
+        int k4c_status = cases[i].fn();
+        if (k4c_status != 0) {
             fprintf(stderr, "test failed: %s\n", cases[i].name);
             failed = 1;
         }

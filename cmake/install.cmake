@@ -25,41 +25,41 @@ include(CMakePackageConfigHelpers)
 
 # Install the compiled library artifact into the platform library directory.
 install(
-  TARGETS vstd
-  EXPORT vstdTargets
+  TARGETS k4c
+  EXPORT k4cTargets
   ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
 )
 
-# Install the public header tree so consumers can include <vstd/...>.
+# Install the public header tree so consumers can include <k4c/...>.
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 
-# Generate the version file used by find_package(vstd VERSION ...).
+# Generate the version file used by find_package(k4c VERSION ...).
 write_basic_package_version_file(
-  "${PROJECT_BINARY_DIR}/vstdConfigVersion.cmake"
+  "${PROJECT_BINARY_DIR}/k4cConfigVersion.cmake"
   VERSION "${PROJECT_VERSION}"
   COMPATIBILITY SameMajorVersion
 )
 
-# Generate vstdConfig.cmake from the source template.
+# Generate k4cConfig.cmake from the source template.
 configure_package_config_file(
-  "${PROJECT_SOURCE_DIR}/cmake/vstdConfig.cmake.in"
-  "${PROJECT_BINARY_DIR}/vstdConfig.cmake"
-  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/vstd"
+  "${PROJECT_SOURCE_DIR}/cmake/k4cConfig.cmake.in"
+  "${PROJECT_BINARY_DIR}/k4cConfig.cmake"
+  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/k4c"
 )
 
-# Install package config files so find_package(vstd) can locate vstd.
+# Install package config files so find_package(k4c) can locate k4c.
 install(
   FILES
-    "${PROJECT_BINARY_DIR}/vstdConfig.cmake"
-    "${PROJECT_BINARY_DIR}/vstdConfigVersion.cmake"
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/vstd"
+    "${PROJECT_BINARY_DIR}/k4cConfig.cmake"
+    "${PROJECT_BINARY_DIR}/k4cConfigVersion.cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/k4c"
 )
 
-# Install the exported target metadata that defines vstd::vstd for consumers.
+# Install the exported target metadata that defines k4c::k4c for consumers.
 install(
-  EXPORT vstdTargets
-  NAMESPACE vstd::
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/vstd"
+  EXPORT k4cTargets
+  NAMESPACE k4c::
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/k4c"
 )

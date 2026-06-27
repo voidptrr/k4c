@@ -25,9 +25,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "vstd/assert.h"
+#include "k4c/assert.h"
 
-_Noreturn void panic(const char *message) {
+_Noreturn void k4c_panic(const char *message) {
     if (message != NULL) {
         fprintf(stderr, "%s\n", message);
     }

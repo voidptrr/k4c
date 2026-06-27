@@ -26,267 +26,271 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "vstd/assert.h"
-#include "vstd/ds/doubly_linked_list.h"
-#include "vstd/error.h"
-#include "vstd/memory/allocator.h"
-#include "vstd/memory/general_heap.h"
-#include "vstd/memory/utils.h"
+#include "k4c/assert.h"
+#include "k4c/ds/doubly_linked_list.h"
+#include "k4c/error.h"
+#include "k4c/memory/allocator.h"
+#include "k4c/memory/general_heap.h"
+#include "k4c/memory/utils.h"
 
-/* Header stored immediately before each heap-managed payload block. */
-typedef struct heap_block {
+/* Header stored immediately before each k4c_heap-managed payload block. */
+typedef struct k4c_heap_block {
     size_t size;
-    doubly_linked_list_node node;
+    k4c_doubly_linked_list_node node;
     bool is_free;
-} heap_block;
+} k4c_heap_block;
 
-struct heap {
-    allocator allocator;
+struct k4c_heap {
+    k4c_allocator k4c_allocator;
     void *buffer;
     size_t capacity;
-    doubly_linked_list *blocks;
+    k4c_doubly_linked_list *blocks;
 };
 
-static heap_block *heap_head(const heap *heap) {
-    doubly_linked_list_node *head = doubly_linked_list_head(heap->blocks);
+static k4c_heap_block *k4c_heap_head(const k4c_heap *k4c_heap) {
+    k4c_doubly_linked_list_node *head = k4c_doubly_linked_list_head(k4c_heap->blocks);
     if (head == NULL) {
         return NULL;
     }
 
-    return CONTAINER_OF(head, heap_block, node);
+    return K4C_CONTAINER_OF(head, k4c_heap_block, node);
 }
 
-static heap_block *heap_next(const heap_block *block) {
+static k4c_heap_block *k4c_heap_next(const k4c_heap_block *block) {
     if (block->node.next == NULL) {
         return NULL;
     }
 
-    return CONTAINER_OF(block->node.next, heap_block, node);
+    return K4C_CONTAINER_OF(block->node.next, k4c_heap_block, node);
 }
 
-static heap_block *heap_prev(const heap_block *block) {
+static k4c_heap_block *k4c_heap_prev(const k4c_heap_block *block) {
     if (block->node.prev == NULL) {
         return NULL;
     }
 
-    return CONTAINER_OF(block->node.prev, heap_block, node);
+    return K4C_CONTAINER_OF(block->node.prev, k4c_heap_block, node);
 }
 
-static void heap_split_block(heap *heap, heap_block *block, size_t size) {
+static void k4c_heap_split_block(k4c_heap *k4c_heap, k4c_heap_block *block, size_t size) {
     size_t remaining = block->size - size;
 
-    if (remaining <= sizeof(heap_block) + MEMORY_ALIGN) {
+    if (remaining <= sizeof(k4c_heap_block) + K4C_MEMORY_ALIGN) {
         return;
     }
 
-    heap_block *split = (heap_block *)((uint8_t *)block + sizeof(heap_block) + size);
-    split->size = remaining - sizeof(heap_block);
+    k4c_heap_block *split = (k4c_heap_block *)((uint8_t *)block + sizeof(k4c_heap_block) + size);
+    split->size = remaining - sizeof(k4c_heap_block);
     split->is_free = true;
 
     block->size = size;
-    doubly_linked_list_insert_after(heap->blocks, &block->node, &split->node);
+    k4c_doubly_linked_list_insert_after(k4c_heap->blocks, &block->node, &split->node);
 }
 
-static heap_block *heap_coalesce(heap *heap, heap_block *block) {
-    heap_block *next = heap_next(block);
+static k4c_heap_block *k4c_heap_coalesce(k4c_heap *k4c_heap, k4c_heap_block *block) {
+    k4c_heap_block *next = k4c_heap_next(block);
     if (next != NULL && next->is_free) {
-        block->size += sizeof(heap_block) + next->size;
-        doubly_linked_list_remove(heap->blocks, &next->node);
+        block->size += sizeof(k4c_heap_block) + next->size;
+        k4c_doubly_linked_list_remove(k4c_heap->blocks, &next->node);
     }
 
-    heap_block *prev = heap_prev(block);
+    k4c_heap_block *prev = k4c_heap_prev(block);
     if (prev != NULL && prev->is_free) {
-        prev->size += sizeof(heap_block) + block->size;
-        doubly_linked_list_remove(heap->blocks, &block->node);
+        prev->size += sizeof(k4c_heap_block) + block->size;
+        k4c_doubly_linked_list_remove(k4c_heap->blocks, &block->node);
         block = prev;
     }
 
     return block;
 }
 
-void *heap_alloc(heap *heap, size_t size) {
-    ASSERT(heap != NULL, "fatal: heap_alloc invalid arguments");
-    ASSERT(heap->buffer != NULL, "fatal: heap_alloc invalid heap");
-    ASSERT(heap->blocks != NULL, "fatal: heap_alloc invalid heap");
-    ASSERT(size > 0, "fatal: heap_alloc invalid arguments");
+void *k4c_heap_alloc(k4c_heap *k4c_heap, size_t size) {
+    K4C_ASSERT(k4c_heap != NULL, "fatal: k4c_heap_alloc invalid arguments");
+    K4C_ASSERT(k4c_heap->buffer != NULL, "fatal: k4c_heap_alloc invalid k4c_heap");
+    K4C_ASSERT(k4c_heap->blocks != NULL, "fatal: k4c_heap_alloc invalid k4c_heap");
+    K4C_ASSERT(size > 0, "fatal: k4c_heap_alloc invalid arguments");
 
-    if (align_up_overflow(size, MEMORY_ALIGN, &size)) {
+    if (k4c_align_up_overflow(size, K4C_MEMORY_ALIGN, &size)) {
         return NULL;
     }
 
-    heap_block *block = heap_head(heap);
+    k4c_heap_block *block = k4c_heap_head(k4c_heap);
     while (block != NULL) {
         if (block->is_free && block->size >= size) {
-            heap_split_block(heap, block, size);
+            k4c_heap_split_block(k4c_heap, block, size);
             block->is_free = false;
-            return (uint8_t *)block + sizeof(heap_block);
+            return (uint8_t *)block + sizeof(k4c_heap_block);
         }
-        block = heap_next(block);
+        block = k4c_heap_next(block);
     }
 
     return NULL;
 }
 
-void heap_dealloc(heap *heap, void *ptr) {
-    ASSERT(heap != NULL, "fatal: heap_dealloc invalid arguments");
-    ASSERT(ptr != NULL, "fatal: heap_dealloc invalid arguments");
-    ASSERT(heap->buffer != NULL, "fatal: heap_dealloc invalid heap");
-    ASSERT(heap->blocks != NULL, "fatal: heap_dealloc invalid heap");
+void k4c_heap_dealloc(k4c_heap *k4c_heap, void *ptr) {
+    K4C_ASSERT(k4c_heap != NULL, "fatal: k4c_heap_dealloc invalid arguments");
+    K4C_ASSERT(ptr != NULL, "fatal: k4c_heap_dealloc invalid arguments");
+    K4C_ASSERT(k4c_heap->buffer != NULL, "fatal: k4c_heap_dealloc invalid k4c_heap");
+    K4C_ASSERT(k4c_heap->blocks != NULL, "fatal: k4c_heap_dealloc invalid k4c_heap");
 
-    uintptr_t start = (uintptr_t)heap->buffer;
-    uintptr_t end = start + heap->capacity;
+    uintptr_t start = (uintptr_t)k4c_heap->buffer;
+    uintptr_t end = start + k4c_heap->capacity;
     uintptr_t value = (uintptr_t)ptr;
     if (value <= start || value >= end) {
         return;
     }
 
-    heap_block *block = (heap_block *)((uint8_t *)ptr - sizeof(heap_block));
+    k4c_heap_block *block = (k4c_heap_block *)((uint8_t *)ptr - sizeof(k4c_heap_block));
     block->is_free = true;
-    heap_coalesce(heap, block);
+    k4c_heap_coalesce(k4c_heap, block);
 }
 
-void *heap_realloc(heap *heap, void *ptr, size_t size) {
-    ASSERT(heap != NULL, "fatal: heap_realloc invalid arguments");
-    ASSERT(heap->buffer != NULL, "fatal: heap_realloc invalid heap");
-    ASSERT(heap->blocks != NULL, "fatal: heap_realloc invalid heap");
+void *k4c_heap_realloc(k4c_heap *k4c_heap, void *ptr, size_t size) {
+    K4C_ASSERT(k4c_heap != NULL, "fatal: k4c_heap_realloc invalid arguments");
+    K4C_ASSERT(k4c_heap->buffer != NULL, "fatal: k4c_heap_realloc invalid k4c_heap");
+    K4C_ASSERT(k4c_heap->blocks != NULL, "fatal: k4c_heap_realloc invalid k4c_heap");
 
     if (ptr == NULL) {
-        return heap_alloc(heap, size);
+        return k4c_heap_alloc(k4c_heap, size);
     }
 
     if (size == 0) {
-        heap_dealloc(heap, ptr);
+        k4c_heap_dealloc(k4c_heap, ptr);
         return NULL;
     }
 
-    if (align_up_overflow(size, MEMORY_ALIGN, &size)) {
+    if (k4c_align_up_overflow(size, K4C_MEMORY_ALIGN, &size)) {
         return NULL;
     }
 
-    heap_block *block = (heap_block *)((uint8_t *)ptr - sizeof(heap_block));
+    k4c_heap_block *block = (k4c_heap_block *)((uint8_t *)ptr - sizeof(k4c_heap_block));
     if (block->size >= size) {
-        heap_split_block(heap, block, size);
+        k4c_heap_split_block(k4c_heap, block, size);
         return ptr;
     }
 
-    heap_block *next = heap_next(block);
-    if (next != NULL && next->is_free && (block->size + sizeof(heap_block) + next->size) >= size) {
-        block->size += sizeof(heap_block) + next->size;
-        doubly_linked_list_remove(heap->blocks, &next->node);
-        heap_split_block(heap, block, size);
+    k4c_heap_block *next = k4c_heap_next(block);
+    if (next != NULL && next->is_free
+        && (block->size + sizeof(k4c_heap_block) + next->size) >= size) {
+        block->size += sizeof(k4c_heap_block) + next->size;
+        k4c_doubly_linked_list_remove(k4c_heap->blocks, &next->node);
+        k4c_heap_split_block(k4c_heap, block, size);
         return ptr;
     }
 
-    void *new_ptr = heap_alloc(heap, size);
+    void *new_ptr = k4c_heap_alloc(k4c_heap, size);
     if (new_ptr == NULL) {
         return NULL;
     }
 
     memcpy(new_ptr, ptr, block->size);
-    heap_dealloc(heap, ptr);
+    k4c_heap_dealloc(k4c_heap, ptr);
     return new_ptr;
 }
 
-static void *heap_alloc_callback(void *ctx, size_t size) {
-    return heap_alloc(ctx, size);
+static void *k4c_heap_alloc_callback(void *ctx, size_t size) {
+    return k4c_heap_alloc(ctx, size);
 }
 
-static void heap_dealloc_callback(void *ctx, void *ptr) {
-    heap_dealloc(ctx, ptr);
+static void k4c_heap_dealloc_callback(void *ctx, void *ptr) {
+    k4c_heap_dealloc(ctx, ptr);
 }
 
-static void *heap_realloc_callback(void *ctx, void *ptr, size_t size) {
-    return heap_realloc(ctx, ptr, size);
+static void *k4c_heap_realloc_callback(void *ctx, void *ptr, size_t size) {
+    return k4c_heap_realloc(ctx, ptr, size);
 }
 
-status heap_create(size_t capacity, heap **out) {
-    if (align_up_overflow(capacity, MEMORY_ALIGN, &capacity)) {
-        return STATUS_OVERFLOW;
+k4c_status k4c_heap_create(size_t capacity, k4c_heap **out) {
+    if (k4c_align_up_overflow(capacity, K4C_MEMORY_ALIGN, &capacity)) {
+        return K4C_STATUS_OVERFLOW;
     }
 
-    ASSERT(capacity > sizeof(heap_block) + MEMORY_ALIGN, "fatal: heap_create invalid capacity");
-    ASSERT(out != NULL, "fatal: heap_create invalid arguments");
+    K4C_ASSERT(
+        capacity > sizeof(k4c_heap_block) + K4C_MEMORY_ALIGN,
+        "fatal: k4c_heap_create invalid capacity"
+    );
+    K4C_ASSERT(out != NULL, "fatal: k4c_heap_create invalid arguments");
 
     *out = NULL;
 
-    heap *heap = NULL;
-    status st = alloc(NULL, sizeof(*heap), (void **)&heap);
-    if (st != STATUS_OK) {
+    k4c_heap *k4c_heap = NULL;
+    k4c_status st = k4c_alloc(NULL, sizeof(*k4c_heap), (void **)&k4c_heap);
+    if (st != K4C_STATUS_OK) {
         return st;
     }
 
-    st = alloc(NULL, capacity, &heap->buffer);
-    if (st != STATUS_OK) {
-        dealloc(NULL, heap);
+    st = k4c_alloc(NULL, capacity, &k4c_heap->buffer);
+    if (st != K4C_STATUS_OK) {
+        k4c_dealloc(NULL, k4c_heap);
         return st;
     }
 
-    heap->capacity = capacity;
-    st = doubly_linked_list_create(NULL, &heap->blocks);
-    if (st != STATUS_OK) {
-        dealloc(NULL, heap->buffer);
-        dealloc(NULL, heap);
+    k4c_heap->capacity = capacity;
+    st = k4c_doubly_linked_list_create(NULL, &k4c_heap->blocks);
+    if (st != K4C_STATUS_OK) {
+        k4c_dealloc(NULL, k4c_heap->buffer);
+        k4c_dealloc(NULL, k4c_heap);
         return st;
     }
 
-    heap->allocator = (allocator){
-        .ctx = heap,
-        .features = ALLOCATOR_FEATURE_DEALLOC | ALLOCATOR_FEATURE_REALLOC,
-        .alloc = heap_alloc_callback,
-        .realloc = heap_realloc_callback,
-        .dealloc = heap_dealloc_callback,
+    k4c_heap->k4c_allocator = (k4c_allocator){
+        .ctx = k4c_heap,
+        .features = K4C_ALLOCATOR_FEATURE_DEALLOC | K4C_ALLOCATOR_FEATURE_REALLOC,
+        .k4c_alloc = k4c_heap_alloc_callback,
+        .realloc = k4c_heap_realloc_callback,
+        .k4c_dealloc = k4c_heap_dealloc_callback,
     };
 
-    heap_block *block = (heap_block *)heap->buffer;
-    block->size = capacity - sizeof(heap_block);
+    k4c_heap_block *block = (k4c_heap_block *)k4c_heap->buffer;
+    block->size = capacity - sizeof(k4c_heap_block);
     block->is_free = true;
-    doubly_linked_list_push(heap->blocks, &block->node);
+    k4c_doubly_linked_list_push(k4c_heap->blocks, &block->node);
 
-    *out = heap;
-    return STATUS_OK;
+    *out = k4c_heap;
+    return K4C_STATUS_OK;
 }
 
-allocator *heap_allocator(heap *heap) {
-    ASSERT(heap != NULL, "fatal: heap_allocator invalid arguments");
-    ASSERT(heap->buffer != NULL, "fatal: heap_allocator invalid heap");
-    ASSERT(heap->blocks != NULL, "fatal: heap_allocator invalid heap");
+k4c_allocator *k4c_heap_allocator(k4c_heap *k4c_heap) {
+    K4C_ASSERT(k4c_heap != NULL, "fatal: k4c_heap_allocator invalid arguments");
+    K4C_ASSERT(k4c_heap->buffer != NULL, "fatal: k4c_heap_allocator invalid k4c_heap");
+    K4C_ASSERT(k4c_heap->blocks != NULL, "fatal: k4c_heap_allocator invalid k4c_heap");
 
-    return &heap->allocator;
+    return &k4c_heap->k4c_allocator;
 }
 
-size_t heap_capacity(const heap *heap) {
-    ASSERT(heap != NULL, "fatal: heap_capacity invalid arguments");
-    ASSERT(heap->buffer != NULL, "fatal: heap_capacity invalid heap");
-    ASSERT(heap->blocks != NULL, "fatal: heap_capacity invalid heap");
+size_t k4c_heap_capacity(const k4c_heap *k4c_heap) {
+    K4C_ASSERT(k4c_heap != NULL, "fatal: k4c_heap_capacity invalid arguments");
+    K4C_ASSERT(k4c_heap->buffer != NULL, "fatal: k4c_heap_capacity invalid k4c_heap");
+    K4C_ASSERT(k4c_heap->blocks != NULL, "fatal: k4c_heap_capacity invalid k4c_heap");
 
-    return heap->capacity;
+    return k4c_heap->capacity;
 }
 
-size_t heap_available(const heap *heap) {
+size_t k4c_heap_available(const k4c_heap *k4c_heap) {
     size_t total = 0;
 
-    ASSERT(heap != NULL, "fatal: heap_available invalid arguments");
-    ASSERT(heap->buffer != NULL, "fatal: heap_available invalid heap");
-    ASSERT(heap->blocks != NULL, "fatal: heap_available invalid heap");
+    K4C_ASSERT(k4c_heap != NULL, "fatal: k4c_heap_available invalid arguments");
+    K4C_ASSERT(k4c_heap->buffer != NULL, "fatal: k4c_heap_available invalid k4c_heap");
+    K4C_ASSERT(k4c_heap->blocks != NULL, "fatal: k4c_heap_available invalid k4c_heap");
 
-    const heap_block *block = heap_head(heap);
+    const k4c_heap_block *block = k4c_heap_head(k4c_heap);
     while (block != NULL) {
         if (block->is_free) {
             total += block->size;
         }
-        block = heap_next(block);
+        block = k4c_heap_next(block);
     }
 
     return total;
 }
 
-void heap_destroy(heap *heap) {
-    ASSERT(heap != NULL, "fatal: heap_destroy invalid arguments");
+void k4c_heap_destroy(k4c_heap *k4c_heap) {
+    K4C_ASSERT(k4c_heap != NULL, "fatal: k4c_heap_destroy invalid arguments");
 
-    if (heap->blocks != NULL) {
-        doubly_linked_list_destroy(heap->blocks);
+    if (k4c_heap->blocks != NULL) {
+        k4c_doubly_linked_list_destroy(k4c_heap->blocks);
     }
 
-    dealloc(NULL, heap->buffer);
-    dealloc(NULL, heap);
+    k4c_dealloc(NULL, k4c_heap->buffer);
+    k4c_dealloc(NULL, k4c_heap);
 }

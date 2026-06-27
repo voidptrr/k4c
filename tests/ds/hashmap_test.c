@@ -26,11 +26,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "vstd/ds/hashmap.h"
-#include "vstd/ds/iterator.h"
-#include "vstd/error.h"
-#include "vstd/memory/test_allocator.h"
-#include "vstd/testing.h"
+#include "k4c/ds/hashmap.h"
+#include "k4c/ds/iterator.h"
+#include "k4c/error.h"
+#include "k4c/memory/test_allocator.h"
+#include "k4c/testing.h"
 
 static size_t custom_eq_calls;
 
@@ -39,64 +39,64 @@ static bool custom_u64_eq(const void *lhs, const void *rhs) {
     return *(const uint64_t *)lhs == *(const uint64_t *)rhs;
 }
 
-TEST(allocator) {
-    test_allocator test_allocator;
+K4C_TEST(k4c_allocator) {
+    k4c_test_allocator k4c_test_allocator;
     uint64_t key = 7;
     uint64_t value = 11;
 
-    allocator *allocator = test_allocator_init(&test_allocator);
-    hashmap *map = NULL;
-    if (test_equal(
-            hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, allocator, &map),
-            STATUS_OK
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_hashmap *map = NULL;
+    if (k4c_test_equal(
+            k4c_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, k4c_allocator, &map),
+            K4C_STATUS_OK
         )) {
         return 1;
     }
-    test_allocator_reset_counts(&test_allocator);
+    k4c_test_allocator_reset_counts(&k4c_test_allocator);
 
-    if (test_status_ok(hashmap_put(map, &key, &value))) {
+    if (k4c_test_status_ok(k4c_hashmap_put(map, &key, &value))) {
 
         return 1;
     }
-    if (test_allocator.alloc_count != 1) {
+    if (k4c_test_allocator.alloc_count != 1) {
         return 1;
     }
 
-    hashmap_destroy(map);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_hashmap_destroy(map);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(init) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    hashmap *map = NULL;
-    if (test_equal(
-            hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, allocator, &map),
-            STATUS_OK
+K4C_TEST(init) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_hashmap *map = NULL;
+    if (k4c_test_equal(
+            k4c_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, k4c_allocator, &map),
+            K4C_STATUS_OK
         )) {
         return 1;
     }
-    if (hashmap_size(map) != 0) {
+    if (k4c_hashmap_size(map) != 0) {
         return 1;
     }
 
-    hashmap_destroy(map);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_hashmap_destroy(map);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(default_byte_equality) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    hashmap *map = NULL;
-    if (test_equal(
-            hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, allocator, &map),
-            STATUS_OK
+K4C_TEST(default_byte_equality) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_hashmap *map = NULL;
+    if (k4c_test_equal(
+            k4c_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, k4c_allocator, &map),
+            K4C_STATUS_OK
         )) {
         return 1;
     }
@@ -104,70 +104,76 @@ TEST(default_byte_equality) {
     uint64_t same_key = 7;
     uint64_t value = 11;
 
-    if (test_status_ok(hashmap_put(map, &key, &value))) {
+    if (k4c_test_status_ok(k4c_hashmap_put(map, &key, &value))) {
 
         return 1;
     }
-    const uint64_t *out = (const uint64_t *)hashmap_get(map, &same_key);
-    if (test_not_null(out) != 0) {
+    const uint64_t *out = (const uint64_t *)k4c_hashmap_get(map, &same_key);
+    if (k4c_test_not_null(out) != 0) {
         return 1;
     }
-    if (test_equal(*out, value) != 0) {
+    if (k4c_test_equal(*out, value) != 0) {
         return 1;
     }
 
-    hashmap_destroy(map);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_hashmap_destroy(map);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(custom_equality) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
+K4C_TEST(custom_equality) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
     uint64_t key = 7;
     uint64_t same_key = 7;
     uint64_t value = 11;
 
     custom_eq_calls = 0;
-    hashmap *map = NULL;
-    if (test_equal(
-            hashmap_create(sizeof(uint64_t), sizeof(uint64_t), custom_u64_eq, allocator, &map),
-            STATUS_OK
+    k4c_hashmap *map = NULL;
+    if (k4c_test_equal(
+            k4c_hashmap_create(
+                sizeof(uint64_t),
+                sizeof(uint64_t),
+                custom_u64_eq,
+                k4c_allocator,
+                &map
+            ),
+            K4C_STATUS_OK
         )) {
         return 1;
     }
 
-    if (test_status_ok(hashmap_put(map, &key, &value))) {
+    if (k4c_test_status_ok(k4c_hashmap_put(map, &key, &value))) {
 
         return 1;
     }
-    const uint64_t *out = (const uint64_t *)hashmap_get(map, &same_key);
-    if (test_not_null(out) != 0) {
+    const uint64_t *out = (const uint64_t *)k4c_hashmap_get(map, &same_key);
+    if (k4c_test_not_null(out) != 0) {
         return 1;
     }
-    if (test_equal(*out, value) != 0) {
+    if (k4c_test_equal(*out, value) != 0) {
         return 1;
     }
-    if (test_equal(custom_eq_calls > 0, true) != 0) {
+    if (k4c_test_equal(custom_eq_calls > 0, true) != 0) {
         return 1;
     }
 
-    hashmap_destroy(map);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_hashmap_destroy(map);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(put_get) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    hashmap *map = NULL;
-    if (test_equal(
-            hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, allocator, &map),
-            STATUS_OK
+K4C_TEST(put_get) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_hashmap *map = NULL;
+    if (k4c_test_equal(
+            k4c_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, k4c_allocator, &map),
+            K4C_STATUS_OK
         )) {
         return 1;
     }
@@ -175,98 +181,98 @@ TEST(put_get) {
     uint64_t value = 11;
     uint64_t value2 = 99;
 
-    if (test_null(hashmap_get(map, &key)) != 0) {
+    if (k4c_test_null(k4c_hashmap_get(map, &key)) != 0) {
         return 1;
     }
 
-    if (test_status_ok(hashmap_put(map, &key, &value))) {
+    if (k4c_test_status_ok(k4c_hashmap_put(map, &key, &value))) {
 
         return 1;
     }
-    const uint64_t *out = (const uint64_t *)hashmap_get(map, &key);
-    if (test_not_null(out) != 0) {
+    const uint64_t *out = (const uint64_t *)k4c_hashmap_get(map, &key);
+    if (k4c_test_not_null(out) != 0) {
         return 1;
     }
-    if (test_equal(*out, value) != 0) {
-        return 1;
-    }
-
-    const hashmap *const_map = map;
-    out = (const uint64_t *)hashmap_get_const(const_map, &key);
-    if (test_not_null(out) != 0) {
-        return 1;
-    }
-    if (test_equal(*out, value) != 0) {
+    if (k4c_test_equal(*out, value) != 0) {
         return 1;
     }
 
-    if (test_status_ok(hashmap_put(map, &key, &value2))) {
-
+    const k4c_hashmap *const_map = map;
+    out = (const uint64_t *)k4c_hashmap_get(const_map, &key);
+    if (k4c_test_not_null(out) != 0) {
         return 1;
     }
-    out = (const uint64_t *)hashmap_get(map, &key);
-    if (test_not_null(out) != 0) {
-        return 1;
-    }
-    if (test_equal(*out, value2) != 0) {
-        return 1;
-    }
-    if (hashmap_size(map) != 1) {
+    if (k4c_test_equal(*out, value) != 0) {
         return 1;
     }
 
-    hashmap_destroy(map);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    if (k4c_test_status_ok(k4c_hashmap_put(map, &key, &value2))) {
+
+        return 1;
+    }
+    out = (const uint64_t *)k4c_hashmap_get(map, &key);
+    if (k4c_test_not_null(out) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(*out, value2) != 0) {
+        return 1;
+    }
+    if (k4c_hashmap_size(map) != 1) {
+        return 1;
+    }
+
+    k4c_hashmap_destroy(map);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(reserve) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    hashmap *map = NULL;
-    if (test_equal(
-            hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, allocator, &map),
-            STATUS_OK
+K4C_TEST(reserve) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_hashmap *map = NULL;
+    if (k4c_test_equal(
+            k4c_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, k4c_allocator, &map),
+            K4C_STATUS_OK
         )) {
         return 1;
     }
-    if (test_status_ok(hashmap_reserve(map, 512))) {
+    if (k4c_test_status_ok(k4c_hashmap_reserve(map, 512))) {
         return 1;
     }
 
     for (uint64_t i = 0; i < 512; i++) {
         uint64_t value = i * 5;
-        if (test_status_ok(hashmap_put(map, &i, &value))) {
+        if (k4c_test_status_ok(k4c_hashmap_put(map, &i, &value))) {
             return 1;
         }
     }
 
     for (uint64_t i = 0; i < 512; i++) {
-        const uint64_t *out = (const uint64_t *)hashmap_get(map, &i);
-        if (test_not_null(out) != 0) {
+        const uint64_t *out = (const uint64_t *)k4c_hashmap_get(map, &i);
+        if (k4c_test_not_null(out) != 0) {
             return 1;
         }
-        if (test_equal(*out, i * 5) != 0) {
+        if (k4c_test_equal(*out, i * 5) != 0) {
             return 1;
         }
     }
 
-    hashmap_destroy(map);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_hashmap_destroy(map);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(remove_growth) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    hashmap *map = NULL;
-    if (test_equal(
-            hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, allocator, &map),
-            STATUS_OK
+K4C_TEST(remove_growth) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_hashmap *map = NULL;
+    if (k4c_test_equal(
+            k4c_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, k4c_allocator, &map),
+            K4C_STATUS_OK
         )) {
         return 1;
     }
@@ -274,38 +280,38 @@ TEST(remove_growth) {
 
     for (uint64_t i = 0; i < 256; i++) {
         uint64_t value = i * 3;
-        if (test_status_ok(hashmap_put(map, &i, &value))) {
+        if (k4c_test_status_ok(k4c_hashmap_put(map, &i, &value))) {
             return 1;
         }
     }
 
-    if (hashmap_size(map) != 256) {
+    if (k4c_hashmap_size(map) != 256) {
         return 1;
     }
 
-    hashmap_remove(map, &key);
-    if (test_null(hashmap_get(map, &key)) != 0) {
+    k4c_hashmap_remove(map, &key);
+    if (k4c_test_null(k4c_hashmap_get(map, &key)) != 0) {
         return 1;
     }
 
-    hashmap_destroy(map);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_hashmap_destroy(map);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(foreach_macros_walk_items) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    hashmap *map = NULL;
-    if (test_equal(
-            hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, allocator, &map),
-            STATUS_OK
+K4C_TEST(foreach_macros_walk_items) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_hashmap *map = NULL;
+    if (k4c_test_equal(
+            k4c_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, k4c_allocator, &map),
+            K4C_STATUS_OK
         )) {
         return 1;
     }
-    const hashmap_entry_view *entry;
+    const k4c_hashmap_entry_view *entry;
     const uint64_t *key;
     const uint64_t *value;
     uint64_t key_sum = 0;
@@ -314,19 +320,19 @@ TEST(foreach_macros_walk_items) {
 
     for (uint64_t i = 1; i <= 4; i++) {
         uint64_t stored = i * 10;
-        if (test_status_ok(hashmap_put(map, &i, &stored))) {
+        if (k4c_test_status_ok(k4c_hashmap_put(map, &i, &stored))) {
             return 1;
         }
     }
 
-    hashmap_for_each_entry(entry, map) {
+    k4c_hashmap_for_each_entry(entry, map) {
         key_sum += *(const uint64_t *)entry->key;
         count += 1;
     }
-    hashmap_for_each_key(uint64_t, key, map) {
+    k4c_hashmap_for_each_key(uint64_t, key, map) {
         key_sum += *key;
     }
-    hashmap_for_each_value(uint64_t, value, map) {
+    k4c_hashmap_for_each_value(uint64_t, value, map) {
         value_sum += *value;
     }
 
@@ -340,37 +346,37 @@ TEST(foreach_macros_walk_items) {
         return 1;
     }
 
-    hashmap_destroy(map);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_hashmap_destroy(map);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(iterator_walks_entries) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    hashmap *map = NULL;
-    if (test_equal(
-            hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, allocator, &map),
-            STATUS_OK
+K4C_TEST(iterator_walks_entries) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_hashmap *map = NULL;
+    if (k4c_test_equal(
+            k4c_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, k4c_allocator, &map),
+            K4C_STATUS_OK
         )) {
         return 1;
     }
-    const hashmap_entry_view *entry;
+    const k4c_hashmap_entry_view *entry;
     uint64_t key_sum = 0;
     uint64_t value_sum = 0;
     size_t count = 0;
 
     for (uint64_t i = 1; i <= 4; i++) {
         uint64_t value = i * 10;
-        if (test_status_ok(hashmap_put(map, &i, &value))) {
+        if (k4c_test_status_ok(k4c_hashmap_put(map, &i, &value))) {
             return 1;
         }
     }
 
-    iterator iter = hashmap_get_iterator(map, HASHMAP_ITERATOR_ENTRY);
-    while ((entry = (const hashmap_entry_view *)iterator_next(&iter)) != NULL) {
+    k4c_iterator iter = k4c_hashmap_get_iterator(map, K4C_HASHMAP_ITERATOR_ENTRY);
+    while ((entry = (const k4c_hashmap_entry_view *)k4c_iterator_next(&iter)) != NULL) {
         key_sum += *(const uint64_t *)entry->key;
         value_sum += *(const uint64_t *)entry->value;
         count += 1;
@@ -385,20 +391,20 @@ TEST(iterator_walks_entries) {
         return 1;
     }
 
-    hashmap_destroy(map);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_hashmap_destroy(map);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(key_iterator_walks_keys) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    hashmap *map = NULL;
-    if (test_equal(
-            hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, allocator, &map),
-            STATUS_OK
+K4C_TEST(key_iterator_walks_keys) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_hashmap *map = NULL;
+    if (k4c_test_equal(
+            k4c_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, k4c_allocator, &map),
+            K4C_STATUS_OK
         )) {
         return 1;
     }
@@ -408,13 +414,13 @@ TEST(key_iterator_walks_keys) {
 
     for (uint64_t i = 1; i <= 4; i++) {
         uint64_t value = i * 10;
-        if (test_status_ok(hashmap_put(map, &i, &value))) {
+        if (k4c_test_status_ok(k4c_hashmap_put(map, &i, &value))) {
             return 1;
         }
     }
 
-    iterator iter = hashmap_get_iterator(map, HASHMAP_ITERATOR_KEY);
-    while ((key = (const uint64_t *)iterator_next(&iter)) != NULL) {
+    k4c_iterator iter = k4c_hashmap_get_iterator(map, K4C_HASHMAP_ITERATOR_KEY);
+    while ((key = (const uint64_t *)k4c_iterator_next(&iter)) != NULL) {
         key_sum += *key;
         count += 1;
     }
@@ -425,20 +431,20 @@ TEST(key_iterator_walks_keys) {
         return 1;
     }
 
-    hashmap_destroy(map);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_hashmap_destroy(map);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(value_iterator_walks_values) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    hashmap *map = NULL;
-    if (test_equal(
-            hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, allocator, &map),
-            STATUS_OK
+K4C_TEST(value_iterator_walks_values) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_hashmap *map = NULL;
+    if (k4c_test_equal(
+            k4c_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, k4c_allocator, &map),
+            K4C_STATUS_OK
         )) {
         return 1;
     }
@@ -448,13 +454,13 @@ TEST(value_iterator_walks_values) {
 
     for (uint64_t i = 1; i <= 4; i++) {
         uint64_t stored = i * 10;
-        if (test_status_ok(hashmap_put(map, &i, &stored))) {
+        if (k4c_test_status_ok(k4c_hashmap_put(map, &i, &stored))) {
             return 1;
         }
     }
 
-    iterator iter = hashmap_get_iterator(map, HASHMAP_ITERATOR_VALUE);
-    while ((value = (const uint64_t *)iterator_next(&iter)) != NULL) {
+    k4c_iterator iter = k4c_hashmap_get_iterator(map, K4C_HASHMAP_ITERATOR_VALUE);
+    while ((value = (const uint64_t *)k4c_iterator_next(&iter)) != NULL) {
         value_sum += *value;
         count += 1;
     }
@@ -465,23 +471,23 @@ TEST(value_iterator_walks_values) {
         return 1;
     }
 
-    hashmap_destroy(map);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_hashmap_destroy(map);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST_MAIN(
-    TEST_CASE(allocator),
-    TEST_CASE(init),
-    TEST_CASE(default_byte_equality),
-    TEST_CASE(custom_equality),
-    TEST_CASE(put_get),
-    TEST_CASE(reserve),
-    TEST_CASE(remove_growth),
-    TEST_CASE(foreach_macros_walk_items),
-    TEST_CASE(iterator_walks_entries),
-    TEST_CASE(key_iterator_walks_keys),
-    TEST_CASE(value_iterator_walks_values)
+K4C_TEST_MAIN(
+    K4C_TEST_CASE(k4c_allocator),
+    K4C_TEST_CASE(init),
+    K4C_TEST_CASE(default_byte_equality),
+    K4C_TEST_CASE(custom_equality),
+    K4C_TEST_CASE(put_get),
+    K4C_TEST_CASE(reserve),
+    K4C_TEST_CASE(remove_growth),
+    K4C_TEST_CASE(foreach_macros_walk_items),
+    K4C_TEST_CASE(iterator_walks_entries),
+    K4C_TEST_CASE(key_iterator_walks_keys),
+    K4C_TEST_CASE(value_iterator_walks_values)
 )

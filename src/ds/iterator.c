@@ -24,16 +24,16 @@
 
 #include <stddef.h>
 
-#include "vstd/assert.h"
-#include "vstd/ds/iterator.h"
-#include "vstd/ds/vector.h"
-#include "vstd/error.h"
-#include "vstd/memory/allocator.h"
+#include "k4c/assert.h"
+#include "k4c/ds/iterator.h"
+#include "k4c/ds/vector.h"
+#include "k4c/error.h"
+#include "k4c/memory/allocator.h"
 
-iterator iterator_from_callback(void *context, iterator_next_fn next) {
-    iterator out;
+k4c_iterator k4c_iterator_from_callback(void *context, k4c_iterator_next_fn next) {
+    k4c_iterator out;
 
-    ASSERT(next != NULL, "fatal: iterator_from_callback invalid arguments");
+    K4C_ASSERT(next != NULL, "fatal: k4c_iterator_from_callback invalid arguments");
 
     out.context = context;
     out.next = next;
@@ -41,10 +41,10 @@ iterator iterator_from_callback(void *context, iterator_next_fn next) {
     return out;
 }
 
-iterator iterator_from_state(iterator_next_fn next) {
-    iterator out;
+k4c_iterator k4c_iterator_from_state(k4c_iterator_next_fn next) {
+    k4c_iterator out;
 
-    ASSERT(next != NULL, "fatal: iterator_from_state invalid arguments");
+    K4C_ASSERT(next != NULL, "fatal: k4c_iterator_from_state invalid arguments");
 
     out.context = NULL;
     out.next = next;
@@ -52,27 +52,27 @@ iterator iterator_from_state(iterator_next_fn next) {
     return out;
 }
 
-void *iterator_state(iterator *iter) {
-    ASSERT(iter != NULL, "fatal: iterator_state invalid arguments");
+void *k4c_iterator_state(k4c_iterator *iter) {
+    K4C_ASSERT(iter != NULL, "fatal: k4c_iterator_state invalid arguments");
 
     return iter->state.bytes;
 }
 
-void iterator_set_size_hint(iterator *iter, size_t size_hint) {
-    ASSERT(iter != NULL, "fatal: iterator_set_size_hint invalid arguments");
+void k4c_iterator_set_size_hint(k4c_iterator *iter, size_t size_hint) {
+    K4C_ASSERT(iter != NULL, "fatal: k4c_iterator_set_size_hint invalid arguments");
 
     iter->size_hint = size_hint;
 }
 
-size_t iterator_size_hint(const iterator *iter) {
-    ASSERT(iter != NULL, "fatal: iterator_size_hint invalid arguments");
+size_t k4c_iterator_size_hint(const k4c_iterator *iter) {
+    K4C_ASSERT(iter != NULL, "fatal: k4c_iterator_size_hint invalid arguments");
 
     return iter->size_hint;
 }
 
-const void *iterator_next(iterator *iter) {
-    ASSERT(iter != NULL, "fatal: iterator_next invalid arguments");
-    ASSERT(iter->next != NULL, "fatal: iterator_next invalid arguments");
+const void *k4c_iterator_next(k4c_iterator *iter) {
+    K4C_ASSERT(iter != NULL, "fatal: k4c_iterator_next invalid arguments");
+    K4C_ASSERT(iter->next != NULL, "fatal: k4c_iterator_next invalid arguments");
 
     const void *item = iter->next(iter->context != NULL ? iter->context : iter->state.bytes);
     if (item != NULL && iter->size_hint > 0) {
@@ -81,84 +81,89 @@ const void *iterator_next(iterator *iter) {
     return item;
 }
 
-status iterator_collect(iterator *source, size_t elem_size, allocator *allocator, vector **out) {
-    ASSERT(source != NULL, "fatal: iterator_collect invalid arguments");
-    ASSERT(elem_size > 0, "fatal: iterator_collect invalid arguments");
-    ASSERT(out != NULL, "fatal: iterator_collect invalid arguments");
+k4c_status k4c_iterator_collect(
+    k4c_iterator *source,
+    size_t elem_size,
+    k4c_allocator *k4c_allocator,
+    k4c_vector **out
+) {
+    K4C_ASSERT(source != NULL, "fatal: k4c_iterator_collect invalid arguments");
+    K4C_ASSERT(elem_size > 0, "fatal: k4c_iterator_collect invalid arguments");
+    K4C_ASSERT(out != NULL, "fatal: k4c_iterator_collect invalid arguments");
 
     *out = NULL;
 
-    vector *vector = NULL;
-    status st = vector_create(elem_size, allocator, &vector);
-    if (st != STATUS_OK) {
+    k4c_vector *k4c_vector = NULL;
+    k4c_status st = k4c_vector_create(elem_size, k4c_allocator, &k4c_vector);
+    if (st != K4C_STATUS_OK) {
         return st;
     }
     if (source->size_hint > 0) {
-        st = vector_reserve(vector, source->size_hint);
-        if (st != STATUS_OK) {
-            vector_destroy(vector);
+        st = k4c_vector_reserve(k4c_vector, source->size_hint);
+        if (st != K4C_STATUS_OK) {
+            k4c_vector_destroy(k4c_vector);
             return st;
         }
     }
     const void *item;
-    while ((item = iterator_next(source)) != NULL) {
-        st = vector_push(vector, item);
-        if (st != STATUS_OK) {
-            vector_destroy(vector);
+    while ((item = k4c_iterator_next(source)) != NULL) {
+        st = k4c_vector_push(k4c_vector, item);
+        if (st != K4C_STATUS_OK) {
+            k4c_vector_destroy(k4c_vector);
             return st;
         }
     }
 
-    *out = vector;
-    return STATUS_OK;
+    *out = k4c_vector;
+    return K4C_STATUS_OK;
 }
 
-status iterator_collect_map(
-    iterator *source,
+k4c_status k4c_iterator_collect_map(
+    k4c_iterator *source,
     size_t dst_elem_size,
-    iterator_map_into_fn map,
+    k4c_iterator_map_into_fn map,
     void *context,
-    allocator *allocator,
-    vector **out
+    k4c_allocator *k4c_allocator,
+    k4c_vector **out
 ) {
-    ASSERT(source != NULL, "fatal: iterator_collect_map invalid arguments");
-    ASSERT(dst_elem_size > 0, "fatal: iterator_collect_map invalid arguments");
-    ASSERT(map != NULL, "fatal: iterator_collect_map invalid arguments");
-    ASSERT(out != NULL, "fatal: iterator_collect_map invalid arguments");
+    K4C_ASSERT(source != NULL, "fatal: k4c_iterator_collect_map invalid arguments");
+    K4C_ASSERT(dst_elem_size > 0, "fatal: k4c_iterator_collect_map invalid arguments");
+    K4C_ASSERT(map != NULL, "fatal: k4c_iterator_collect_map invalid arguments");
+    K4C_ASSERT(out != NULL, "fatal: k4c_iterator_collect_map invalid arguments");
 
     *out = NULL;
 
-    vector *vector = NULL;
-    status st = vector_create(dst_elem_size, allocator, &vector);
-    if (st != STATUS_OK) {
+    k4c_vector *k4c_vector = NULL;
+    k4c_status st = k4c_vector_create(dst_elem_size, k4c_allocator, &k4c_vector);
+    if (st != K4C_STATUS_OK) {
         return st;
     }
     if (source->size_hint > 0) {
-        st = vector_reserve(vector, source->size_hint);
-        if (st != STATUS_OK) {
-            vector_destroy(vector);
+        st = k4c_vector_reserve(k4c_vector, source->size_hint);
+        if (st != K4C_STATUS_OK) {
+            k4c_vector_destroy(k4c_vector);
             return st;
         }
     }
     void *dst = NULL;
-    st = alloc(allocator, dst_elem_size, &dst);
-    if (st != STATUS_OK) {
-        vector_destroy(vector);
+    st = k4c_alloc(k4c_allocator, dst_elem_size, &dst);
+    if (st != K4C_STATUS_OK) {
+        k4c_vector_destroy(k4c_vector);
         return st;
     }
 
     const void *item;
-    while ((item = iterator_next(source)) != NULL) {
+    while ((item = k4c_iterator_next(source)) != NULL) {
         map(context, item, dst);
-        st = vector_push(vector, dst);
-        if (st != STATUS_OK) {
-            dealloc(allocator, dst);
-            vector_destroy(vector);
+        st = k4c_vector_push(k4c_vector, dst);
+        if (st != K4C_STATUS_OK) {
+            k4c_dealloc(k4c_allocator, dst);
+            k4c_vector_destroy(k4c_vector);
             return st;
         }
     }
-    dealloc(allocator, dst);
+    k4c_dealloc(k4c_allocator, dst);
 
-    *out = vector;
-    return STATUS_OK;
+    *out = k4c_vector;
+    return K4C_STATUS_OK;
 }

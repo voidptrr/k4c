@@ -1,39 +1,39 @@
-# ds.linked_list
+# ds.k4c_linked_list
 
 ## DESCRIPTION
 
-The linked_list module provides an intrusive singly linked list. User objects embed
-`linked_list_node`, and the list links those embedded nodes directly.
+The k4c_linked_list module provides an intrusive singly linked list. User objects embed
+`k4c_linked_list_node`, and the list links those embedded nodes directly.
 
 The list owns only the list handle. Nodes and owning objects remain caller-owned.
-Use `CONTAINER_OF` to recover the owning object from a returned node.
+Use `K4C_CONTAINER_OF` to recover the owning object from a returned node.
 
 This API is fail-fast: invalid required arguments are programmer errors and are asserted.
 
 ## TYPES
 
-### linked_list_node
+### k4c_linked_list_node
 
 ```c
-typedef struct linked_list_node {
-    struct linked_list_node *next;
-} linked_list_node;
+typedef struct k4c_linked_list_node {
+    struct k4c_linked_list_node *next;
+} k4c_linked_list_node;
 ```
 
 Embed this node in the object you want to link.
 
-### linked_list_iterator
+### k4c_linked_list_iterator
 
 ```c
-typedef struct linked_list_iterator linked_list_iterator;
+typedef struct k4c_linked_list_iterator k4c_linked_list_iterator;
 ```
 
 Typed cursor for walking linked-list nodes.
 
-### CONTAINER_OF
+### K4C_CONTAINER_OF
 
 ```c
-#define CONTAINER_OF(ptr, type, member)
+#define K4C_CONTAINER_OF(ptr, type, member)
 ```
 
 - Parameters: `ptr`, `type`, `member`
@@ -41,36 +41,36 @@ Typed cursor for walking linked-list nodes.
 - Example:
 
 ```c
-job *item = CONTAINER_OF(node, job, node);
+job *item = K4C_CONTAINER_OF(node, job, node);
 ```
 
 ## FUNCTIONS
 
-### linked_list_create
+### k4c_linked_list_create
 
 ```c
-status linked_list_create(allocator *allocator, linked_list **out);
+k4c_status k4c_linked_list_create(k4c_allocator *k4c_allocator, k4c_linked_list **out);
 ```
 
-- Parameters: `allocator`, `out`
-- Returns: `STATUS_OK` on success, or an error status.
+- Parameters: `k4c_allocator`, `out`
+- Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
 - Writes: opaque linked-list handle to `*out` on success.
-- Notes: the list stores `allocator` and reuses it to destroy the list handle.
-  Nodes remain caller-owned. When `allocator` is `NULL`, the handle uses the C
-  library heap through `alloc`.
+- Notes: the list stores `k4c_allocator` and reuses it to destroy the list handle.
+  Nodes remain caller-owned. When `k4c_allocator` is `NULL`, the handle uses the C
+  library k4c_heap through `k4c_alloc`.
 - Example:
 
 ```c
-linked_list *list = NULL;
-if (linked_list_create(NULL, &list) != STATUS_OK) {
+k4c_linked_list *list = NULL;
+if (k4c_linked_list_create(NULL, &list) != K4C_STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### linked_list_push
+### k4c_linked_list_push
 
 ```c
-void linked_list_push(linked_list *list, linked_list_node *node);
+void k4c_linked_list_push(k4c_linked_list *list, k4c_linked_list_node *node);
 ```
 
 - Parameters: `list`, `node`
@@ -79,13 +79,13 @@ void linked_list_push(linked_list *list, linked_list_node *node);
 
 ```c
 job item = {.id = 1};
-linked_list_push(list, &item.node);
+k4c_linked_list_push(list, &item.node);
 ```
 
-### linked_list_pushfront
+### k4c_linked_list_pushfront
 
 ```c
-void linked_list_pushfront(linked_list *list, linked_list_node *node);
+void k4c_linked_list_pushfront(k4c_linked_list *list, k4c_linked_list_node *node);
 ```
 
 - Parameters: `list`, `node`
@@ -94,13 +94,13 @@ void linked_list_pushfront(linked_list *list, linked_list_node *node);
 
 ```c
 job item = {.id = 1};
-linked_list_pushfront(list, &item.node);
+k4c_linked_list_pushfront(list, &item.node);
 ```
 
-### linked_list_popleft
+### k4c_linked_list_popleft
 
 ```c
-linked_list_node *linked_list_popleft(linked_list *list);
+k4c_linked_list_node *k4c_linked_list_popleft(k4c_linked_list *list);
 ```
 
 - Parameters: `list`
@@ -108,17 +108,17 @@ linked_list_node *linked_list_popleft(linked_list *list);
 - Example:
 
 ```c
-linked_list_node *node = linked_list_popleft(list);
+k4c_linked_list_node *node = k4c_linked_list_popleft(list);
 if (node != NULL) {
-    job *item = CONTAINER_OF(node, job, node);
+    job *item = K4C_CONTAINER_OF(node, job, node);
 }
 ```
 
-### linked_list_remove_after
+### k4c_linked_list_remove_after
 
 ```c
-linked_list_node *linked_list_remove_after(linked_list *list,
-                                                     linked_list_node *prev);
+k4c_linked_list_node *k4c_linked_list_remove_after(k4c_linked_list *list,
+                                                     k4c_linked_list_node *prev);
 ```
 
 - Parameters: `list`, `prev`
@@ -127,13 +127,13 @@ linked_list_node *linked_list_remove_after(linked_list *list,
 - Example:
 
 ```c
-linked_list_node *node = linked_list_remove_after(list, prev);
+k4c_linked_list_node *node = k4c_linked_list_remove_after(list, prev);
 ```
 
-### linked_list_size
+### k4c_linked_list_size
 
 ```c
-size_t linked_list_size(const linked_list *list);
+size_t k4c_linked_list_size(const k4c_linked_list *list);
 ```
 
 - Parameters: `list`
@@ -141,13 +141,13 @@ size_t linked_list_size(const linked_list *list);
 - Example:
 
 ```c
-size_t count = linked_list_size(list);
+size_t count = k4c_linked_list_size(list);
 ```
 
-### linked_list_head
+### k4c_linked_list_head
 
 ```c
-linked_list_node *linked_list_head(const linked_list *list);
+k4c_linked_list_node *k4c_linked_list_head(const k4c_linked_list *list);
 ```
 
 - Parameters: `list`
@@ -155,34 +155,34 @@ linked_list_node *linked_list_head(const linked_list *list);
 - Example:
 
 ```c
-linked_list_node *head = linked_list_head(list);
+k4c_linked_list_node *head = k4c_linked_list_head(list);
 ```
 
-### linked_list_get_iterator
+### k4c_linked_list_get_iterator
 
 ```c
-iterator linked_list_get_iterator(const linked_list *list);
+k4c_iterator k4c_linked_list_get_iterator(const k4c_linked_list *list);
 ```
 
 - Parameters: `list`
-- Returns: iterator over list nodes from head to tail.
-- Notes: yielded pointers are `const linked_list_node *`. Use
-  `CONTAINER_OF` to recover the owning object.
+- Returns: k4c_iterator over list nodes from head to tail.
+- Notes: yielded pointers are `const k4c_linked_list_node *`. Use
+  `K4C_CONTAINER_OF` to recover the owning object.
 - Example:
 
 ```c
-iterator iter = linked_list_get_iterator(list);
+k4c_iterator iter = k4c_linked_list_get_iterator(list);
 
-const linked_list_node *node;
-while ((node = (const linked_list_node *)iterator_next(&iter)) != NULL) {
-    const job *item = CONTAINER_OF(node, job, node);
+const k4c_linked_list_node *node;
+while ((node = (const k4c_linked_list_node *)k4c_iterator_next(&iter)) != NULL) {
+    const job *item = K4C_CONTAINER_OF(node, job, node);
 }
 ```
 
-### linked_list_destroy
+### k4c_linked_list_destroy
 
 ```c
-void linked_list_destroy(linked_list *list);
+void k4c_linked_list_destroy(k4c_linked_list *list);
 ```
 
 - Parameters: `list`
@@ -191,5 +191,5 @@ void linked_list_destroy(linked_list *list);
 - Example:
 
 ```c
-linked_list_destroy(list);
+k4c_linked_list_destroy(list);
 ```

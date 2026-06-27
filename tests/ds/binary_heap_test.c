@@ -25,11 +25,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "vstd/ds/binary_heap.h"
-#include "vstd/ds/iterator.h"
-#include "vstd/error.h"
-#include "vstd/memory/test_allocator.h"
-#include "vstd/testing.h"
+#include "k4c/ds/binary_heap.h"
+#include "k4c/ds/iterator.h"
+#include "k4c/error.h"
+#include "k4c/memory/test_allocator.h"
+#include "k4c/testing.h"
 
 static int cmp_int_asc(const void *a, const void *b) {
     int lhs = *(const int *)a;
@@ -43,225 +43,249 @@ static int cmp_int_desc(const void *a, const void *b) {
     return (rhs > lhs) - (rhs < lhs);
 }
 
-TEST(init) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    binary_heap *heap = NULL;
-    if (test_equal(binary_heap_create(sizeof(int), cmp_int_asc, allocator, &heap), STATUS_OK)) {
+K4C_TEST(init) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_binary_heap *k4c_heap = NULL;
+    if (k4c_test_equal(
+            k4c_binary_heap_create(sizeof(int), cmp_int_asc, k4c_allocator, &k4c_heap),
+            K4C_STATUS_OK
+        )) {
         return 1;
     }
 
-    if (binary_heap_size(heap) != 0) {
+    if (k4c_binary_heap_size(k4c_heap) != 0) {
         return 1;
     }
 
-    binary_heap_destroy(heap);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_binary_heap_destroy(k4c_heap);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(peek) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    binary_heap *heap = NULL;
-    if (test_equal(binary_heap_create(sizeof(int), cmp_int_asc, allocator, &heap), STATUS_OK)) {
+K4C_TEST(peek) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_binary_heap *k4c_heap = NULL;
+    if (k4c_test_equal(
+            k4c_binary_heap_create(sizeof(int), cmp_int_asc, k4c_allocator, &k4c_heap),
+            K4C_STATUS_OK
+        )) {
         return 1;
     }
     int value = 3;
 
-    if (test_null(binary_heap_peek(heap)) != 0) {
+    if (k4c_test_null(k4c_binary_heap_peek(k4c_heap)) != 0) {
         return 1;
     }
 
-    if (test_status_ok(binary_heap_push(heap, &value))) {
+    if (k4c_test_status_ok(k4c_binary_heap_push(k4c_heap, &value))) {
 
         return 1;
     }
-    const int *out = (const int *)binary_heap_peek(heap);
-    if (test_not_null(out) != 0) {
+    const int *out = (const int *)k4c_binary_heap_peek(k4c_heap);
+    if (k4c_test_not_null(out) != 0) {
         return 1;
     }
-    if (test_equal(*out, 3) != 0) {
+    if (k4c_test_equal(*out, 3) != 0) {
         return 1;
     }
 
-    binary_heap_destroy(heap);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_binary_heap_destroy(k4c_heap);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(pop) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    binary_heap *heap = NULL;
-    if (test_equal(binary_heap_create(sizeof(int), cmp_int_asc, allocator, &heap), STATUS_OK)) {
+K4C_TEST(pop) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_binary_heap *k4c_heap = NULL;
+    if (k4c_test_equal(
+            k4c_binary_heap_create(sizeof(int), cmp_int_asc, k4c_allocator, &k4c_heap),
+            K4C_STATUS_OK
+        )) {
         return 1;
     }
     int values[] = {4, 1, 3};
 
     for (size_t i = 0; i < 3; i++) {
-        if (test_status_ok(binary_heap_push(heap, &values[i]))) {
+        if (k4c_test_status_ok(k4c_binary_heap_push(k4c_heap, &values[i]))) {
             return 1;
         }
     }
 
     int expected[] = {1, 3, 4};
     for (size_t i = 0; i < 3; i++) {
-        int *out = (int *)binary_heap_pop(heap);
-        if (test_not_null(out) != 0) {
+        int *out = (int *)k4c_binary_heap_pop(k4c_heap);
+        if (k4c_test_not_null(out) != 0) {
             return 1;
         }
-        if (test_equal(*out, expected[i]) != 0) {
+        if (k4c_test_equal(*out, expected[i]) != 0) {
             return 1;
         }
     }
 
-    if (test_null(binary_heap_pop(heap)) != 0) {
+    if (k4c_test_null(k4c_binary_heap_pop(k4c_heap)) != 0) {
         return 1;
     }
 
-    binary_heap_destroy(heap);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_binary_heap_destroy(k4c_heap);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(pop_uses_custom_comparator_order) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    binary_heap *heap = NULL;
-    if (test_equal(binary_heap_create(sizeof(int), cmp_int_desc, allocator, &heap), STATUS_OK)) {
+K4C_TEST(pop_uses_custom_comparator_order) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_binary_heap *k4c_heap = NULL;
+    if (k4c_test_equal(
+            k4c_binary_heap_create(sizeof(int), cmp_int_desc, k4c_allocator, &k4c_heap),
+            K4C_STATUS_OK
+        )) {
         return 1;
     }
     int values[] = {5, 2, 8, 1};
     int expected[] = {8, 5, 2, 1};
 
     for (size_t i = 0; i < sizeof(values) / sizeof(values[0]); i++) {
-        if (test_status_ok(binary_heap_push(heap, &values[i]))) {
+        if (k4c_test_status_ok(k4c_binary_heap_push(k4c_heap, &values[i]))) {
             return 1;
         }
     }
 
     for (size_t i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
-        int *out = (int *)binary_heap_pop(heap);
-        if (test_not_null(out) != 0) {
+        int *out = (int *)k4c_binary_heap_pop(k4c_heap);
+        if (k4c_test_not_null(out) != 0) {
             return 1;
         }
-        if (test_equal(*out, expected[i]) != 0) {
+        if (k4c_test_equal(*out, expected[i]) != 0) {
             return 1;
         }
     }
 
-    binary_heap_destroy(heap);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_binary_heap_destroy(k4c_heap);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(push) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    binary_heap *heap = NULL;
-    if (test_equal(binary_heap_create(sizeof(int), cmp_int_asc, allocator, &heap), STATUS_OK)) {
+K4C_TEST(push) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_binary_heap *k4c_heap = NULL;
+    if (k4c_test_equal(
+            k4c_binary_heap_create(sizeof(int), cmp_int_asc, k4c_allocator, &k4c_heap),
+            K4C_STATUS_OK
+        )) {
         return 1;
     }
     int values[] = {5, 2, 8, 1};
 
     for (size_t i = 0; i < 4; i++) {
-        if (test_status_ok(binary_heap_push(heap, &values[i]))) {
+        if (k4c_test_status_ok(k4c_binary_heap_push(k4c_heap, &values[i]))) {
             return 1;
         }
     }
 
-    const int *top = (const int *)binary_heap_peek(heap);
-    if (test_not_null(top) != 0) {
+    const int *top = (const int *)k4c_binary_heap_peek(k4c_heap);
+    if (k4c_test_not_null(top) != 0) {
         return 1;
     }
-    if (test_equal(*top, 1) != 0) {
+    if (k4c_test_equal(*top, 1) != 0) {
         return 1;
     }
-    if (binary_heap_size(heap) != 4) {
+    if (k4c_binary_heap_size(k4c_heap) != 4) {
         return 1;
     }
 
-    binary_heap_destroy(heap);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_binary_heap_destroy(k4c_heap);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(default_byte_ordering) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    binary_heap *heap = NULL;
-    if (test_equal(binary_heap_create(sizeof(uint8_t), NULL, allocator, &heap), STATUS_OK)) {
+K4C_TEST(default_byte_ordering) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_binary_heap *k4c_heap = NULL;
+    if (k4c_test_equal(
+            k4c_binary_heap_create(sizeof(uint8_t), NULL, k4c_allocator, &k4c_heap),
+            K4C_STATUS_OK
+        )) {
         return 1;
     }
     uint8_t values[] = {5, 2, 8, 1};
 
     for (size_t i = 0; i < 4; i++) {
-        if (test_status_ok(binary_heap_push(heap, &values[i]))) {
+        if (k4c_test_status_ok(k4c_binary_heap_push(k4c_heap, &values[i]))) {
             return 1;
         }
     }
 
-    const uint8_t *top = (const uint8_t *)binary_heap_peek(heap);
-    if (test_not_null(top) != 0) {
+    const uint8_t *top = (const uint8_t *)k4c_binary_heap_peek(k4c_heap);
+    if (k4c_test_not_null(top) != 0) {
         return 1;
     }
-    if (test_equal(*top, 1) != 0) {
+    if (k4c_test_equal(*top, 1) != 0) {
         return 1;
     }
 
-    binary_heap_destroy(heap);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_binary_heap_destroy(k4c_heap);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(custom_comparator) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    binary_heap *heap = NULL;
-    if (test_equal(binary_heap_create(sizeof(int), cmp_int_desc, allocator, &heap), STATUS_OK)) {
+K4C_TEST(custom_comparator) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_binary_heap *k4c_heap = NULL;
+    if (k4c_test_equal(
+            k4c_binary_heap_create(sizeof(int), cmp_int_desc, k4c_allocator, &k4c_heap),
+            K4C_STATUS_OK
+        )) {
         return 1;
     }
     int values[] = {5, 2, 8, 1};
 
     for (size_t i = 0; i < 4; i++) {
-        if (test_status_ok(binary_heap_push(heap, &values[i]))) {
+        if (k4c_test_status_ok(k4c_binary_heap_push(k4c_heap, &values[i]))) {
             return 1;
         }
     }
 
-    const int *top = (const int *)binary_heap_peek(heap);
-    if (test_not_null(top) != 0) {
+    const int *top = (const int *)k4c_binary_heap_peek(k4c_heap);
+    if (k4c_test_not_null(top) != 0) {
         return 1;
     }
-    if (test_equal(*top, 8) != 0) {
+    if (k4c_test_equal(*top, 8) != 0) {
         return 1;
     }
 
-    binary_heap_destroy(heap);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_binary_heap_destroy(k4c_heap);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(iterator_walks_backing_storage) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    binary_heap *heap = NULL;
-    if (test_equal(binary_heap_create(sizeof(int), cmp_int_asc, allocator, &heap), STATUS_OK)) {
+K4C_TEST(iterator_walks_backing_storage) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_binary_heap *k4c_heap = NULL;
+    if (k4c_test_equal(
+            k4c_binary_heap_create(sizeof(int), cmp_int_asc, k4c_allocator, &k4c_heap),
+            K4C_STATUS_OK
+        )) {
         return 1;
     }
     int values[] = {5, 2, 8, 1};
@@ -270,37 +294,37 @@ TEST(iterator_walks_backing_storage) {
     size_t count = 0;
 
     for (size_t i = 0; i < sizeof(values) / sizeof(values[0]); i++) {
-        if (test_status_ok(binary_heap_push(heap, &values[i]))) {
+        if (k4c_test_status_ok(k4c_binary_heap_push(k4c_heap, &values[i]))) {
             return 1;
         }
     }
 
-    iterator iter = binary_heap_get_iterator(heap);
-    while ((out = (const int *)iterator_next(&iter)) != NULL) {
+    k4c_iterator iter = k4c_binary_heap_get_iterator(k4c_heap);
+    while ((out = (const int *)k4c_iterator_next(&iter)) != NULL) {
         sum += *out;
         count += 1;
     }
     if (count != sizeof(values) / sizeof(values[0])) {
         return 1;
     }
-    if (test_equal(sum, 16) != 0) {
+    if (k4c_test_equal(sum, 16) != 0) {
         return 1;
     }
 
-    binary_heap_destroy(heap);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_binary_heap_destroy(k4c_heap);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST_MAIN(
-    TEST_CASE(init),
-    TEST_CASE(peek),
-    TEST_CASE(pop),
-    TEST_CASE(pop_uses_custom_comparator_order),
-    TEST_CASE(push),
-    TEST_CASE(default_byte_ordering),
-    TEST_CASE(custom_comparator),
-    TEST_CASE(iterator_walks_backing_storage)
+K4C_TEST_MAIN(
+    K4C_TEST_CASE(init),
+    K4C_TEST_CASE(peek),
+    K4C_TEST_CASE(pop),
+    K4C_TEST_CASE(pop_uses_custom_comparator_order),
+    K4C_TEST_CASE(push),
+    K4C_TEST_CASE(default_byte_ordering),
+    K4C_TEST_CASE(custom_comparator),
+    K4C_TEST_CASE(iterator_walks_backing_storage)
 )

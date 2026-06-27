@@ -24,39 +24,39 @@
 
 #include <stdint.h>
 
-#include "vstd/error.h"
-#include "vstd/memory/arena.h"
-#include "vstd/memory/utils.h"
-#include "vstd/testing.h"
+#include "k4c/error.h"
+#include "k4c/memory/arena.h"
+#include "k4c/memory/utils.h"
+#include "k4c/testing.h"
 
 int main(void) {
-    arena *arena = NULL;
-    if (test_equal(arena_create(128, &arena), STATUS_OK)) {
+    k4c_arena *k4c_arena = NULL;
+    if (k4c_test_equal(k4c_arena_create(128, &k4c_arena), K4C_STATUS_OK)) {
         return 1;
     }
-    void *first = arena_alloc(arena, 8);
-    void *second = arena_alloc(arena, 8);
-    if (test_not_null(first) != 0) {
+    void *first = k4c_arena_alloc(k4c_arena, 8);
+    void *second = k4c_arena_alloc(k4c_arena, 8);
+    if (k4c_test_not_null(first) != 0) {
         return 1;
     }
-    if (test_not_null(second) != 0) {
+    if (k4c_test_not_null(second) != 0) {
         return 1;
     }
-    if (test_not_equal_ptr(first, second) != 0) {
-        return 1;
-    }
-
-    if (test_equal((intmax_t)((uintptr_t)first % MEMORY_ALIGN), 0) != 0) {
-        return 1;
-    }
-    if (test_equal((intmax_t)((uintptr_t)second % MEMORY_ALIGN), 0) != 0) {
+    if (k4c_test_not_equal_ptr(first, second) != 0) {
         return 1;
     }
 
-    if (test_null(arena_alloc(arena, arena_capacity(arena))) != 0) {
+    if (k4c_test_equal((intmax_t)((uintptr_t)first % K4C_MEMORY_ALIGN), 0) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal((intmax_t)((uintptr_t)second % K4C_MEMORY_ALIGN), 0) != 0) {
         return 1;
     }
 
-    arena_destroy(arena);
+    if (k4c_test_null(k4c_arena_alloc(k4c_arena, k4c_arena_capacity(k4c_arena))) != 0) {
+        return 1;
+    }
+
+    k4c_arena_destroy(k4c_arena);
     return 0;
 }

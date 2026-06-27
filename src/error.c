@@ -22,29 +22,29 @@
  * SOFTWARE.
  */
 
-#include "vstd/error.h"
+#include "k4c/error.h"
 
-const char *status_message(status status) {
-    switch (status) {
-        case STATUS_OK:
+const char *k4c_status_message(k4c_status k4c_status) {
+    switch (k4c_status) {
+        case K4C_STATUS_OK:
             return "ok";
-        case STATUS_INVALID_ARGUMENT:
+        case K4C_STATUS_INVALID_ARGUMENT:
             return "invalid argument";
-        case STATUS_NO_MEMORY:
+        case K4C_STATUS_NO_MEMORY:
             return "out of memory";
-        case STATUS_OVERFLOW:
+        case K4C_STATUS_OVERFLOW:
             return "overflow";
-        case STATUS_OUT_OF_RANGE:
+        case K4C_STATUS_OUT_OF_RANGE:
             return "out of range";
-        case STATUS_NOT_FOUND:
+        case K4C_STATUS_NOT_FOUND:
             return "not found";
-        case STATUS_EOF:
+        case K4C_STATUS_EOF:
             return "end of file";
-        case STATUS_IO:
+        case K4C_STATUS_IO:
             return "I/O error";
-        case STATUS_INVALID_DATA:
+        case K4C_STATUS_INVALID_DATA:
             return "invalid data";
-        case STATUS_UNSUPPORTED:
+        case K4C_STATUS_UNSUPPORTED:
             return "unsupported operation";
     }
     return "unknown error";

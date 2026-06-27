@@ -24,33 +24,33 @@
 
 #include <stdint.h>
 
-#include "vstd/error.h"
-#include "vstd/memory/arena.h"
-#include "vstd/testing.h"
+#include "k4c/error.h"
+#include "k4c/memory/arena.h"
+#include "k4c/testing.h"
 
 int main(void) {
-    arena *arena = NULL;
-    if (test_equal(arena_create(128, &arena), STATUS_OK)) {
+    k4c_arena *k4c_arena = NULL;
+    if (k4c_test_equal(k4c_arena_create(128, &k4c_arena), K4C_STATUS_OK)) {
         return 1;
     }
-    void *before = arena_alloc(arena, 8);
-    if (test_not_null(before) != 0) {
+    void *before = k4c_arena_alloc(k4c_arena, 8);
+    if (k4c_test_not_null(before) != 0) {
         return 1;
     }
-    if (test_equal(arena_used(arena) > 0, true) != 0) {
-        return 1;
-    }
-
-    arena_reset(arena);
-    if (test_equal((intmax_t)arena_used(arena), 0) != 0) {
+    if (k4c_test_equal(k4c_arena_used(k4c_arena) > 0, true) != 0) {
         return 1;
     }
 
-    void *after = arena_alloc(arena, 8);
-    if (test_equal_ptr(after, before) != 0) {
+    k4c_arena_reset(k4c_arena);
+    if (k4c_test_equal((intmax_t)k4c_arena_used(k4c_arena), 0) != 0) {
         return 1;
     }
 
-    arena_destroy(arena);
+    void *after = k4c_arena_alloc(k4c_arena, 8);
+    if (k4c_test_equal_ptr(after, before) != 0) {
+        return 1;
+    }
+
+    k4c_arena_destroy(k4c_arena);
     return 0;
 }

@@ -21,8 +21,8 @@
 # SOFTWARE.
 
 [project]
-site_name = "vstd"
-site_description = "Documentation for vstd"
+site_name = "k4c"
+site_description = "Documentation for k4c"
 site_author = "voidptrr"
 copyright = """
 Copyright &copy; 2026 voidptrr
@@ -30,17 +30,17 @@ Copyright &copy; 2026 voidptrr
 extra_css = ["stylesheets/extra.css"]
 nav = [
   { "Overview" = "index.md" },
-  { "Assert" = "reference/vstd-assert.md" },
-  { "Error" = "reference/vstd-error.md" },
-  { "Logging" = "reference/vstd-logging.md" },
-  { "Testing" = "reference/vstd-testing.md" },
+  { "Assert" = "reference/k4c-assert.md" },
+  { "Error" = "reference/k4c-error.md" },
+  { "Logging" = "reference/k4c-logging.md" },
+  { "Testing" = "reference/k4c-testing.md" },
   { "Memory" = [
-    { "Utilities" = "reference/vstd-memory-utils.md" },
+    { "Utilities" = "reference/k4c-memory-utils.md" },
     { "Allocators" = [
-      { "Overview" = "reference/vstd-memory-allocators.md" },
-      { "Arena allocator" = "reference/vstd-memory-arena.md" },
-      { "Free-list allocator" = "reference/vstd-memory-general-heap.md" },
-      { "Test allocator" = "reference/vstd-memory-test-allocator.md" },
+      { "Overview" = "reference/k4c-memory-allocators.md" },
+      { "Arena allocator" = "reference/k4c-memory-arena.md" },
+      { "Free-list allocator" = "reference/k4c-memory-general-heap.md" },
+      { "Test allocator" = "reference/k4c-memory-test-allocator.md" },
     ] },
   ] },
   { "Data structures" = [

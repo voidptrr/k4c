@@ -26,11 +26,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "vstd/ds/hashset.h"
-#include "vstd/ds/iterator.h"
-#include "vstd/error.h"
-#include "vstd/memory/test_allocator.h"
-#include "vstd/testing.h"
+#include "k4c/ds/hashset.h"
+#include "k4c/ds/iterator.h"
+#include "k4c/error.h"
+#include "k4c/memory/test_allocator.h"
+#include "k4c/testing.h"
 
 static size_t custom_eq_calls;
 
@@ -39,327 +39,357 @@ static bool custom_u64_eq(const void *lhs, const void *rhs) {
     return *(const uint64_t *)lhs == *(const uint64_t *)rhs;
 }
 
-TEST(allocator) {
-    test_allocator test_allocator;
+K4C_TEST(k4c_allocator) {
+    k4c_test_allocator k4c_test_allocator;
     uint64_t value = 11;
 
-    allocator *allocator = test_allocator_init(&test_allocator);
-    hashset *set = NULL;
-    if (test_equal(hashset_create(sizeof(uint64_t), NULL, allocator, &set), STATUS_OK)) {
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_hashset *set = NULL;
+    if (k4c_test_equal(
+            k4c_hashset_create(sizeof(uint64_t), NULL, k4c_allocator, &set),
+            K4C_STATUS_OK
+        )) {
         return 1;
     }
-    test_allocator_reset_counts(&test_allocator);
+    k4c_test_allocator_reset_counts(&k4c_test_allocator);
 
-    if (test_status_ok(hashset_insert(set, &value))) {
+    if (k4c_test_status_ok(k4c_hashset_insert(set, &value))) {
 
         return 1;
     }
-    if (test_allocator.alloc_count != 1) {
+    if (k4c_test_allocator.alloc_count != 1) {
         return 1;
     }
 
-    hashset_destroy(set);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_hashset_destroy(set);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(contains) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    hashset *set = NULL;
-    if (test_equal(hashset_create(sizeof(uint64_t), NULL, allocator, &set), STATUS_OK)) {
+K4C_TEST(contains) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_hashset *set = NULL;
+    if (k4c_test_equal(
+            k4c_hashset_create(sizeof(uint64_t), NULL, k4c_allocator, &set),
+            K4C_STATUS_OK
+        )) {
         return 1;
     }
 
     uint64_t present = 42;
     uint64_t missing = 7;
-    if (test_equal(!hashset_contains(set, &present), true) != 0) {
+    if (k4c_test_equal(!k4c_hashset_contains(set, &present), true) != 0) {
         return 1;
     }
 
-    if (test_status_ok(hashset_insert(set, &present))) {
+    if (k4c_test_status_ok(k4c_hashset_insert(set, &present))) {
 
         return 1;
     }
-    if (test_equal(hashset_contains(set, &present), true) != 0) {
+    if (k4c_test_equal(k4c_hashset_contains(set, &present), true) != 0) {
         return 1;
     }
 
-    if (test_equal(!hashset_contains(set, &missing), true) != 0) {
+    if (k4c_test_equal(!k4c_hashset_contains(set, &missing), true) != 0) {
         return 1;
     }
 
     for (uint64_t i = 0; i < 256; i++) {
-        if (test_status_ok(hashset_insert(set, &i))) {
+        if (k4c_test_status_ok(k4c_hashset_insert(set, &i))) {
             return 1;
         }
     }
 
-    if (test_equal(hashset_contains(set, &missing), true) != 0) {
+    if (k4c_test_equal(k4c_hashset_contains(set, &missing), true) != 0) {
         return 1;
     }
 
-    hashset_destroy(set);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_hashset_destroy(set);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(get) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    hashset *set = NULL;
-    if (test_equal(hashset_create(sizeof(uint64_t), NULL, allocator, &set), STATUS_OK)) {
+K4C_TEST(get) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_hashset *set = NULL;
+    if (k4c_test_equal(
+            k4c_hashset_create(sizeof(uint64_t), NULL, k4c_allocator, &set),
+            K4C_STATUS_OK
+        )) {
         return 1;
     }
     uint64_t value = 42;
     uint64_t missing = 7;
 
-    if (test_null(hashset_get(set, &value)) != 0) {
+    if (k4c_test_null(k4c_hashset_get(set, &value)) != 0) {
         return 1;
     }
 
-    if (test_status_ok(hashset_insert(set, &value))) {
+    if (k4c_test_status_ok(k4c_hashset_insert(set, &value))) {
 
         return 1;
     }
 
-    uint64_t *found = (uint64_t *)hashset_get(set, &value);
-    if (test_not_null(found) != 0) {
+    uint64_t *found = (uint64_t *)k4c_hashset_get(set, &value);
+    if (k4c_test_not_null(found) != 0) {
         return 1;
     }
-    if (test_equal(*found, value) != 0) {
-        return 1;
-    }
-
-    const hashset *const_set = set;
-    const uint64_t *const_found = (const uint64_t *)hashset_get_const(const_set, &value);
-    if (test_not_null(const_found) != 0) {
-        return 1;
-    }
-    if (test_equal(*const_found, value) != 0) {
+    if (k4c_test_equal(*found, value) != 0) {
         return 1;
     }
 
-    if (test_null(hashset_get(set, &missing)) != 0) {
+    const k4c_hashset *const_set = set;
+    const uint64_t *const_found = (const uint64_t *)k4c_hashset_get(const_set, &value);
+    if (k4c_test_not_null(const_found) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(*const_found, value) != 0) {
         return 1;
     }
 
-    hashset_destroy(set);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    if (k4c_test_null(k4c_hashset_get(set, &missing)) != 0) {
+        return 1;
+    }
+
+    k4c_hashset_destroy(set);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(init) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    hashset *set = NULL;
-    if (test_equal(hashset_create(sizeof(uint64_t), NULL, allocator, &set), STATUS_OK)) {
+K4C_TEST(init) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_hashset *set = NULL;
+    if (k4c_test_equal(
+            k4c_hashset_create(sizeof(uint64_t), NULL, k4c_allocator, &set),
+            K4C_STATUS_OK
+        )) {
         return 1;
     }
-    if (hashset_size(set) != 0) {
+    if (k4c_hashset_size(set) != 0) {
         return 1;
     }
 
-    hashset_destroy(set);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_hashset_destroy(set);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(default_byte_equality) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    hashset *set = NULL;
-    if (test_equal(hashset_create(sizeof(uint64_t), NULL, allocator, &set), STATUS_OK)) {
+K4C_TEST(default_byte_equality) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_hashset *set = NULL;
+    if (k4c_test_equal(
+            k4c_hashset_create(sizeof(uint64_t), NULL, k4c_allocator, &set),
+            K4C_STATUS_OK
+        )) {
         return 1;
     }
     uint64_t value = 42;
     uint64_t same_value = 42;
 
-    if (test_status_ok(hashset_insert(set, &value))) {
+    if (k4c_test_status_ok(k4c_hashset_insert(set, &value))) {
 
         return 1;
     }
-    if (test_status_ok(hashset_insert(set, &same_value))) {
+    if (k4c_test_status_ok(k4c_hashset_insert(set, &same_value))) {
         return 1;
     }
-    if (test_equal(hashset_contains(set, &same_value), true) != 0) {
+    if (k4c_test_equal(k4c_hashset_contains(set, &same_value), true) != 0) {
         return 1;
     }
-    if (hashset_size(set) != 1) {
+    if (k4c_hashset_size(set) != 1) {
         return 1;
     }
 
-    hashset_destroy(set);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_hashset_destroy(set);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(custom_equality) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
+K4C_TEST(custom_equality) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
     uint64_t value = 42;
     uint64_t same_value = 42;
 
     custom_eq_calls = 0;
-    hashset *set = NULL;
-    if (test_equal(hashset_create(sizeof(uint64_t), custom_u64_eq, allocator, &set), STATUS_OK)) {
+    k4c_hashset *set = NULL;
+    if (k4c_test_equal(
+            k4c_hashset_create(sizeof(uint64_t), custom_u64_eq, k4c_allocator, &set),
+            K4C_STATUS_OK
+        )) {
         return 1;
     }
 
-    if (test_status_ok(hashset_insert(set, &value))) {
+    if (k4c_test_status_ok(k4c_hashset_insert(set, &value))) {
 
         return 1;
     }
-    if (test_status_ok(hashset_insert(set, &same_value))) {
+    if (k4c_test_status_ok(k4c_hashset_insert(set, &same_value))) {
         return 1;
     }
-    if (test_equal(hashset_contains(set, &same_value), true) != 0) {
+    if (k4c_test_equal(k4c_hashset_contains(set, &same_value), true) != 0) {
         return 1;
     }
-    if (hashset_size(set) != 1) {
+    if (k4c_hashset_size(set) != 1) {
         return 1;
     }
-    if (test_equal(custom_eq_calls > 0, true) != 0) {
+    if (k4c_test_equal(custom_eq_calls > 0, true) != 0) {
         return 1;
     }
 
-    hashset_destroy(set);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_hashset_destroy(set);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(insert) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    hashset *set = NULL;
-    if (test_equal(hashset_create(sizeof(uint64_t), NULL, allocator, &set), STATUS_OK)) {
+K4C_TEST(insert) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_hashset *set = NULL;
+    if (k4c_test_equal(
+            k4c_hashset_create(sizeof(uint64_t), NULL, k4c_allocator, &set),
+            K4C_STATUS_OK
+        )) {
         return 1;
     }
 
     uint64_t first = 42;
-    if (test_status_ok(hashset_insert(set, &first))) {
+    if (k4c_test_status_ok(k4c_hashset_insert(set, &first))) {
         return 1;
     }
-    if (test_status_ok(hashset_insert(set, &first))) {
+    if (k4c_test_status_ok(k4c_hashset_insert(set, &first))) {
         return 1;
     }
-    if (hashset_size(set) != 1) {
+    if (k4c_hashset_size(set) != 1) {
         return 1;
     }
 
     for (uint64_t i = 0; i < 256; i++) {
-        if (test_status_ok(hashset_insert(set, &i))) {
+        if (k4c_test_status_ok(k4c_hashset_insert(set, &i))) {
             return 1;
         }
     }
 
-    if (hashset_size(set) != 256) {
+    if (k4c_hashset_size(set) != 256) {
         return 1;
     }
 
-    hashset_destroy(set);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_hashset_destroy(set);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(reserve) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    hashset *set = NULL;
-    if (test_equal(hashset_create(sizeof(uint64_t), NULL, allocator, &set), STATUS_OK)) {
+K4C_TEST(reserve) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_hashset *set = NULL;
+    if (k4c_test_equal(
+            k4c_hashset_create(sizeof(uint64_t), NULL, k4c_allocator, &set),
+            K4C_STATUS_OK
+        )) {
         return 1;
     }
-    if (test_status_ok(hashset_reserve(set, 512))) {
+    if (k4c_test_status_ok(k4c_hashset_reserve(set, 512))) {
         return 1;
     }
 
     for (uint64_t i = 0; i < 512; i++) {
-        if (test_status_ok(hashset_insert(set, &i))) {
+        if (k4c_test_status_ok(k4c_hashset_insert(set, &i))) {
             return 1;
         }
     }
 
     for (uint64_t i = 0; i < 512; i++) {
-        if (test_equal(hashset_contains(set, &i), true) != 0) {
+        if (k4c_test_equal(k4c_hashset_contains(set, &i), true) != 0) {
             return 1;
         }
     }
 
-    hashset_destroy(set);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_hashset_destroy(set);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(remove) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    hashset *set = NULL;
-    if (test_equal(hashset_create(sizeof(uint64_t), NULL, allocator, &set), STATUS_OK)) {
+K4C_TEST(remove) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_hashset *set = NULL;
+    if (k4c_test_equal(
+            k4c_hashset_create(sizeof(uint64_t), NULL, k4c_allocator, &set),
+            K4C_STATUS_OK
+        )) {
         return 1;
     }
 
     for (uint64_t i = 0; i < 256; i++) {
-        if (test_status_ok(hashset_insert(set, &i))) {
+        if (k4c_test_status_ok(k4c_hashset_insert(set, &i))) {
             return 1;
         }
     }
 
     uint64_t removed = 42;
-    hashset_remove(set, &removed);
-    if (test_equal(!hashset_contains(set, &removed), true) != 0) {
+    k4c_hashset_remove(set, &removed);
+    if (k4c_test_equal(!k4c_hashset_contains(set, &removed), true) != 0) {
         return 1;
     }
-    if (hashset_size(set) != 255) {
+    if (k4c_hashset_size(set) != 255) {
         return 1;
     }
 
-    hashset_remove(set, &removed);
-    if (hashset_size(set) != 255) {
+    k4c_hashset_remove(set, &removed);
+    if (k4c_hashset_size(set) != 255) {
         return 1;
     }
 
     uint64_t first = 0;
     uint64_t last = 255;
-    hashset_remove(set, &first);
-    hashset_remove(set, &last);
-    if (test_equal(!hashset_contains(set, &first), true) != 0) {
+    k4c_hashset_remove(set, &first);
+    k4c_hashset_remove(set, &last);
+    if (k4c_test_equal(!k4c_hashset_contains(set, &first), true) != 0) {
         return 1;
     }
-    if (test_equal(!hashset_contains(set, &last), true) != 0) {
+    if (k4c_test_equal(!k4c_hashset_contains(set, &last), true) != 0) {
         return 1;
     }
-    if (hashset_size(set) != 253) {
+    if (k4c_hashset_size(set) != 253) {
         return 1;
     }
 
-    hashset_destroy(set);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_hashset_destroy(set);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(foreach_macro_walks_elements) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    hashset *set = NULL;
-    if (test_equal(hashset_create(sizeof(uint64_t), NULL, allocator, &set), STATUS_OK)) {
+K4C_TEST(foreach_macro_walks_elements) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_hashset *set = NULL;
+    if (k4c_test_equal(
+            k4c_hashset_create(sizeof(uint64_t), NULL, k4c_allocator, &set),
+            K4C_STATUS_OK
+        )) {
         return 1;
     }
     const uint64_t *elem;
@@ -367,12 +397,12 @@ TEST(foreach_macro_walks_elements) {
     size_t count = 0;
 
     for (uint64_t i = 1; i <= 4; i++) {
-        if (test_status_ok(hashset_insert(set, &i))) {
+        if (k4c_test_status_ok(k4c_hashset_insert(set, &i))) {
             return 1;
         }
     }
 
-    hashset_for_each(uint64_t, elem, set) {
+    k4c_hashset_for_each(uint64_t, elem, set) {
         sum += *elem;
         count += 1;
     }
@@ -384,18 +414,21 @@ TEST(foreach_macro_walks_elements) {
         return 1;
     }
 
-    hashset_destroy(set);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_hashset_destroy(set);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(iterator_walks_elements) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    hashset *set = NULL;
-    if (test_equal(hashset_create(sizeof(uint64_t), NULL, allocator, &set), STATUS_OK)) {
+K4C_TEST(iterator_walks_elements) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_hashset *set = NULL;
+    if (k4c_test_equal(
+            k4c_hashset_create(sizeof(uint64_t), NULL, k4c_allocator, &set),
+            K4C_STATUS_OK
+        )) {
         return 1;
     }
     const uint64_t *elem;
@@ -403,13 +436,13 @@ TEST(iterator_walks_elements) {
     size_t count = 0;
 
     for (uint64_t i = 1; i <= 4; i++) {
-        if (test_status_ok(hashset_insert(set, &i))) {
+        if (k4c_test_status_ok(k4c_hashset_insert(set, &i))) {
             return 1;
         }
     }
 
-    iterator iter = hashset_get_iterator(set);
-    while ((elem = (const uint64_t *)iterator_next(&iter)) != NULL) {
+    k4c_iterator iter = k4c_hashset_get_iterator(set);
+    while ((elem = (const uint64_t *)k4c_iterator_next(&iter)) != NULL) {
         sum += *elem;
         count += 1;
     }
@@ -420,23 +453,23 @@ TEST(iterator_walks_elements) {
         return 1;
     }
 
-    hashset_destroy(set);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_hashset_destroy(set);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST_MAIN(
-    TEST_CASE(allocator),
-    TEST_CASE(contains),
-    TEST_CASE(get),
-    TEST_CASE(init),
-    TEST_CASE(default_byte_equality),
-    TEST_CASE(custom_equality),
-    TEST_CASE(insert),
-    TEST_CASE(reserve),
-    TEST_CASE(remove),
-    TEST_CASE(foreach_macro_walks_elements),
-    TEST_CASE(iterator_walks_elements)
+K4C_TEST_MAIN(
+    K4C_TEST_CASE(k4c_allocator),
+    K4C_TEST_CASE(contains),
+    K4C_TEST_CASE(get),
+    K4C_TEST_CASE(init),
+    K4C_TEST_CASE(default_byte_equality),
+    K4C_TEST_CASE(custom_equality),
+    K4C_TEST_CASE(insert),
+    K4C_TEST_CASE(reserve),
+    K4C_TEST_CASE(remove),
+    K4C_TEST_CASE(foreach_macro_walks_elements),
+    K4C_TEST_CASE(iterator_walks_elements)
 )

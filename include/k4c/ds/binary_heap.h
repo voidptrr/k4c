@@ -22,23 +22,24 @@
  * SOFTWARE.
  */
 
-#ifndef BINARY_HEAP_H
-#define BINARY_HEAP_H
+#ifndef K4C_BINARY_HEAP_H
+#define K4C_BINARY_HEAP_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "vstd/ds/iterator.h"
-#include "vstd/error.h"
-#include "vstd/memory/allocator.h"
+#include "k4c/ds/iterator.h"
+#include "k4c/error.h"
+#include "k4c/memory/allocator.h"
 
-#define binary_heap_for_each(type, item, heap) \
-    for (iterator item##_iter__ = binary_heap_get_iterator((heap)); item##_iter__.next != NULL; \
+#define k4c_binary_heap_for_each(type, item, k4c_heap) \
+    for (k4c_iterator item##_iter__ = k4c_binary_heap_get_iterator((k4c_heap)); \
+         item##_iter__.next != NULL; \
          item##_iter__.next = NULL) \
-    iterator_for_each(type, item, &item##_iter__)
+    k4c_iterator_for_each(type, item, &item##_iter__)
 
 /*
- * Opaque binary heap.
+ * Opaque binary k4c_heap.
  *
  * Logical tree view:
  *
@@ -51,7 +52,7 @@
  *             /   \   /   \
  *           [3]  [4] [5]  [6]
  *
- * Backing storage is vector-like:
+ * Backing storage is k4c_vector-like:
  *
  *   +-----+-----+-----+-----+-----+-----+-----+
  *   | [0] | [1] | [2] | [3] | [4] | [5] | [6] |
@@ -61,34 +62,34 @@
  */
 
 /* Comparator callback: negative if a < b, zero if equal, positive if a > b. */
-typedef int (*binary_heap_cmp_fn)(const void *lhs, const void *rhs);
+typedef int (*k4c_binary_heap_cmp_fn)(const void *lhs, const void *rhs);
 
-typedef struct binary_heap binary_heap;
+typedef struct k4c_binary_heap k4c_binary_heap;
 
-/* Create a heap for elements of size elem_size. NULL cmp uses byte-wise ordering. */
-NODISCARD status binary_heap_create(
+/* Create a k4c_heap for elements of size elem_size. NULL cmp uses byte-wise ordering. */
+k4c_status k4c_binary_heap_create(
     size_t elem_size,
-    binary_heap_cmp_fn cmp,
-    allocator *allocator,
-    binary_heap **out
+    k4c_binary_heap_cmp_fn cmp,
+    k4c_allocator *k4c_allocator,
+    k4c_binary_heap **out
 );
 
 /* Insert one element by copying elem_size bytes from element. */
-NODISCARD status binary_heap_push(binary_heap *heap, const void *element);
+k4c_status k4c_binary_heap_push(k4c_binary_heap *k4c_heap, const void *element);
 
 /* Remove and return the top element pointer, or NULL when empty. */
-void *binary_heap_pop(binary_heap *heap);
+void *k4c_binary_heap_pop(k4c_binary_heap *k4c_heap);
 
 /* Return the top element pointer without removing it, or NULL when empty. */
-const void *binary_heap_peek(const binary_heap *heap);
+const void *k4c_binary_heap_peek(const k4c_binary_heap *k4c_heap);
 
 /* Return the number of stored elements. */
-size_t binary_heap_size(const binary_heap *heap);
+size_t k4c_binary_heap_size(const k4c_binary_heap *k4c_heap);
 
-/* Return an iterator over heap backing storage order. */
-iterator binary_heap_get_iterator(const binary_heap *heap);
+/* Return an k4c_iterator over k4c_heap backing storage order. */
+k4c_iterator k4c_binary_heap_get_iterator(const k4c_binary_heap *k4c_heap);
 
 /* Destroy and release owned storage. */
-void binary_heap_destroy(binary_heap *heap);
+void k4c_binary_heap_destroy(k4c_binary_heap *k4c_heap);
 
 #endif

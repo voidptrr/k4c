@@ -22,16 +22,16 @@
  * SOFTWARE.
  */
 
-#ifndef GENERAL_HEAP_H
-#define GENERAL_HEAP_H
+#ifndef K4C_GENERAL_HEAP_H
+#define K4C_GENERAL_HEAP_H
 
 #include <stddef.h>
 
-#include "vstd/error.h"
-#include "vstd/memory/allocator.h"
+#include "k4c/error.h"
+#include "k4c/memory/allocator.h"
 
 /*
- * Free-list heap memory model:
+ * Free-list k4c_heap memory model:
  *
  * +----------------------+----------------------+----------------------+----------------------+
  * | block header (A)     | payload (A)          | block header (B)     | payload (B)          |
@@ -49,46 +49,46 @@
  * Allocation strategy:
  * - first-fit scan from head
  * - split large free blocks
- * - coalesce neighboring free blocks on dealloc
+ * - coalesce neighboring free blocks on k4c_dealloc
  */
-typedef struct heap heap;
+typedef struct k4c_heap k4c_heap;
 
 /*
- * Create a heap with `capacity` bytes of internal storage.
+ * Create a k4c_heap with `capacity` bytes of internal storage.
  */
-NODISCARD status heap_create(size_t capacity, heap **out);
+k4c_status k4c_heap_create(size_t capacity, k4c_heap **out);
 
 /*
- * Return the generic allocator view owned by this heap.
+ * Return the generic k4c_allocator view owned by this k4c_heap.
  */
-allocator *heap_allocator(heap *heap);
+k4c_allocator *k4c_heap_allocator(k4c_heap *k4c_heap);
 
 /*
- * Allocate `size` bytes from heap.
+ * Allocate `size` bytes from k4c_heap.
  * Returns NULL when no suitable free block exists.
  */
-void *heap_alloc(heap *heap, size_t size);
+void *k4c_heap_alloc(k4c_heap *k4c_heap, size_t size);
 
 /*
- * Free a pointer previously returned by heap_alloc/heap_realloc.
+ * Free a pointer previously returned by k4c_heap_alloc/k4c_heap_realloc.
  */
-void heap_dealloc(heap *heap, void *ptr);
+void k4c_heap_dealloc(k4c_heap *k4c_heap, void *ptr);
 
 /*
- * Resize an existing heap allocation.
+ * Resize an existing k4c_heap allocation.
  * Behaves like realloc: NULL ptr allocates, size 0 frees and returns NULL.
  */
-void *heap_realloc(heap *heap, void *ptr, size_t size);
+void *k4c_heap_realloc(k4c_heap *k4c_heap, void *ptr, size_t size);
 
 /* Total managed bytes (including internal metadata overhead). */
-size_t heap_capacity(const heap *heap);
+size_t k4c_heap_capacity(const k4c_heap *k4c_heap);
 
 /* Sum of currently free payload bytes. */
-size_t heap_available(const heap *heap);
+size_t k4c_heap_available(const k4c_heap *k4c_heap);
 
 /*
- * Destroy and release heap resources.
+ * Destroy and release k4c_heap resources.
  */
-void heap_destroy(heap *heap);
+void k4c_heap_destroy(k4c_heap *k4c_heap);
 
 #endif

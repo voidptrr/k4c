@@ -25,71 +25,71 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "vstd/assert.h"
-#include "vstd/error.h"
-#include "vstd/memory/allocator.h"
-#include "vstd/memory/arena.h"
-#include "vstd/memory/utils.h"
+#include "k4c/assert.h"
+#include "k4c/error.h"
+#include "k4c/memory/allocator.h"
+#include "k4c/memory/arena.h"
+#include "k4c/memory/utils.h"
 
-typedef struct arena_alloc_header {
+typedef struct k4c_arena_alloc_header {
     size_t size;
-} arena_alloc_header;
+} k4c_arena_alloc_header;
 
-struct arena {
-    allocator allocator;
+struct k4c_arena {
+    k4c_allocator k4c_allocator;
     void *buffer;
     size_t capacity;
     size_t offset;
 };
 
-void *arena_alloc(arena *arena, size_t size) {
-    ASSERT(arena != NULL, "fatal: arena_alloc invalid arguments");
-    ASSERT(arena->buffer != NULL, "fatal: arena_alloc invalid arena");
-    ASSERT(size > 0, "fatal: arena_alloc invalid arguments");
+void *k4c_arena_alloc(k4c_arena *k4c_arena, size_t size) {
+    K4C_ASSERT(k4c_arena != NULL, "fatal: k4c_arena_alloc invalid arguments");
+    K4C_ASSERT(k4c_arena->buffer != NULL, "fatal: k4c_arena_alloc invalid k4c_arena");
+    K4C_ASSERT(size > 0, "fatal: k4c_arena_alloc invalid arguments");
 
-    if (align_up_overflow(size, MEMORY_ALIGN, &size)) {
+    if (k4c_align_up_overflow(size, K4C_MEMORY_ALIGN, &size)) {
         return NULL;
     }
 
-    size_t header_size = align_up(sizeof(arena_alloc_header), MEMORY_ALIGN);
-    if (size > arena->capacity || header_size > arena->capacity - size
-        || arena->offset > arena->capacity - header_size - size) {
+    size_t header_size = k4c_align_up(sizeof(k4c_arena_alloc_header), K4C_MEMORY_ALIGN);
+    if (size > k4c_arena->capacity || header_size > k4c_arena->capacity - size
+        || k4c_arena->offset > k4c_arena->capacity - header_size - size) {
         return NULL;
     }
 
-    uint8_t *ptr = (uint8_t *)arena->buffer + arena->offset;
-    arena_alloc_header *header = (arena_alloc_header *)ptr;
+    uint8_t *ptr = (uint8_t *)k4c_arena->buffer + k4c_arena->offset;
+    k4c_arena_alloc_header *header = (k4c_arena_alloc_header *)ptr;
     header->size = size;
 
-    arena->offset += header_size + size;
+    k4c_arena->offset += header_size + size;
     return ptr + header_size;
 }
 
-void *arena_realloc(arena *arena, void *ptr, size_t size) {
-    ASSERT(arena != NULL, "fatal: arena_realloc invalid arguments");
-    ASSERT(arena->buffer != NULL, "fatal: arena_realloc invalid arena");
+void *k4c_arena_realloc(k4c_arena *k4c_arena, void *ptr, size_t size) {
+    K4C_ASSERT(k4c_arena != NULL, "fatal: k4c_arena_realloc invalid arguments");
+    K4C_ASSERT(k4c_arena->buffer != NULL, "fatal: k4c_arena_realloc invalid k4c_arena");
 
     if (ptr == NULL) {
-        return arena_alloc(arena, size);
+        return k4c_arena_alloc(k4c_arena, size);
     }
 
     if (size == 0) {
         return NULL;
     }
 
-    size_t header_size = align_up(sizeof(arena_alloc_header), MEMORY_ALIGN);
-    arena_alloc_header *header = (arena_alloc_header *)((uint8_t *)ptr - header_size);
-    if (align_up_overflow(size, MEMORY_ALIGN, &size)) {
+    size_t header_size = k4c_align_up(sizeof(k4c_arena_alloc_header), K4C_MEMORY_ALIGN);
+    k4c_arena_alloc_header *header = (k4c_arena_alloc_header *)((uint8_t *)ptr - header_size);
+    if (k4c_align_up_overflow(size, K4C_MEMORY_ALIGN, &size)) {
         return NULL;
     }
 
-    ASSERT(size >= header->size, "fatal: arena_realloc cannot shrink allocation");
+    K4C_ASSERT(size >= header->size, "fatal: k4c_arena_realloc cannot shrink allocation");
 
     if (size == header->size) {
         return ptr;
     }
 
-    void *new_ptr = arena_alloc(arena, size);
+    void *new_ptr = k4c_arena_alloc(k4c_arena, size);
     if (new_ptr == NULL) {
         return NULL;
     }
@@ -98,88 +98,88 @@ void *arena_realloc(arena *arena, void *ptr, size_t size) {
     return new_ptr;
 }
 
-static void *arena_alloc_callback(void *ctx, size_t size) {
-    return arena_alloc(ctx, size);
+static void *k4c_arena_alloc_callback(void *ctx, size_t size) {
+    return k4c_arena_alloc(ctx, size);
 }
 
-static void *arena_realloc_callback(void *ctx, void *ptr, size_t size) {
-    return arena_realloc(ctx, ptr, size);
+static void *k4c_arena_realloc_callback(void *ctx, void *ptr, size_t size) {
+    return k4c_arena_realloc(ctx, ptr, size);
 }
 
-status arena_create(size_t capacity, arena **out) {
-    if (align_up_overflow(capacity, MEMORY_ALIGN, &capacity)) {
-        return STATUS_OVERFLOW;
+k4c_status k4c_arena_create(size_t capacity, k4c_arena **out) {
+    if (k4c_align_up_overflow(capacity, K4C_MEMORY_ALIGN, &capacity)) {
+        return K4C_STATUS_OVERFLOW;
     }
 
-    ASSERT(capacity > 0, "fatal: arena_create invalid capacity");
-    ASSERT(out != NULL, "fatal: arena_create invalid arguments");
+    K4C_ASSERT(capacity > 0, "fatal: k4c_arena_create invalid capacity");
+    K4C_ASSERT(out != NULL, "fatal: k4c_arena_create invalid arguments");
 
     *out = NULL;
 
-    arena *arena = NULL;
-    status st = alloc(NULL, sizeof(*arena), (void **)&arena);
-    if (st != STATUS_OK) {
+    k4c_arena *k4c_arena = NULL;
+    k4c_status st = k4c_alloc(NULL, sizeof(*k4c_arena), (void **)&k4c_arena);
+    if (st != K4C_STATUS_OK) {
         return st;
     }
 
-    st = alloc(NULL, capacity, &arena->buffer);
-    if (st != STATUS_OK) {
-        dealloc(NULL, arena);
+    st = k4c_alloc(NULL, capacity, &k4c_arena->buffer);
+    if (st != K4C_STATUS_OK) {
+        k4c_dealloc(NULL, k4c_arena);
         return st;
     }
 
-    arena->capacity = capacity;
-    arena->offset = 0;
-    arena->allocator = (allocator){
-        .ctx = arena,
-        .features = ALLOCATOR_FEATURE_REALLOC | ALLOCATOR_FEATURE_RESET,
-        .alloc = arena_alloc_callback,
-        .realloc = arena_realloc_callback,
-        .dealloc = NULL,
+    k4c_arena->capacity = capacity;
+    k4c_arena->offset = 0;
+    k4c_arena->k4c_allocator = (k4c_allocator){
+        .ctx = k4c_arena,
+        .features = K4C_ALLOCATOR_FEATURE_REALLOC | K4C_ALLOCATOR_FEATURE_RESET,
+        .k4c_alloc = k4c_arena_alloc_callback,
+        .realloc = k4c_arena_realloc_callback,
+        .k4c_dealloc = NULL,
     };
 
-    *out = arena;
-    return STATUS_OK;
+    *out = k4c_arena;
+    return K4C_STATUS_OK;
 }
 
-allocator *arena_allocator(arena *arena) {
-    ASSERT(arena != NULL, "fatal: arena_allocator invalid arguments");
-    ASSERT(arena->buffer != NULL, "fatal: arena_allocator invalid arena");
+k4c_allocator *k4c_arena_allocator(k4c_arena *k4c_arena) {
+    K4C_ASSERT(k4c_arena != NULL, "fatal: k4c_arena_allocator invalid arguments");
+    K4C_ASSERT(k4c_arena->buffer != NULL, "fatal: k4c_arena_allocator invalid k4c_arena");
 
-    return &arena->allocator;
+    return &k4c_arena->k4c_allocator;
 }
 
-void arena_reset(arena *arena) {
-    ASSERT(arena != NULL, "fatal: arena_reset invalid arguments");
-    ASSERT(arena->buffer != NULL, "fatal: arena_reset invalid arena");
+void k4c_arena_reset(k4c_arena *k4c_arena) {
+    K4C_ASSERT(k4c_arena != NULL, "fatal: k4c_arena_reset invalid arguments");
+    K4C_ASSERT(k4c_arena->buffer != NULL, "fatal: k4c_arena_reset invalid k4c_arena");
 
-    arena->offset = 0;
+    k4c_arena->offset = 0;
 }
 
-size_t arena_capacity(const arena *arena) {
-    ASSERT(arena != NULL, "fatal: arena_capacity invalid arguments");
-    ASSERT(arena->buffer != NULL, "fatal: arena_capacity invalid arena");
+size_t k4c_arena_capacity(const k4c_arena *k4c_arena) {
+    K4C_ASSERT(k4c_arena != NULL, "fatal: k4c_arena_capacity invalid arguments");
+    K4C_ASSERT(k4c_arena->buffer != NULL, "fatal: k4c_arena_capacity invalid k4c_arena");
 
-    return arena->capacity;
+    return k4c_arena->capacity;
 }
 
-size_t arena_used(const arena *arena) {
-    ASSERT(arena != NULL, "fatal: arena_used invalid arguments");
-    ASSERT(arena->buffer != NULL, "fatal: arena_used invalid arena");
+size_t k4c_arena_used(const k4c_arena *k4c_arena) {
+    K4C_ASSERT(k4c_arena != NULL, "fatal: k4c_arena_used invalid arguments");
+    K4C_ASSERT(k4c_arena->buffer != NULL, "fatal: k4c_arena_used invalid k4c_arena");
 
-    return arena->offset;
+    return k4c_arena->offset;
 }
 
-size_t arena_available(const arena *arena) {
-    ASSERT(arena != NULL, "fatal: arena_available invalid arguments");
-    ASSERT(arena->buffer != NULL, "fatal: arena_available invalid arena");
+size_t k4c_arena_available(const k4c_arena *k4c_arena) {
+    K4C_ASSERT(k4c_arena != NULL, "fatal: k4c_arena_available invalid arguments");
+    K4C_ASSERT(k4c_arena->buffer != NULL, "fatal: k4c_arena_available invalid k4c_arena");
 
-    return arena->capacity - arena->offset;
+    return k4c_arena->capacity - k4c_arena->offset;
 }
 
-void arena_destroy(arena *arena) {
-    ASSERT(arena != NULL, "fatal: arena_destroy invalid arguments");
+void k4c_arena_destroy(k4c_arena *k4c_arena) {
+    K4C_ASSERT(k4c_arena != NULL, "fatal: k4c_arena_destroy invalid arguments");
 
-    dealloc(NULL, arena->buffer);
-    dealloc(NULL, arena);
+    k4c_dealloc(NULL, k4c_arena->buffer);
+    k4c_dealloc(NULL, k4c_arena);
 }

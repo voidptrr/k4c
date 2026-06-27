@@ -24,45 +24,46 @@
 
 #include <stdint.h>
 
-#include "vstd/error.h"
-#include "vstd/memory/allocator.h"
-#include "vstd/memory/arena.h"
-#include "vstd/testing.h"
+#include "k4c/error.h"
+#include "k4c/memory/allocator.h"
+#include "k4c/memory/arena.h"
+#include "k4c/testing.h"
 
 int main(void) {
-    arena *arena = NULL;
-    if (test_equal(arena_create(128, &arena), STATUS_OK)) {
+    k4c_arena *k4c_arena = NULL;
+    if (k4c_test_equal(k4c_arena_create(128, &k4c_arena), K4C_STATUS_OK)) {
         return 1;
     }
-    allocator *allocator = arena_allocator(arena);
+    k4c_allocator *k4c_allocator = k4c_arena_allocator(k4c_arena);
 
-    if (test_equal_ptr(allocator->ctx, arena) != 0) {
+    if (k4c_test_equal_ptr(k4c_allocator->ctx, k4c_arena) != 0) {
         return 1;
     }
-    if (test_equal(allocator->alloc != NULL, true) != 0) {
+    if (k4c_test_equal(k4c_allocator->k4c_alloc != NULL, true) != 0) {
         return 1;
     }
-    if (test_equal(allocator->realloc != NULL, true) != 0) {
+    if (k4c_test_equal(k4c_allocator->realloc != NULL, true) != 0) {
         return 1;
     }
-    if (test_equal(allocator->dealloc == NULL, true) != 0) {
+    if (k4c_test_equal(k4c_allocator->k4c_dealloc == NULL, true) != 0) {
         return 1;
     }
-    if (test_equal(
-            allocator->features == (ALLOCATOR_FEATURE_REALLOC | ALLOCATOR_FEATURE_RESET),
+    if (k4c_test_equal(
+            k4c_allocator->features
+                == (K4C_ALLOCATOR_FEATURE_REALLOC | K4C_ALLOCATOR_FEATURE_RESET),
             true
         )
         != 0) {
         return 1;
     }
 
-    if (test_equal(arena_capacity(arena) >= 128, true) != 0) {
+    if (k4c_test_equal(k4c_arena_capacity(k4c_arena) >= 128, true) != 0) {
         return 1;
     }
-    if (test_equal((intmax_t)arena_used(arena), 0) != 0) {
+    if (k4c_test_equal((intmax_t)k4c_arena_used(k4c_arena), 0) != 0) {
         return 1;
     }
 
-    arena_destroy(arena);
+    k4c_arena_destroy(k4c_arena);
     return 0;
 }

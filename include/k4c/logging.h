@@ -22,36 +22,43 @@
  * SOFTWARE.
  */
 
-#ifndef ERROR_H
-#define ERROR_H
+#ifndef K4C_LOGGING_H
+#define K4C_LOGGING_H
 
-#if defined(__GNUC__) || defined(__clang__)
-#define NODISCARD __attribute__((warn_unused_result))
-#else
-#define NODISCARD
-#endif
+#include <stdbool.h>
 
-#define RETURN_IF_ERROR(expr) \
-    do { \
-        status status__ = (expr); \
-        if (status__ != STATUS_OK) { \
-            return status__; \
-        } \
-    } while (0)
+/* Severity levels used by the global logger. */
+typedef enum k4c_log_level {
+    K4C_LOG_LEVEL_DEBUG = 0,
+    K4C_LOG_LEVEL_INFO = 1,
+    K4C_LOG_LEVEL_WARN = 2,
+    K4C_LOG_LEVEL_ERROR = 3,
+} k4c_log_level;
 
-typedef enum status {
-    STATUS_OK = 0,
-    STATUS_INVALID_ARGUMENT,
-    STATUS_NO_MEMORY,
-    STATUS_OVERFLOW,
-    STATUS_OUT_OF_RANGE,
-    STATUS_NOT_FOUND,
-    STATUS_EOF,
-    STATUS_IO,
-    STATUS_INVALID_DATA,
-    STATUS_UNSUPPORTED,
-} status;
+/* Timestamp formats available for log messages. */
+typedef enum k4c_log_timestamp {
+    K4C_LOG_TIMESTAMP_NONE = 0,
+    LOG_TIMESTAMP_TIME = 1,
+    LOG_TIMESTAMP_DATETIME = 2,
+    LOG_TIMESTAMP_UNIX = 3,
+} k4c_log_timestamp;
 
-const char *status_message(status status);
+/* Setter functions for the global logger configuration. */
+void k4c_log_set_level(k4c_log_level level);
+void k4c_log_set_timestamp(k4c_log_timestamp timestamp);
+void k4c_log_set_prefixes(const char *message_prefix, const char *error_prefix);
+void k4c_log_set_color(bool enabled);
+
+/* Log a DEBUG-level formatted message. */
+void k4c_log_debug(const char *fmt, ...);
+
+/* Log an INFO-level formatted message. */
+void k4c_log_info(const char *fmt, ...);
+
+/* Log a WARN-level formatted message. */
+void k4c_log_warn(const char *fmt, ...);
+
+/* Log an ERROR-level formatted message. */
+void k4c_log_error(const char *fmt, ...);
 
 #endif

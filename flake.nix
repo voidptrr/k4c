@@ -21,7 +21,7 @@
 # SOFTWARE.
 #
 {
-  description = "vstd";
+  description = "k4c";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -47,7 +47,7 @@
 
     packages = forEachSystem ({pkgs}: {
       default = pkgs.callPackage ./nix/package.nix {};
-      vstd = pkgs.callPackage ./nix/package.nix {};
+      k4c = pkgs.callPackage ./nix/package.nix {};
     });
 
     devShells = forEachSystem ({pkgs}: {

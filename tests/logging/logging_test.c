@@ -22,25 +22,25 @@
  * SOFTWARE.
  */
 
-#include "vstd/logging.h"
+#include "k4c/logging.h"
 
 int main(void) {
-    log_set_timestamp(LOG_TIMESTAMP_TIME);
-    log_set_prefixes("test", "test-error");
-    log_set_color(false);
+    k4c_log_set_timestamp(LOG_TIMESTAMP_TIME);
+    k4c_log_set_prefixes("test", "test-error");
+    k4c_log_set_color(false);
 
-    log_debug("debug %d", 1);
-    log_info("info %d", 2);
-    log_warn("warn %d", 3);
-    log_error("error %d", 4);
+    k4c_log_debug("debug %d", 1);
+    k4c_log_info("info %d", 2);
+    k4c_log_warn("warn %d", 3);
+    k4c_log_error("error %d", 4);
 
-    log_set_level(LOG_LEVEL_ERROR);
-    log_set_timestamp(LOG_TIMESTAMP_UNIX);
-    log_info("filtered");
-    log_error("visible");
+    k4c_log_set_level(K4C_LOG_LEVEL_ERROR);
+    k4c_log_set_timestamp(LOG_TIMESTAMP_UNIX);
+    k4c_log_info("filtered");
+    k4c_log_error("visible");
 
-    log_set_timestamp(LOG_TIMESTAMP_DATETIME);
-    log_error("configured logger");
+    k4c_log_set_timestamp(LOG_TIMESTAMP_DATETIME);
+    k4c_log_error("configured logger");
 
     return 0;
 }

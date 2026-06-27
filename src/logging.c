@@ -26,66 +26,66 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "vstd/logging.h"
+#include "k4c/logging.h"
 
-#define LOG_COLOR_RESET "\033[0m"
-#define LOG_COLOR_DEBUG "\033[90m"
-#define LOG_COLOR_INFO "\033[32m"
-#define LOG_COLOR_WARN "\033[33m"
-#define LOG_COLOR_ERROR "\033[31m"
+#define K4C_LOG_COLOR_RESET "\033[0m"
+#define K4C_LOG_COLOR_DEBUG "\033[90m"
+#define K4C_LOG_COLOR_INFO "\033[32m"
+#define K4C_LOG_COLOR_WARN "\033[33m"
+#define K4C_LOG_COLOR_ERROR "\033[31m"
 
-#define LOG_TIMESTAMP_BUFFER_SIZE 32
+#define K4C_LOG_TIMESTAMP_BUFFER_SIZE 32
 
-typedef struct log_config {
-    log_level min_level;
-    log_timestamp timestamp;
+typedef struct k4c_log_config {
+    k4c_log_level min_level;
+    k4c_log_timestamp timestamp;
     const char *message_prefix;
     const char *error_prefix;
     bool use_color;
-} log_config;
+} k4c_log_config;
 
-static log_config config = {
-    .min_level = LOG_LEVEL_DEBUG,
-    .timestamp = LOG_TIMESTAMP_NONE,
-    .message_prefix = "vstd",
-    .error_prefix = "vstd",
+static k4c_log_config config = {
+    .min_level = K4C_LOG_LEVEL_DEBUG,
+    .timestamp = K4C_LOG_TIMESTAMP_NONE,
+    .message_prefix = "k4c",
+    .error_prefix = "k4c",
     .use_color = true,
 };
 
-static const char *log_level_name(log_level level) {
+static const char *log_level_name(k4c_log_level level) {
     switch (level) {
-        case LOG_LEVEL_DEBUG:
+        case K4C_LOG_LEVEL_DEBUG:
             return "DEBUG";
-        case LOG_LEVEL_INFO:
+        case K4C_LOG_LEVEL_INFO:
             return "INFO";
-        case LOG_LEVEL_WARN:
+        case K4C_LOG_LEVEL_WARN:
             return "WARN";
-        case LOG_LEVEL_ERROR:
+        case K4C_LOG_LEVEL_ERROR:
             return "ERROR";
     }
 
     return "UNKNOWN";
 }
 
-static const char *log_level_color(log_level level) {
+static const char *log_level_color(k4c_log_level level) {
     switch (level) {
-        case LOG_LEVEL_DEBUG:
-            return LOG_COLOR_DEBUG;
-        case LOG_LEVEL_INFO:
-            return LOG_COLOR_INFO;
-        case LOG_LEVEL_WARN:
-            return LOG_COLOR_WARN;
-        case LOG_LEVEL_ERROR:
-            return LOG_COLOR_ERROR;
+        case K4C_LOG_LEVEL_DEBUG:
+            return K4C_LOG_COLOR_DEBUG;
+        case K4C_LOG_LEVEL_INFO:
+            return K4C_LOG_COLOR_INFO;
+        case K4C_LOG_LEVEL_WARN:
+            return K4C_LOG_COLOR_WARN;
+        case K4C_LOG_LEVEL_ERROR:
+            return K4C_LOG_COLOR_ERROR;
     }
 
-    return LOG_COLOR_RESET;
+    return K4C_LOG_COLOR_RESET;
 }
 
-static void log_write_timestamp(log_timestamp timestamp) {
-    char buffer[LOG_TIMESTAMP_BUFFER_SIZE];
+static void k4c_log_write_timestamp(k4c_log_timestamp timestamp) {
+    char buffer[K4C_LOG_TIMESTAMP_BUFFER_SIZE];
 
-    if (timestamp == LOG_TIMESTAMP_NONE) {
+    if (timestamp == K4C_LOG_TIMESTAMP_NONE) {
         return;
     }
 
@@ -106,20 +106,20 @@ static void log_write_timestamp(log_timestamp timestamp) {
     }
 }
 
-static void internal_log(log_level level, const char *fmt, va_list args) {
+static void k4c_internal_log(k4c_log_level level, const char *fmt, va_list args) {
     if (level < config.min_level) {
         return;
     }
 
-    const char *prefix = level == LOG_LEVEL_ERROR ? config.error_prefix : config.message_prefix;
+    const char *prefix = level == K4C_LOG_LEVEL_ERROR ? config.error_prefix : config.message_prefix;
     const char *level_name = log_level_name(level);
 
-    log_write_timestamp(config.timestamp);
+    k4c_log_write_timestamp(config.timestamp);
     if (prefix != NULL && prefix[0] != '\0') {
         printf("%s ", prefix);
     }
     if (config.use_color) {
-        printf("%s[%s]%s ", log_level_color(level), level_name, LOG_COLOR_RESET);
+        printf("%s[%s]%s ", log_level_color(level), level_name, K4C_LOG_COLOR_RESET);
     } else {
         printf("[%s] ", level_name);
     }
@@ -128,51 +128,51 @@ static void internal_log(log_level level, const char *fmt, va_list args) {
     printf("\n");
 }
 
-void log_set_level(log_level level) {
+void k4c_log_set_level(k4c_log_level level) {
     config.min_level = level;
 }
 
-void log_set_timestamp(log_timestamp timestamp) {
+void k4c_log_set_timestamp(k4c_log_timestamp timestamp) {
     config.timestamp = timestamp;
 }
 
-void log_set_prefixes(const char *message_prefix, const char *error_prefix) {
+void k4c_log_set_prefixes(const char *message_prefix, const char *error_prefix) {
     config.message_prefix = message_prefix;
     config.error_prefix = error_prefix;
 }
 
-void log_set_color(bool enabled) {
+void k4c_log_set_color(bool enabled) {
     config.use_color = enabled;
 }
 
-void log_debug(const char *fmt, ...) {
+void k4c_log_debug(const char *fmt, ...) {
     va_list args;
 
     va_start(args, fmt);
-    internal_log(LOG_LEVEL_DEBUG, fmt, args);
+    k4c_internal_log(K4C_LOG_LEVEL_DEBUG, fmt, args);
     va_end(args);
 }
 
-void log_info(const char *fmt, ...) {
+void k4c_log_info(const char *fmt, ...) {
     va_list args;
 
     va_start(args, fmt);
-    internal_log(LOG_LEVEL_INFO, fmt, args);
+    k4c_internal_log(K4C_LOG_LEVEL_INFO, fmt, args);
     va_end(args);
 }
 
-void log_warn(const char *fmt, ...) {
+void k4c_log_warn(const char *fmt, ...) {
     va_list args;
 
     va_start(args, fmt);
-    internal_log(LOG_LEVEL_WARN, fmt, args);
+    k4c_internal_log(K4C_LOG_LEVEL_WARN, fmt, args);
     va_end(args);
 }
 
-void log_error(const char *fmt, ...) {
+void k4c_log_error(const char *fmt, ...) {
     va_list args;
 
     va_start(args, fmt);
-    internal_log(LOG_LEVEL_ERROR, fmt, args);
+    k4c_internal_log(K4C_LOG_LEVEL_ERROR, fmt, args);
     va_end(args);
 }

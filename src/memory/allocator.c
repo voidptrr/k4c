@@ -24,64 +24,64 @@
 
 #include <stdlib.h>
 
-#include "vstd/assert.h"
-#include "vstd/error.h"
-#include "vstd/memory/allocator.h"
+#include "k4c/assert.h"
+#include "k4c/error.h"
+#include "k4c/memory/allocator.h"
 
-status alloc(allocator *allocator, size_t size, void **out) {
-    ASSERT(out != NULL, "fatal: alloc invalid arguments");
+k4c_status k4c_alloc(k4c_allocator *k4c_allocator, size_t size, void **out) {
+    K4C_ASSERT(out != NULL, "fatal: k4c_alloc invalid arguments");
 
     void *ptr = NULL;
-    if (allocator == NULL || allocator->alloc == NULL) {
+    if (k4c_allocator == NULL || k4c_allocator->k4c_alloc == NULL) {
         ptr = malloc(size);
     } else {
-        ptr = allocator->alloc(allocator->ctx, size);
+        ptr = k4c_allocator->k4c_alloc(k4c_allocator->ctx, size);
     }
 
     if (ptr == NULL) {
         *out = NULL;
-        return STATUS_NO_MEMORY;
+        return K4C_STATUS_NO_MEMORY;
     }
 
     *out = ptr;
-    return STATUS_OK;
+    return K4C_STATUS_OK;
 }
 
-status resize(allocator *allocator, void *ptr, size_t size, void **out) {
-    ASSERT(out != NULL, "fatal: resize invalid arguments");
+k4c_status k4c_resize(k4c_allocator *k4c_allocator, void *ptr, size_t size, void **out) {
+    K4C_ASSERT(out != NULL, "fatal: k4c_resize invalid arguments");
 
     if (size == 0) {
-        dealloc(allocator, ptr);
+        k4c_dealloc(k4c_allocator, ptr);
         *out = NULL;
-        return STATUS_OK;
+        return K4C_STATUS_OK;
     }
 
     void *new_ptr = NULL;
-    if (allocator == NULL || allocator->realloc == NULL) {
+    if (k4c_allocator == NULL || k4c_allocator->realloc == NULL) {
         new_ptr = realloc(ptr, size);
     } else {
-        new_ptr = allocator->realloc(allocator->ctx, ptr, size);
+        new_ptr = k4c_allocator->realloc(k4c_allocator->ctx, ptr, size);
     }
 
     if (new_ptr == NULL) {
         *out = NULL;
-        return STATUS_NO_MEMORY;
+        return K4C_STATUS_NO_MEMORY;
     }
 
     *out = new_ptr;
-    return STATUS_OK;
+    return K4C_STATUS_OK;
 }
 
-void dealloc(allocator *allocator, void *ptr) {
-    if (allocator == NULL) {
+void k4c_dealloc(k4c_allocator *k4c_allocator, void *ptr) {
+    if (k4c_allocator == NULL) {
         free(ptr);
         return;
     }
 
-    if ((allocator->features & ALLOCATOR_FEATURE_DEALLOC) == 0) {
+    if ((k4c_allocator->features & K4C_ALLOCATOR_FEATURE_DEALLOC) == 0) {
         return;
     }
 
-    ASSERT(allocator->dealloc != NULL, "fatal: dealloc invalid arguments");
-    allocator->dealloc(allocator->ctx, ptr);
+    K4C_ASSERT(k4c_allocator->k4c_dealloc != NULL, "fatal: k4c_dealloc invalid arguments");
+    k4c_allocator->k4c_dealloc(k4c_allocator->ctx, ptr);
 }

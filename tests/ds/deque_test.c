@@ -24,236 +24,236 @@
 
 #include <stddef.h>
 
-#include "vstd/ds/deque.h"
-#include "vstd/ds/iterator.h"
-#include "vstd/ds/vector.h"
-#include "vstd/error.h"
-#include "vstd/memory/test_allocator.h"
-#include "vstd/testing.h"
+#include "k4c/ds/deque.h"
+#include "k4c/ds/iterator.h"
+#include "k4c/ds/vector.h"
+#include "k4c/error.h"
+#include "k4c/memory/test_allocator.h"
+#include "k4c/testing.h"
 
-TEST(init) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    deque *q = NULL;
-    if (test_equal(deque_create(sizeof(int), allocator, &q), STATUS_OK)) {
+K4C_TEST(init) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_deque *q = NULL;
+    if (k4c_test_equal(k4c_deque_create(sizeof(int), k4c_allocator, &q), K4C_STATUS_OK)) {
         return 1;
     }
 
-    if (deque_size(q) != 0) {
+    if (k4c_deque_size(q) != 0) {
         return 1;
     }
 
-    deque_destroy(q);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_deque_destroy(q);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(peekback) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    deque *q = NULL;
-    if (test_equal(deque_create(sizeof(int), allocator, &q), STATUS_OK)) {
+K4C_TEST(peekback) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_deque *q = NULL;
+    if (k4c_test_equal(k4c_deque_create(sizeof(int), k4c_allocator, &q), K4C_STATUS_OK)) {
         return 1;
     }
     int first = 1;
     int second = 2;
 
-    if (test_status_ok(deque_push(q, &first))) {
+    if (k4c_test_status_ok(k4c_deque_push(q, &first))) {
 
         return 1;
     }
-    if (test_status_ok(deque_push(q, &second))) {
+    if (k4c_test_status_ok(k4c_deque_push(q, &second))) {
         return 1;
     }
 
-    const int *out = (const int *)deque_peekback(q);
-    if (test_not_null(out) != 0) {
+    const int *out = (const int *)k4c_deque_peekback(q);
+    if (k4c_test_not_null(out) != 0) {
         return 1;
     }
-    if (test_equal(*out, second) != 0) {
+    if (k4c_test_equal(*out, second) != 0) {
         return 1;
     }
 
-    deque_destroy(q);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_deque_destroy(q);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(peekleft) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    deque *q = NULL;
-    if (test_equal(deque_create(sizeof(int), allocator, &q), STATUS_OK)) {
+K4C_TEST(peekleft) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_deque *q = NULL;
+    if (k4c_test_equal(k4c_deque_create(sizeof(int), k4c_allocator, &q), K4C_STATUS_OK)) {
         return 1;
     }
     int first = 1;
     int second = 2;
 
-    if (test_status_ok(deque_push(q, &first))) {
+    if (k4c_test_status_ok(k4c_deque_push(q, &first))) {
 
         return 1;
     }
-    if (test_status_ok(deque_push(q, &second))) {
+    if (k4c_test_status_ok(k4c_deque_push(q, &second))) {
         return 1;
     }
 
-    const int *out = (const int *)deque_peekleft(q);
-    if (test_not_null(out) != 0) {
+    const int *out = (const int *)k4c_deque_peekleft(q);
+    if (k4c_test_not_null(out) != 0) {
         return 1;
     }
-    if (test_equal(*out, first) != 0) {
+    if (k4c_test_equal(*out, first) != 0) {
         return 1;
     }
 
-    deque_destroy(q);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_deque_destroy(q);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(popback) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    deque *q = NULL;
-    if (test_equal(deque_create(sizeof(int), allocator, &q), STATUS_OK)) {
+K4C_TEST(popback) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_deque *q = NULL;
+    if (k4c_test_equal(k4c_deque_create(sizeof(int), k4c_allocator, &q), K4C_STATUS_OK)) {
         return 1;
     }
     int first = 1;
     int second = 2;
 
-    if (test_status_ok(deque_push(q, &first))) {
+    if (k4c_test_status_ok(k4c_deque_push(q, &first))) {
 
         return 1;
     }
-    if (test_status_ok(deque_push(q, &second))) {
+    if (k4c_test_status_ok(k4c_deque_push(q, &second))) {
         return 1;
     }
 
-    int *out = (int *)deque_popback(q);
-    if (test_not_null(out) != 0) {
+    int *out = (int *)k4c_deque_popback(q);
+    if (k4c_test_not_null(out) != 0) {
         return 1;
     }
-    if (test_equal(*out, second) != 0) {
+    if (k4c_test_equal(*out, second) != 0) {
         return 1;
     }
 
-    deque_destroy(q);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_deque_destroy(q);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(popleft) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    deque *q = NULL;
-    if (test_equal(deque_create(sizeof(int), allocator, &q), STATUS_OK)) {
+K4C_TEST(popleft) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_deque *q = NULL;
+    if (k4c_test_equal(k4c_deque_create(sizeof(int), k4c_allocator, &q), K4C_STATUS_OK)) {
         return 1;
     }
     int values[] = {10, 20};
 
-    if (test_null(deque_popleft(q)) != 0) {
+    if (k4c_test_null(k4c_deque_popleft(q)) != 0) {
         return 1;
     }
 
-    if (test_status_ok(deque_push(q, &values[0]))) {
+    if (k4c_test_status_ok(k4c_deque_push(q, &values[0]))) {
 
         return 1;
     }
-    if (test_status_ok(deque_push(q, &values[1]))) {
+    if (k4c_test_status_ok(k4c_deque_push(q, &values[1]))) {
         return 1;
     }
-    int *out = (int *)deque_popleft(q);
-    if (test_not_null(out) != 0) {
+    int *out = (int *)k4c_deque_popleft(q);
+    if (k4c_test_not_null(out) != 0) {
         return 1;
     }
-    if (test_equal(*out, values[0]) != 0) {
+    if (k4c_test_equal(*out, values[0]) != 0) {
         return 1;
     }
 
-    deque_destroy(q);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_deque_destroy(q);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(push) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    deque *q = NULL;
-    if (test_equal(deque_create(sizeof(int), allocator, &q), STATUS_OK)) {
+K4C_TEST(push) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_deque *q = NULL;
+    if (k4c_test_equal(k4c_deque_create(sizeof(int), k4c_allocator, &q), K4C_STATUS_OK)) {
         return 1;
     }
     int value = 42;
 
-    if (test_status_ok(deque_push(q, &value))) {
+    if (k4c_test_status_ok(k4c_deque_push(q, &value))) {
 
         return 1;
     }
 
-    const int *out = deque_peekback(q);
-    if (deque_size(q) != 1) {
+    const int *out = k4c_deque_peekback(q);
+    if (k4c_deque_size(q) != 1) {
         return 1;
     }
-    if (test_not_null(out) != 0) {
+    if (k4c_test_not_null(out) != 0) {
         return 1;
     }
-    if (test_equal(*out, value) != 0) {
+    if (k4c_test_equal(*out, value) != 0) {
         return 1;
     }
 
-    deque_destroy(q);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_deque_destroy(q);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(pushfront) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    deque *q = NULL;
-    if (test_equal(deque_create(sizeof(int), allocator, &q), STATUS_OK)) {
+K4C_TEST(pushfront) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_deque *q = NULL;
+    if (k4c_test_equal(k4c_deque_create(sizeof(int), k4c_allocator, &q), K4C_STATUS_OK)) {
         return 1;
     }
     int first = 1;
     int second = 2;
 
-    if (test_status_ok(deque_push(q, &first))) {
+    if (k4c_test_status_ok(k4c_deque_push(q, &first))) {
 
         return 1;
     }
-    if (test_status_ok(deque_pushfront(q, &second))) {
+    if (k4c_test_status_ok(k4c_deque_pushfront(q, &second))) {
         return 1;
     }
 
-    int *out = (int *)deque_popleft(q);
-    if (test_not_null(out) != 0) {
+    int *out = (int *)k4c_deque_popleft(q);
+    if (k4c_test_not_null(out) != 0) {
         return 1;
     }
-    if (test_equal(*out, second) != 0) {
+    if (k4c_test_equal(*out, second) != 0) {
         return 1;
     }
 
-    deque_destroy(q);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_deque_destroy(q);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(iterator_walks_front_to_back) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    deque *q = NULL;
-    if (test_equal(deque_create(sizeof(int), allocator, &q), STATUS_OK)) {
+K4C_TEST(iterator_walks_front_to_back) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_deque *q = NULL;
+    if (k4c_test_equal(k4c_deque_create(sizeof(int), k4c_allocator, &q), K4C_STATUS_OK)) {
         return 1;
     }
     const int *out;
@@ -261,17 +261,17 @@ TEST(iterator_walks_front_to_back) {
     size_t index = 0;
 
     for (size_t i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
-        if (test_status_ok(deque_push(q, &expected[i]))) {
+        if (k4c_test_status_ok(k4c_deque_push(q, &expected[i]))) {
             return 1;
         }
     }
 
-    iterator iter = deque_get_iterator(q);
-    while ((out = (const int *)iterator_next(&iter)) != NULL) {
+    k4c_iterator iter = k4c_deque_get_iterator(q);
+    while ((out = (const int *)k4c_iterator_next(&iter)) != NULL) {
         if (index >= sizeof(expected) / sizeof(expected[0])) {
             return 1;
         }
-        if (test_equal(*out, expected[index]) != 0) {
+        if (k4c_test_equal(*out, expected[index]) != 0) {
             return 1;
         }
         index += 1;
@@ -280,95 +280,98 @@ TEST(iterator_walks_front_to_back) {
         return 1;
     }
 
-    deque_destroy(q);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_deque_destroy(q);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(iterator_collect_copies_items) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    deque *q = NULL;
-    if (test_equal(deque_create(sizeof(int), allocator, &q), STATUS_OK)) {
+K4C_TEST(iterator_collect_copies_items) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_deque *q = NULL;
+    if (k4c_test_equal(k4c_deque_create(sizeof(int), k4c_allocator, &q), K4C_STATUS_OK)) {
         return 1;
     }
     int expected[] = {1, 2, 3, 4};
 
     for (size_t i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
-        if (test_status_ok(deque_push(q, &expected[i]))) {
+        if (k4c_test_status_ok(k4c_deque_push(q, &expected[i]))) {
             return 1;
         }
     }
 
-    iterator iter = deque_get_iterator(q);
-    vector *out = NULL;
-    if (test_equal(iterator_collect(&iter, sizeof(int), allocator, &out), STATUS_OK)) {
+    k4c_iterator iter = k4c_deque_get_iterator(q);
+    k4c_vector *out = NULL;
+    if (k4c_test_equal(
+            k4c_iterator_collect(&iter, sizeof(int), k4c_allocator, &out),
+            K4C_STATUS_OK
+        )) {
         return 1;
     }
-    deque_destroy(q);
+    k4c_deque_destroy(q);
 
-    if (vector_size(out) != sizeof(expected) / sizeof(expected[0])) {
+    if (k4c_vector_size(out) != sizeof(expected) / sizeof(expected[0])) {
         return 1;
     }
     for (size_t i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
-        if (test_equal(*(const int *)vector_get_const(out, i), expected[i]) != 0) {
+        if (k4c_test_equal(*(const int *)k4c_vector_get(out, i), expected[i]) != 0) {
             return 1;
         }
     }
 
-    vector_destroy(out);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_vector_destroy(out);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(iterator_walks_items_after_growth) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    deque *q = NULL;
-    if (test_equal(deque_create(sizeof(int), allocator, &q), STATUS_OK)) {
+K4C_TEST(iterator_walks_items_after_growth) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_deque *q = NULL;
+    if (k4c_test_equal(k4c_deque_create(sizeof(int), k4c_allocator, &q), K4C_STATUS_OK)) {
         return 1;
     }
 
     for (int i = 0; i < 20; i++) {
-        if (test_status_ok(deque_push(q, &i))) {
+        if (k4c_test_status_ok(k4c_deque_push(q, &i))) {
             return 1;
         }
     }
 
     size_t index = 0;
-    iterator iter = deque_get_iterator(q);
+    k4c_iterator iter = k4c_deque_get_iterator(q);
     const int *out = NULL;
-    while ((out = (const int *)iterator_next(&iter)) != NULL) {
-        if (test_equal(*out, (int)index) != 0) {
+    while ((out = (const int *)k4c_iterator_next(&iter)) != NULL) {
+        if (k4c_test_equal(*out, (int)index) != 0) {
             return 1;
         }
         index += 1;
     }
 
-    if (test_equal(index, (size_t)20) != 0) {
+    if (k4c_test_equal(index, (size_t)20) != 0) {
         return 1;
     }
 
-    deque_destroy(q);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_deque_destroy(q);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST_MAIN(
-    TEST_CASE(init),
-    TEST_CASE(peekback),
-    TEST_CASE(peekleft),
-    TEST_CASE(popback),
-    TEST_CASE(popleft),
-    TEST_CASE(push),
-    TEST_CASE(pushfront),
-    TEST_CASE(iterator_walks_front_to_back),
-    TEST_CASE(iterator_collect_copies_items),
-    TEST_CASE(iterator_walks_items_after_growth)
+K4C_TEST_MAIN(
+    K4C_TEST_CASE(init),
+    K4C_TEST_CASE(peekback),
+    K4C_TEST_CASE(peekleft),
+    K4C_TEST_CASE(popback),
+    K4C_TEST_CASE(popleft),
+    K4C_TEST_CASE(push),
+    K4C_TEST_CASE(pushfront),
+    K4C_TEST_CASE(iterator_walks_front_to_back),
+    K4C_TEST_CASE(iterator_collect_copies_items),
+    K4C_TEST_CASE(iterator_walks_items_after_growth)
 )

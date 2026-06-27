@@ -22,43 +22,30 @@
  * SOFTWARE.
  */
 
-#ifndef LOGGING_H
-#define LOGGING_H
+#ifndef K4C_ERROR_H
+#define K4C_ERROR_H
 
-#include <stdbool.h>
+#define K4C_RETURN_IF_ERROR(expr) \
+    do { \
+        k4c_status status__ = (expr); \
+        if (status__ != K4C_STATUS_OK) { \
+            return status__; \
+        } \
+    } while (0)
 
-/* Severity levels used by the global logger. */
-typedef enum log_level {
-    LOG_LEVEL_DEBUG = 0,
-    LOG_LEVEL_INFO = 1,
-    LOG_LEVEL_WARN = 2,
-    LOG_LEVEL_ERROR = 3,
-} log_level;
+typedef enum k4c_status {
+    K4C_STATUS_OK = 0,
+    K4C_STATUS_INVALID_ARGUMENT,
+    K4C_STATUS_NO_MEMORY,
+    K4C_STATUS_OVERFLOW,
+    K4C_STATUS_OUT_OF_RANGE,
+    K4C_STATUS_NOT_FOUND,
+    K4C_STATUS_EOF,
+    K4C_STATUS_IO,
+    K4C_STATUS_INVALID_DATA,
+    K4C_STATUS_UNSUPPORTED,
+} k4c_status;
 
-/* Timestamp formats available for log messages. */
-typedef enum log_timestamp {
-    LOG_TIMESTAMP_NONE = 0,
-    LOG_TIMESTAMP_TIME = 1,
-    LOG_TIMESTAMP_DATETIME = 2,
-    LOG_TIMESTAMP_UNIX = 3,
-} log_timestamp;
-
-/* Setter functions for the global logger configuration. */
-void log_set_level(log_level level);
-void log_set_timestamp(log_timestamp timestamp);
-void log_set_prefixes(const char *message_prefix, const char *error_prefix);
-void log_set_color(bool enabled);
-
-/* Log a DEBUG-level formatted message. */
-void log_debug(const char *fmt, ...);
-
-/* Log an INFO-level formatted message. */
-void log_info(const char *fmt, ...);
-
-/* Log a WARN-level formatted message. */
-void log_warn(const char *fmt, ...);
-
-/* Log an ERROR-level formatted message. */
-void log_error(const char *fmt, ...);
+const char *k4c_status_message(k4c_status k4c_status);
 
 #endif
