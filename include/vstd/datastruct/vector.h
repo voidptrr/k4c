@@ -32,8 +32,6 @@
 #include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 
-#define VS_VECTOR_PUSH_AS(vector, type, value) vs_vector_push((vector), &(type){(value)})
-
 #define vs_vector_for_each(type, item, vector) \
     for (vs_iterator item##_vs_iter__ = vs_vector_get_iterator((vector)); \
          item##_vs_iter__.next != NULL; \

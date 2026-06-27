@@ -60,19 +60,42 @@ static vs_string_header *vs_string_header_from_buf(vs_string string) {
     return (vs_string_header *)((uint8_t *)string - offsetof(vs_string_header, buf));
 }
 
-static vs_status vs_string_capacity_for(size_t len, size_t *out) {
-    VSTD_ASSERT(out != NULL, "fatal: vs_string_capacity_for invalid arguments");
+static vs_status vs_string_capacity_grow(size_t capacity, size_t min_capacity, size_t *out) {
+    VSTD_ASSERT(out != NULL, "fatal: vs_string_capacity_grow invalid arguments");
 
-    size_t capacity = VS_STRING_DEFAULT_CAPACITY;
+    if (capacity >= min_capacity) {
+        *out = capacity;
+        return VS_STATUS_OK;
+    }
 
-    while (capacity <= len) {
-        if (vs_size_mul_overflow(capacity, 2, &capacity)) {
-            return VS_STATUS_OVERFLOW;
+    while (capacity < min_capacity) {
+        size_t increment = capacity >> 1;
+        if (increment == 0) {
+            increment = 1;
         }
+
+        size_t next = 0;
+        if (vs_size_add_overflow(capacity, increment, &next)) {
+            capacity = min_capacity;
+            break;
+        }
+
+        capacity = next;
     }
 
     *out = capacity;
     return VS_STATUS_OK;
+}
+
+static vs_status vs_string_capacity_for(size_t len, size_t *out) {
+    VSTD_ASSERT(out != NULL, "fatal: vs_string_capacity_for invalid arguments");
+
+    size_t min_capacity = 0;
+    if (vs_size_add_overflow(len, 1, &min_capacity)) {
+        return VS_STATUS_OVERFLOW;
+    }
+
+    return vs_string_capacity_grow(VS_STRING_DEFAULT_CAPACITY, min_capacity, out);
 }
 
 static vs_status vs_string_ensure_capacity(vs_string *string, size_t len, vs_string_header **out) {

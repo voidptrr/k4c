@@ -255,10 +255,12 @@ VS_TEST(reserve_and_data_access) {
         return 1;
     }
 
-    if (vs_test_status_ok(VS_VECTOR_PUSH_AS(v, int, 7))) {
+    int first = 7;
+    int second = 11;
+    if (vs_test_status_ok(vs_vector_push(v, &first))) {
         return 1;
     }
-    if (vs_test_status_ok(VS_VECTOR_PUSH_AS(v, int, 11))) {
+    if (vs_test_status_ok(vs_vector_push(v, &second))) {
         return 1;
     }
 
@@ -326,7 +328,8 @@ VS_TEST(vector_for_each_macro_walks_items) {
     size_t count = 0;
 
     for (int i = 1; i <= 4; i++) {
-        if (vs_test_status_ok(VS_VECTOR_PUSH_AS(v, int, i))) {
+        int value = i;
+        if (vs_test_status_ok(vs_vector_push(v, &value))) {
             return 1;
         }
     }

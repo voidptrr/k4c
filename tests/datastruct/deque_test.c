@@ -325,6 +325,41 @@ VS_TEST(iterator_collect_copies_items) {
     return 0;
 }
 
+VS_TEST(iterator_walks_items_after_growth) {
+    vs_test_allocator test_allocator;
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
+    vs_deque *q = NULL;
+    if (vs_test_equal(vs_deque_create(sizeof(int), allocator, &q), VS_STATUS_OK)) {
+        return 1;
+    }
+
+    for (int i = 0; i < 20; i++) {
+        if (vs_test_status_ok(vs_deque_push(q, &i))) {
+            return 1;
+        }
+    }
+
+    size_t index = 0;
+    vs_iterator iter = vs_deque_get_iterator(q);
+    const int *out = NULL;
+    while ((out = (const int *)vs_iterator_next(&iter)) != NULL) {
+        if (vs_test_equal(*out, (int)index) != 0) {
+            return 1;
+        }
+        index += 1;
+    }
+
+    if (vs_test_equal(index, (size_t)20) != 0) {
+        return 1;
+    }
+
+    vs_deque_destroy(q);
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
 VS_TEST_MAIN(
     VS_TEST_CASE(init),
     VS_TEST_CASE(peekback),
@@ -334,5 +369,6 @@ VS_TEST_MAIN(
     VS_TEST_CASE(push),
     VS_TEST_CASE(pushfront),
     VS_TEST_CASE(iterator_walks_front_to_back),
-    VS_TEST_CASE(iterator_collect_copies_items)
+    VS_TEST_CASE(iterator_collect_copies_items),
+    VS_TEST_CASE(iterator_walks_items_after_growth)
 )

@@ -53,6 +53,33 @@ _Static_assert(
     "vs_vector_iterator_state must fit in vs_iterator"
 );
 
+static vs_status vs_vector_capacity_grow(size_t capacity, size_t min_capacity, size_t *out) {
+    VSTD_ASSERT(out != NULL, "fatal: vs_vector_capacity_grow invalid arguments");
+
+    if (capacity >= min_capacity) {
+        *out = capacity;
+        return VS_STATUS_OK;
+    }
+
+    while (capacity < min_capacity) {
+        size_t increment = capacity >> 1;
+        if (increment == 0) {
+            increment = 1;
+        }
+
+        size_t next = 0;
+        if (vs_size_add_overflow(capacity, increment, &next)) {
+            capacity = min_capacity;
+            break;
+        }
+
+        capacity = next;
+    }
+
+    *out = capacity;
+    return VS_STATUS_OK;
+}
+
 static const void *vs_vector_iterator_next(void *context) {
     VSTD_ASSERT(context != NULL, "fatal: vs_vector_iterator_next invalid arguments");
 
@@ -140,10 +167,13 @@ vs_status vs_vector_push(vs_vector *vector, const void *element) {
     VSTD_ASSERT(element != NULL, "fatal: vs_vector_push invalid arguments");
 
     if (vector->size == vector->capacity) {
-        size_t new_capacity = 0;
-        if (vs_size_mul_overflow(vector->capacity, 2, &new_capacity)) {
+        size_t min_capacity = 0;
+        if (vs_size_add_overflow(vector->size, 1, &min_capacity)) {
             return VS_STATUS_OVERFLOW;
         }
+
+        size_t new_capacity = 0;
+        VS_RETURN_IF_ERROR(vs_vector_capacity_grow(vector->capacity, min_capacity, &new_capacity));
 
         vs_status status = vs_vector_reserve(vector, new_capacity);
         if (status != VS_STATUS_OK) {

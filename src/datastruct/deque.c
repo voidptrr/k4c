@@ -57,13 +57,40 @@ _Static_assert(
     "vs_deque_iterator_state must fit in vs_iterator"
 );
 
+static vs_status vs_deque_capacity_grow(size_t capacity, size_t min_capacity, size_t *out) {
+    VSTD_ASSERT(out != NULL, "fatal: vs_deque_capacity_grow invalid arguments");
+    VSTD_ASSERT(
+        (capacity & (capacity - 1)) == 0,
+        "fatal: vs_deque_capacity_grow invalid arguments"
+    );
+
+    if (capacity >= min_capacity) {
+        *out = capacity;
+        return VS_STATUS_OK;
+    }
+
+    while (capacity < min_capacity) {
+        if (capacity > (SIZE_MAX >> 1)) {
+            return VS_STATUS_OVERFLOW;
+        }
+
+        capacity <<= 1;
+    }
+
+    *out = capacity;
+    return VS_STATUS_OK;
+}
+
 static vs_status vs_deque_grow(vs_deque *deque) {
     vs_allocator *allocator = deque->allocator;
     size_t old_capacity = deque->capacity;
-    size_t new_capacity = 0;
-    if (vs_size_mul_overflow(old_capacity, 2, &new_capacity)) {
+    size_t min_capacity = 0;
+    if (vs_size_add_overflow(deque->size, 1, &min_capacity)) {
         return VS_STATUS_OVERFLOW;
     }
+
+    size_t new_capacity = 0;
+    VS_RETURN_IF_ERROR(vs_deque_capacity_grow(old_capacity, min_capacity, &new_capacity));
 
     uint8_t *old_buffer = (uint8_t *)deque->buffer;
 

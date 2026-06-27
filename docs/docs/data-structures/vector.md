@@ -19,22 +19,6 @@ Typed cursor for walking vector elements.
 
 ## FUNCTIONS
 
-### VS_VECTOR_PUSH_AS
-
-```c
-#define VS_VECTOR_PUSH_AS(vector, type, value)
-```
-
-- Parameters: `vector`, `type`, `value`
-- Notes: creates a temporary `type` value and pushes it by address.
-- Example:
-
-```c
-if (VS_VECTOR_PUSH_AS(vector, int, 42) != VS_STATUS_OK) {
-    /* handle allocation failure */
-}
-```
-
 ### vs_vector_for_each
 
 ```c
