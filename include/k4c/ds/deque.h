@@ -22,20 +22,21 @@
  * SOFTWARE.
  */
 
-#ifndef DEQUE_H
-#define DEQUE_H
+#ifndef K4C_DEQUE_H
+#define K4C_DEQUE_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "vstd/ds/iterator.h"
-#include "vstd/error.h"
-#include "vstd/memory/allocator.h"
+#include "k4c/ds/iterator.h"
+#include "k4c/error.h"
+#include "k4c/memory/allocator.h"
 
-#define deque_for_each(type, item, deque) \
-    for (iterator item##_iter__ = deque_get_iterator((deque)); item##_iter__.next != NULL; \
+#define k4c_deque_for_each(type, item, k4c_deque) \
+    for (k4c_iterator item##_iter__ = k4c_deque_get_iterator((k4c_deque)); \
+         item##_iter__.next != NULL; \
          item##_iter__.next = NULL) \
-    iterator_for_each(type, item, &item##_iter__)
+    k4c_iterator_for_each(type, item, &item##_iter__)
 
 /*
  * Opaque generic double-ended queue backed by circular storage.
@@ -55,36 +56,36 @@
  * Storage may wrap internally, but callers observe a normal front-to-back
  * sequence.
  */
-typedef struct deque deque;
+typedef struct k4c_deque k4c_deque;
 
-/* Create a deque with element size elem_size. */
-NODISCARD status deque_create(size_t elem_size, allocator *allocator, deque **out);
+/* Create a k4c_deque with element size elem_size. */
+k4c_status k4c_deque_create(size_t elem_size, k4c_allocator *k4c_allocator, k4c_deque **out);
 
 /* Enqueue one element by copying elem_size bytes from element. */
-NODISCARD status deque_push(deque *deque, const void *element);
+k4c_status k4c_deque_push(k4c_deque *k4c_deque, const void *element);
 
 /* Enqueue one element at the front by copying elem_size bytes from element. */
-NODISCARD status deque_pushfront(deque *deque, const void *element);
+k4c_status k4c_deque_pushfront(k4c_deque *k4c_deque, const void *element);
 
 /* Dequeue and return the front element pointer, or NULL when empty. */
-void *deque_popleft(deque *deque);
+void *k4c_deque_popleft(k4c_deque *k4c_deque);
 
 /* Remove and return the back element pointer, or NULL when empty. */
-void *deque_popback(deque *deque);
+void *k4c_deque_popback(k4c_deque *k4c_deque);
 
 /* Return the front element pointer without removing it, or NULL when empty. */
-const void *deque_peekleft(const deque *deque);
+const void *k4c_deque_peekleft(const k4c_deque *k4c_deque);
 
 /* Return the back element pointer without removing it, or NULL when empty. */
-const void *deque_peekback(const deque *deque);
+const void *k4c_deque_peekback(const k4c_deque *k4c_deque);
 
 /* Return the number of stored elements. */
-size_t deque_size(const deque *deque);
+size_t k4c_deque_size(const k4c_deque *k4c_deque);
 
-/* Return an iterator over deque from front to back. */
-iterator deque_get_iterator(const deque *deque);
+/* Return an k4c_iterator over k4c_deque from front to back. */
+k4c_iterator k4c_deque_get_iterator(const k4c_deque *k4c_deque);
 
 /* Destroy and release owned storage. */
-void deque_destroy(deque *deque);
+void k4c_deque_destroy(k4c_deque *k4c_deque);
 
 #endif

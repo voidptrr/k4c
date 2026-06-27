@@ -1,3 +1,3 @@
-# vstd
+# k4c
 
-Documentation: https://voidptrr.github.io/vstd/
+Documentation: https://voidptrr.github.io/k4c/

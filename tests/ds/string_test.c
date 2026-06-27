@@ -24,264 +24,264 @@
 
 #include <stddef.h>
 
-#include "vstd/ds/iterator.h"
-#include "vstd/ds/string.h"
-#include "vstd/error.h"
-#include "vstd/memory/test_allocator.h"
-#include "vstd/testing.h"
+#include "k4c/ds/iterator.h"
+#include "k4c/ds/string.h"
+#include "k4c/error.h"
+#include "k4c/memory/test_allocator.h"
+#include "k4c/testing.h"
 
-TEST(allocator) {
-    test_allocator test_allocator;
+K4C_TEST(k4c_allocator) {
+    k4c_test_allocator k4c_test_allocator;
 
-    allocator *allocator = test_allocator_init(&test_allocator);
-    string value = NULL;
-    if (test_equal(string_create("abc", allocator, &value), STATUS_OK)) {
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_string value = NULL;
+    if (k4c_test_equal(k4c_string_create("abc", k4c_allocator, &value), K4C_STATUS_OK)) {
         return 1;
     }
-    if (test_allocator.alloc_count != 1) {
+    if (k4c_test_allocator.alloc_count != 1) {
         return 1;
     }
-    if (test_allocator.realloc_count != 0) {
+    if (k4c_test_allocator.realloc_count != 0) {
         return 1;
     }
-    if (test_allocator.dealloc_count != 0) {
-        return 1;
-    }
-
-    if (test_status_ok(string_append(&value, "012345678901234567890123456789"))) {
-
-        return 1;
-    }
-    if (test_allocator.realloc_count != 1) {
-        return 1;
-    }
-    if (string_len(value) != 33) {
-        return 1;
-    }
-    if (test_equal_str(value, "abc012345678901234567890123456789") != 0) {
+    if (k4c_test_allocator.dealloc_count != 0) {
         return 1;
     }
 
-    string_destroy(value);
-    if (test_allocator.dealloc_count != 1) {
+    if (k4c_test_status_ok(k4c_string_append(&value, "012345678901234567890123456789"))) {
+
         return 1;
     }
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    if (k4c_test_allocator.realloc_count != 1) {
+        return 1;
+    }
+    if (k4c_string_len(value) != 33) {
+        return 1;
+    }
+    if (k4c_test_equal_str(value, "abc012345678901234567890123456789") != 0) {
+        return 1;
+    }
+
+    k4c_string_destroy(value);
+    if (k4c_test_allocator.dealloc_count != 1) {
+        return 1;
+    }
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(append) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    string value = NULL;
-    if (test_equal(string_create("hello", allocator, &value), STATUS_OK)) {
+K4C_TEST(append) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_string value = NULL;
+    if (k4c_test_equal(k4c_string_create("hello", k4c_allocator, &value), K4C_STATUS_OK)) {
         return 1;
     }
 
-    if (test_status_ok(string_append(&value, ", "))) {
+    if (k4c_test_status_ok(k4c_string_append(&value, ", "))) {
 
         return 1;
     }
-    if (test_status_ok(string_append(&value, "world"))) {
+    if (k4c_test_status_ok(k4c_string_append(&value, "world"))) {
         return 1;
     }
-    if (test_status_ok(string_append(&value, ""))) {
+    if (k4c_test_status_ok(k4c_string_append(&value, ""))) {
         return 1;
     }
-    if (string_len(value) != 12) {
+    if (k4c_string_len(value) != 12) {
         return 1;
     }
-    if (test_equal_str(value, "hello, world") != 0) {
-        return 1;
-    }
-
-    if (test_status_ok(string_append(&value, "012345678901234567890123456789"))) {
-
-        return 1;
-    }
-    if (string_len(value) != 42) {
-        return 1;
-    }
-    if (test_equal_str(value, "hello, world012345678901234567890123456789") != 0) {
+    if (k4c_test_equal_str(value, "hello, world") != 0) {
         return 1;
     }
 
-    string_destroy(value);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    if (k4c_test_status_ok(k4c_string_append(&value, "012345678901234567890123456789"))) {
+
+        return 1;
+    }
+    if (k4c_string_len(value) != 42) {
+        return 1;
+    }
+    if (k4c_test_equal_str(value, "hello, world012345678901234567890123456789") != 0) {
+        return 1;
+    }
+
+    k4c_string_destroy(value);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(clear) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    string value = NULL;
-    if (test_equal(string_create("hello", allocator, &value), STATUS_OK)) {
+K4C_TEST(clear) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_string value = NULL;
+    if (k4c_test_equal(k4c_string_create("hello", k4c_allocator, &value), K4C_STATUS_OK)) {
         return 1;
     }
 
-    string_clear(value);
-    if (string_len(value) != 0) {
+    k4c_string_clear(value);
+    if (k4c_string_len(value) != 0) {
         return 1;
     }
-    if (test_equal_str(value, "") != 0) {
-        return 1;
-    }
-
-    if (test_status_ok(string_append(&value, "again"))) {
-
-        return 1;
-    }
-    if (test_equal_str(value, "again") != 0) {
+    if (k4c_test_equal_str(value, "") != 0) {
         return 1;
     }
 
-    string_destroy(value);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    if (k4c_test_status_ok(k4c_string_append(&value, "again"))) {
+
+        return 1;
+    }
+    if (k4c_test_equal_str(value, "again") != 0) {
+        return 1;
+    }
+
+    k4c_string_destroy(value);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(init) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    string empty = NULL;
-    if (test_equal(string_create(NULL, allocator, &empty), STATUS_OK)) {
+K4C_TEST(init) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_string empty = NULL;
+    if (k4c_test_equal(k4c_string_create(NULL, k4c_allocator, &empty), K4C_STATUS_OK)) {
         return 1;
     }
-    if (test_not_null(empty) != 0) {
+    if (k4c_test_not_null(empty) != 0) {
         return 1;
     }
-    if (string_len(empty) != 0) {
+    if (k4c_string_len(empty) != 0) {
         return 1;
     }
-    if (test_equal_str(empty, "") != 0) {
+    if (k4c_test_equal_str(empty, "") != 0) {
         return 1;
     }
-    string_destroy(empty);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_string_destroy(empty);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
 
-    string value = NULL;
-    if (test_equal(string_create("hello", allocator, &value), STATUS_OK)) {
+    k4c_string value = NULL;
+    if (k4c_test_equal(k4c_string_create("hello", k4c_allocator, &value), K4C_STATUS_OK)) {
         return 1;
     }
-    if (test_not_null(value) != 0) {
+    if (k4c_test_not_null(value) != 0) {
         return 1;
     }
-    if (string_len(value) != 5) {
+    if (k4c_string_len(value) != 5) {
         return 1;
     }
-    if (test_equal_str(value, "hello") != 0) {
+    if (k4c_test_equal_str(value, "hello") != 0) {
         return 1;
     }
-    string_destroy(value);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_string_destroy(value);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(prepend) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    string value = NULL;
-    if (test_equal(string_create("world", allocator, &value), STATUS_OK)) {
+K4C_TEST(prepend) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_string value = NULL;
+    if (k4c_test_equal(k4c_string_create("world", k4c_allocator, &value), K4C_STATUS_OK)) {
         return 1;
     }
 
-    if (test_status_ok(string_prepend(&value, "hello "))) {
+    if (k4c_test_status_ok(k4c_string_prepend(&value, "hello "))) {
 
         return 1;
     }
-    if (test_equal_str(value, "hello world") != 0) {
+    if (k4c_test_equal_str(value, "hello world") != 0) {
         return 1;
     }
 
-    if (test_status_ok(string_prepend(&value, ""))) {
+    if (k4c_test_status_ok(k4c_string_prepend(&value, ""))) {
 
         return 1;
     }
-    if (test_equal_str(value, "hello world") != 0) {
+    if (k4c_test_equal_str(value, "hello world") != 0) {
         return 1;
     }
 
-    string_destroy(value);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_string_destroy(value);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(search) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    string value = NULL;
-    if (test_equal(string_create("hello world", allocator, &value), STATUS_OK)) {
+K4C_TEST(search) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_string value = NULL;
+    if (k4c_test_equal(k4c_string_create("hello world", k4c_allocator, &value), K4C_STATUS_OK)) {
         return 1;
     }
 
-    if (test_equal(string_contains(value, "lo wo"), true) != 0) {
+    if (k4c_test_equal(k4c_string_contains(value, "lo wo"), true) != 0) {
         return 1;
     }
 
-    if (test_equal(!string_contains(value, "missing"), true) != 0) {
+    if (k4c_test_equal(!k4c_string_contains(value, "missing"), true) != 0) {
         return 1;
     }
 
-    if (test_equal(string_starts_with(value, "hello"), true) != 0) {
+    if (k4c_test_equal(k4c_string_starts_with(value, "hello"), true) != 0) {
         return 1;
     }
-    if (test_equal(!string_starts_with(value, "world"), true) != 0) {
-        return 1;
-    }
-
-    if (test_equal(string_ends_with(value, "world"), true) != 0) {
-        return 1;
-    }
-    if (test_equal(!string_ends_with(value, "hello"), true) != 0) {
+    if (k4c_test_equal(!k4c_string_starts_with(value, "world"), true) != 0) {
         return 1;
     }
 
-    if (test_equal(string_contains(value, ""), true) != 0) {
+    if (k4c_test_equal(k4c_string_ends_with(value, "world"), true) != 0) {
         return 1;
     }
-    if (test_equal(string_starts_with(value, ""), true) != 0) {
-        return 1;
-    }
-    if (test_equal(string_ends_with(value, ""), true) != 0) {
+    if (k4c_test_equal(!k4c_string_ends_with(value, "hello"), true) != 0) {
         return 1;
     }
 
-    string_destroy(value);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    if (k4c_test_equal(k4c_string_contains(value, ""), true) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(k4c_string_starts_with(value, ""), true) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(k4c_string_ends_with(value, ""), true) != 0) {
+        return 1;
+    }
+
+    k4c_string_destroy(value);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST(iterator_walks_bytes) {
-    test_allocator test_allocator;
-    allocator *allocator = test_allocator_init(&test_allocator);
-    string value = NULL;
-    if (test_equal(string_create("abc", allocator, &value), STATUS_OK)) {
+K4C_TEST(iterator_walks_bytes) {
+    k4c_test_allocator k4c_test_allocator;
+    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_string value = NULL;
+    if (k4c_test_equal(k4c_string_create("abc", k4c_allocator, &value), K4C_STATUS_OK)) {
         return 1;
     }
-    iterator iter = string_get_iterator(value);
+    k4c_iterator iter = k4c_string_get_iterator(value);
     const char *out;
     const char *expected = "abc";
     size_t index = 0;
 
-    while ((out = (const char *)iterator_next(&iter)) != NULL) {
+    while ((out = (const char *)k4c_iterator_next(&iter)) != NULL) {
         if (index >= 3) {
             return 1;
         }
-        if (test_equal(*out, expected[index]) != 0) {
+        if (k4c_test_equal(*out, expected[index]) != 0) {
             return 1;
         }
         index += 1;
@@ -290,19 +290,19 @@ TEST(iterator_walks_bytes) {
         return 1;
     }
 
-    string_destroy(value);
-    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+    k4c_string_destroy(value);
+    if (k4c_test_equal(k4c_test_allocator_is_clean(&k4c_test_allocator), true) != 0) {
         return 1;
     }
     return 0;
 }
 
-TEST_MAIN(
-    TEST_CASE(allocator),
-    TEST_CASE(append),
-    TEST_CASE(clear),
-    TEST_CASE(init),
-    TEST_CASE(prepend),
-    TEST_CASE(search),
-    TEST_CASE(iterator_walks_bytes)
+K4C_TEST_MAIN(
+    K4C_TEST_CASE(k4c_allocator),
+    K4C_TEST_CASE(append),
+    K4C_TEST_CASE(clear),
+    K4C_TEST_CASE(init),
+    K4C_TEST_CASE(prepend),
+    K4C_TEST_CASE(search),
+    K4C_TEST_CASE(iterator_walks_bytes)
 )

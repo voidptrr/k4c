@@ -1,4 +1,4 @@
-# vstd.assert
+# k4c.assert
 
 ## DESCRIPTION
 
@@ -6,23 +6,23 @@ The assert module provides fail-fast runtime assertions.
 
 ## RUNTIME ASSERTIONS
 
-### ASSERT
+### K4C_ASSERT
 
 ```c
-#include <vstd/assert.h>
+#include <k4c/assert.h>
 
-#define ASSERT(cond, message)
+#define K4C_ASSERT(cond, message)
 ```
 
 - Parameters: `cond`, `message`
-- Behavior: calls `panic(message)` when `cond` is false.
+- Behavior: calls `k4c_panic(message)` when `cond` is false.
 
-### panic
+### k4c_panic
 
 ```c
-#include <vstd/assert.h>
+#include <k4c/assert.h>
 
-_Noreturn void panic(const char *message);
+_Noreturn void k4c_panic(const char *message);
 ```
 
 - Parameters: `message`

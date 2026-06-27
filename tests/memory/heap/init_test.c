@@ -22,45 +22,46 @@
  * SOFTWARE.
  */
 
-#include "vstd/error.h"
-#include "vstd/memory/allocator.h"
-#include "vstd/memory/general_heap.h"
-#include "vstd/testing.h"
+#include "k4c/error.h"
+#include "k4c/memory/allocator.h"
+#include "k4c/memory/general_heap.h"
+#include "k4c/testing.h"
 
 int main(void) {
-    heap *heap = NULL;
-    if (test_equal(heap_create(1024, &heap), STATUS_OK)) {
+    k4c_heap *k4c_heap = NULL;
+    if (k4c_test_equal(k4c_heap_create(1024, &k4c_heap), K4C_STATUS_OK)) {
         return 1;
     }
-    allocator *allocator = heap_allocator(heap);
+    k4c_allocator *k4c_allocator = k4c_heap_allocator(k4c_heap);
 
-    if (test_equal_ptr(allocator->ctx, heap) != 0) {
+    if (k4c_test_equal_ptr(k4c_allocator->ctx, k4c_heap) != 0) {
         return 1;
     }
-    if (test_equal(allocator->alloc != NULL, true) != 0) {
+    if (k4c_test_equal(k4c_allocator->k4c_alloc != NULL, true) != 0) {
         return 1;
     }
-    if (test_equal(allocator->realloc != NULL, true) != 0) {
+    if (k4c_test_equal(k4c_allocator->realloc != NULL, true) != 0) {
         return 1;
     }
-    if (test_equal(allocator->dealloc != NULL, true) != 0) {
+    if (k4c_test_equal(k4c_allocator->k4c_dealloc != NULL, true) != 0) {
         return 1;
     }
-    if (test_equal(
-            allocator->features == (ALLOCATOR_FEATURE_DEALLOC | ALLOCATOR_FEATURE_REALLOC),
+    if (k4c_test_equal(
+            k4c_allocator->features
+                == (K4C_ALLOCATOR_FEATURE_DEALLOC | K4C_ALLOCATOR_FEATURE_REALLOC),
             true
         )
         != 0) {
         return 1;
     }
 
-    if (test_equal(heap_capacity(heap) > 0, true) != 0) {
+    if (k4c_test_equal(k4c_heap_capacity(k4c_heap) > 0, true) != 0) {
         return 1;
     }
-    if (test_equal(heap_available(heap) > 0, true) != 0) {
+    if (k4c_test_equal(k4c_heap_available(k4c_heap) > 0, true) != 0) {
         return 1;
     }
 
-    heap_destroy(heap);
+    k4c_heap_destroy(k4c_heap);
     return 0;
 }

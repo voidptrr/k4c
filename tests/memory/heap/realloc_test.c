@@ -24,33 +24,33 @@
 
 #include <string.h>
 
-#include "vstd/error.h"
-#include "vstd/memory/general_heap.h"
-#include "vstd/testing.h"
+#include "k4c/error.h"
+#include "k4c/memory/general_heap.h"
+#include "k4c/testing.h"
 
 int main(void) {
-    heap *heap = NULL;
-    if (test_equal(heap_create(4096, &heap), STATUS_OK)) {
+    k4c_heap *k4c_heap = NULL;
+    if (k4c_test_equal(k4c_heap_create(4096, &k4c_heap), K4C_STATUS_OK)) {
         return 1;
     }
-    char *ptr = (char *)heap_realloc(heap, NULL, 32);
-    if (test_not_null(ptr) != 0) {
+    char *ptr = (char *)k4c_heap_realloc(k4c_heap, NULL, 32);
+    if (k4c_test_not_null(ptr) != 0) {
         return 1;
     }
 
     memcpy(ptr, "hello", 6);
-    ptr = (char *)heap_realloc(heap, ptr, 128);
-    if (test_not_null(ptr) != 0) {
+    ptr = (char *)k4c_heap_realloc(k4c_heap, ptr, 128);
+    if (k4c_test_not_null(ptr) != 0) {
         return 1;
     }
-    if (test_equal(memcmp(ptr, "hello", 6), 0) != 0) {
-        return 1;
-    }
-
-    if (test_null(heap_realloc(heap, ptr, 0)) != 0) {
+    if (k4c_test_equal(memcmp(ptr, "hello", 6), 0) != 0) {
         return 1;
     }
 
-    heap_destroy(heap);
+    if (k4c_test_null(k4c_heap_realloc(k4c_heap, ptr, 0)) != 0) {
+        return 1;
+    }
+
+    k4c_heap_destroy(k4c_heap);
     return 0;
 }

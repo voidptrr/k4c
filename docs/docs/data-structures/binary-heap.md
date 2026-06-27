@@ -1,8 +1,8 @@
-# ds.binary_heap
+# ds.k4c_binary_heap
 
 ## DESCRIPTION
 
-The binary_heap module provides a generic binary heap backed by contiguous vector storage.
+The k4c_binary_heap module provides a generic binary k4c_heap backed by contiguous k4c_vector storage.
 Heap ordering is defined by a caller callback. When the callback is `NULL`,
 ordering is byte-wise with `memcmp` over stored element bytes.
 
@@ -10,31 +10,31 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## TYPES
 
-### binary_heap_iterator
+### k4c_binary_heap_iterator
 
 ```c
-typedef struct binary_heap_iterator binary_heap_iterator;
+typedef struct k4c_binary_heap_iterator k4c_binary_heap_iterator;
 ```
 
-Typed cursor for walking heap backing storage.
+Typed cursor for walking k4c_heap backing storage.
 
 ## FUNCTIONS
 
-### binary_heap_create
+### k4c_binary_heap_create
 
 ```c
-status binary_heap_create(size_t elem_size,
-                                binary_heap_cmp_fn cmp,
-                                allocator *allocator,
-                                binary_heap **out);
+k4c_status k4c_binary_heap_create(size_t elem_size,
+                                k4c_binary_heap_cmp_fn cmp,
+                                k4c_allocator *k4c_allocator,
+                                k4c_binary_heap **out);
 ```
 
-- Parameters: `elem_size`, `cmp`, `allocator`, `out`
-- Returns: `STATUS_OK` on success, or an error status.
-- Writes: opaque binary-heap handle to `*out` on success.
-- Notes: the binary heap stores `allocator` and reuses it for growth and
-  destroy. When `allocator` is `NULL`, binary heap storage uses the C library
-  heap through `alloc`/`resize`. When `cmp` is `NULL`, element ordering
+- Parameters: `elem_size`, `cmp`, `k4c_allocator`, `out`
+- Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
+- Writes: opaque binary-k4c_heap handle to `*out` on success.
+- Notes: the binary k4c_heap stores `k4c_allocator` and reuses it for growth and
+  destroy. When `k4c_allocator` is `NULL`, binary k4c_heap storage uses the C library
+  k4c_heap through `k4c_alloc`/`k4c_resize`. When `cmp` is `NULL`, element ordering
   uses byte comparison.
 - Example:
 
@@ -45,106 +45,106 @@ static int cmp_int(const void *lhs, const void *rhs) {
     return (a > b) - (a < b);
 }
 
-binary_heap *heap = NULL;
-if (binary_heap_create(sizeof(int), cmp_int, NULL, &heap) != STATUS_OK) {
+k4c_binary_heap *k4c_heap = NULL;
+if (k4c_binary_heap_create(sizeof(int), cmp_int, NULL, &k4c_heap) != K4C_STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### binary_heap_push
+### k4c_binary_heap_push
 
 ```c
-status binary_heap_push(binary_heap *heap, const void *element);
+k4c_status k4c_binary_heap_push(k4c_binary_heap *k4c_heap, const void *element);
 ```
 
-- Parameters: `heap`, `element`
-- Returns: `STATUS_OK` on success, or an error status.
+- Parameters: `k4c_heap`, `element`
+- Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
 - Example:
 
 ```c
 int value = 42;
-if (binary_heap_push(heap, &value) != STATUS_OK) {
+if (k4c_binary_heap_push(k4c_heap, &value) != K4C_STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### binary_heap_pop
+### k4c_binary_heap_pop
 
 ```c
-void *binary_heap_pop(binary_heap *heap);
+void *k4c_binary_heap_pop(k4c_binary_heap *k4c_heap);
 ```
 
-- Parameters: `heap`
-- Returns: pointer to removed top element in heap-managed storage, or `NULL` when empty.
+- Parameters: `k4c_heap`
+- Returns: pointer to removed top element in k4c_heap-managed storage, or `NULL` when empty.
 - Example:
 
 ```c
-int *top = (int *)binary_heap_pop(heap);
+int *top = (int *)k4c_binary_heap_pop(k4c_heap);
 if (top != NULL) {
     /* use *top */
 }
 ```
 
-### binary_heap_peek
+### k4c_binary_heap_peek
 
 ```c
-const void *binary_heap_peek(const binary_heap *heap);
+const void *k4c_binary_heap_peek(const k4c_binary_heap *k4c_heap);
 ```
 
-- Parameters: `heap`
-- Returns: pointer to top element in heap-managed storage, or `NULL` when empty.
+- Parameters: `k4c_heap`
+- Returns: pointer to top element in k4c_heap-managed storage, or `NULL` when empty.
 - Example:
 
 ```c
-const int *top = (const int *)binary_heap_peek(heap);
+const int *top = (const int *)k4c_binary_heap_peek(k4c_heap);
 ```
 
-### binary_heap_size
+### k4c_binary_heap_size
 
 ```c
-size_t binary_heap_size(const binary_heap *heap);
+size_t k4c_binary_heap_size(const k4c_binary_heap *k4c_heap);
 ```
 
-- Parameters: `heap`
+- Parameters: `k4c_heap`
 - Returns: current element count.
 - Example:
 
 ```c
-size_t count = binary_heap_size(heap);
+size_t count = k4c_binary_heap_size(k4c_heap);
 ```
 
-### binary_heap_get_iterator
+### k4c_binary_heap_get_iterator
 
 ```c
-iterator binary_heap_get_iterator(const binary_heap *heap);
+k4c_iterator k4c_binary_heap_get_iterator(const k4c_binary_heap *k4c_heap);
 ```
 
-- Parameters: `heap`
-- Returns: iterator over the heap's backing-storage order.
-- Notes: iteration order is not sorted order. Do not mutate the heap while
+- Parameters: `k4c_heap`
+- Returns: k4c_iterator over the k4c_heap's backing-storage order.
+- Notes: iteration order is not sorted order. Do not mutate the k4c_heap while
   iterating.
 - Example:
 
 ```c
-iterator iter = binary_heap_get_iterator(heap);
+k4c_iterator iter = k4c_binary_heap_get_iterator(k4c_heap);
 
 const int *item;
-while ((item = (const int *)iterator_next(&iter)) != NULL) {
+while ((item = (const int *)k4c_iterator_next(&iter)) != NULL) {
     /* backing-storage order, not sorted order */
 }
 ```
 
-### binary_heap_destroy
+### k4c_binary_heap_destroy
 
 ```c
-void binary_heap_destroy(binary_heap *heap);
+void k4c_binary_heap_destroy(k4c_binary_heap *k4c_heap);
 ```
 
-- Parameters: `heap`
+- Parameters: `k4c_heap`
 - Returns: none.
-- Notes: releases heap storage and the opaque handle. Do not use `heap` after this call.
+- Notes: releases k4c_heap storage and the opaque handle. Do not use `k4c_heap` after this call.
 - Example:
 
 ```c
-binary_heap_destroy(heap);
+k4c_binary_heap_destroy(k4c_heap);
 ```

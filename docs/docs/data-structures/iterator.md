@@ -1,69 +1,69 @@
-# ds.iterator
+# ds.k4c_iterator
 
 ## DESCRIPTION
 
-The iterator module provides a generic iterator that can walk all vstd data
-structures with iterator support. Data structures own their iterator state,
-construction, and advancement functions. The generic iterator module only owns
-the basic callback iterator shape and eager collection helpers.
+The k4c_iterator module provides a generic k4c_iterator that can walk all k4c data
+structures with k4c_iterator support. Data structures own their k4c_iterator state,
+construction, and advancement functions. The generic k4c_iterator module only owns
+the basic callback k4c_iterator shape and eager collection helpers.
 
 Iterators do not allocate. They borrow the data structure or caller-owned
 callback context they point at.
 
-The `context` parameter is intentionally generic. For `iterator_from_callback`
-it is usually cursor state, such as an index into a vector. Pass `NULL` when a
+The `context` parameter is intentionally generic. For `k4c_iterator_from_callback`
+it is usually cursor state, such as an index into a k4c_vector. Pass `NULL` when a
 callback does not need extra data.
 
 This API is fail-fast: invalid required arguments are programmer errors and are asserted.
 
 ## TYPES
 
-### iterator
+### k4c_iterator
 
 ```c
-typedef struct iterator iterator;
+typedef struct k4c_iterator k4c_iterator;
 ```
 
-Iterator value. Store it by value and pass its address to `iterator_next`.
+Iterator value. Store it by value and pass its address to `k4c_iterator_next`.
 
-### iterator_next_fn
+### k4c_iterator_next_fn
 
 ```c
-typedef const void *(*iterator_next_fn)(void *context);
+typedef const void *(*k4c_iterator_next_fn)(void *context);
 ```
 
 Callback used by custom iterators. Return the next item pointer, or `NULL` when
-the iterator is exhausted.
+the k4c_iterator is exhausted.
 
-### iterator_map_into_fn
+### k4c_iterator_map_into_fn
 
 ```c
-typedef void (*iterator_map_into_fn)(void *context, const void *src, void *dst);
+typedef void (*k4c_iterator_map_into_fn)(void *context, const void *src, void *dst);
 ```
 
 Map callback used by `collect_map`. Write the mapped value into `dst`. The
-destination storage has the element size passed to `iterator_collect_map`.
+destination storage has the element size passed to `k4c_iterator_collect_map`.
 
 ## FUNCTIONS
 
-### ITER_NEXT_AS
+### K4C_ITER_NEXT_AS
 
 ```c
-#define ITER_NEXT_AS(type, iter)
+#define K4C_ITER_NEXT_AS(type, iter)
 ```
 
 - Parameters: `type`, `iter`
-- Returns: typed pointer from `iterator_next`.
+- Returns: typed pointer from `k4c_iterator_next`.
 - Example:
 
 ```c
-const int *item = ITER_NEXT_AS(int, &iter);
+const int *item = K4C_ITER_NEXT_AS(int, &iter);
 ```
 
-### iterator_for_each
+### k4c_iterator_for_each
 
 ```c
-#define iterator_for_each(type, item, iter)
+#define k4c_iterator_for_each(type, item, iter)
 ```
 
 - Parameters: `type`, `item`, `iter`
@@ -71,21 +71,21 @@ const int *item = ITER_NEXT_AS(int, &iter);
 - Example:
 
 ```c
-iterator_for_each(int, item, &iter) {
+k4c_iterator_for_each(int, item, &iter) {
     /* use *item */
 }
 ```
 
-### iterator_from_callback
+### k4c_iterator_from_callback
 
 ```c
-iterator iterator_from_callback(void *context, iterator_next_fn next);
+k4c_iterator k4c_iterator_from_callback(void *context, k4c_iterator_next_fn next);
 ```
 
 - Parameters: `context`, `next`
-- Returns: iterator backed by caller-owned state.
-- Notes: use this to integrate custom data structures with vstd helpers such as
-  `iterator_collect`.
+- Returns: k4c_iterator backed by caller-owned state.
+- Notes: use this to integrate custom data structures with k4c helpers such as
+  `k4c_iterator_collect`.
 - Example:
 
 ```c
@@ -104,13 +104,13 @@ static const void *range_next(void *context) {
 }
 
 range_state state = {.current = 0, .end = 10};
-iterator iter = iterator_from_callback(&state, range_next);
+k4c_iterator iter = k4c_iterator_from_callback(&state, range_next);
 ```
 
-### iterator_next
+### k4c_iterator_next
 
 ```c
-const void *iterator_next(iterator *iter);
+const void *k4c_iterator_next(k4c_iterator *iter);
 ```
 
 - Parameters: `iter`
@@ -119,15 +119,15 @@ const void *iterator_next(iterator *iter);
 
 ```c
 const int *item;
-while ((item = (const int *)iterator_next(&iter)) != NULL) {
+while ((item = (const int *)k4c_iterator_next(&iter)) != NULL) {
     /* use *item */
 }
 ```
 
-### iterator_set_size_hint
+### k4c_iterator_set_size_hint
 
 ```c
-void iterator_set_size_hint(iterator *iter, size_t size_hint);
+void k4c_iterator_set_size_hint(k4c_iterator *iter, size_t size_hint);
 ```
 
 - Parameters: `iter`, `size_hint`
@@ -135,70 +135,70 @@ void iterator_set_size_hint(iterator *iter, size_t size_hint);
 - Notes: sets a conservative remaining-item count used by collect helpers to
   reserve output storage.
 
-### iterator_size_hint
+### k4c_iterator_size_hint
 
 ```c
-size_t iterator_size_hint(const iterator *iter);
+size_t k4c_iterator_size_hint(const k4c_iterator *iter);
 ```
 
 - Parameters: `iter`
 - Returns: remaining-item hint, or zero when unknown.
 
-### iterator_collect
+### k4c_iterator_collect
 
 ```c
-status iterator_collect(iterator *source,
+k4c_status k4c_iterator_collect(k4c_iterator *source,
                               size_t elem_size,
-                              allocator *allocator,
-                              vector **out);
+                              k4c_allocator *k4c_allocator,
+                              k4c_vector **out);
 ```
 
-- Parameters: `source`, `elem_size`, `allocator`, `out`
-- Returns: `STATUS_OK` on success, or an error status.
-- Writes: vector containing copies of the remaining source items to `*out`.
-- Notes: consumes `source`. The returned vector owns its storage and can outlive
+- Parameters: `source`, `elem_size`, `k4c_allocator`, `out`
+- Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
+- Writes: k4c_vector containing copies of the remaining source items to `*out`.
+- Notes: consumes `source`. The returned k4c_vector owns its storage and can outlive
   the original data structure.
 - Example:
 
 ```c
-vector *values = NULL;
-if (vector_create(sizeof(int), NULL, &values) != STATUS_OK) {
+k4c_vector *values = NULL;
+if (k4c_vector_create(sizeof(int), NULL, &values) != K4C_STATUS_OK) {
     /* handle allocation failure */
 }
 int one = 1;
 int two = 2;
-if (vector_push(values, &one) != STATUS_OK) {
+if (k4c_vector_push(values, &one) != K4C_STATUS_OK) {
     /* handle allocation failure */
 }
-if (vector_push(values, &two) != STATUS_OK) {
-    /* handle allocation failure */
-}
-
-iterator iter = vector_get_iterator(values);
-vector *copy = NULL;
-if (iterator_collect(&iter, sizeof(int), NULL, &copy) != STATUS_OK) {
+if (k4c_vector_push(values, &two) != K4C_STATUS_OK) {
     /* handle allocation failure */
 }
 
-vector_destroy(values);
+k4c_iterator iter = k4c_vector_get_iterator(values);
+k4c_vector *copy = NULL;
+if (k4c_iterator_collect(&iter, sizeof(int), NULL, &copy) != K4C_STATUS_OK) {
+    /* handle allocation failure */
+}
+
+k4c_vector_destroy(values);
 /* copy still owns the collected ints. */
-vector_destroy(copy);
+k4c_vector_destroy(copy);
 ```
 
-### iterator_collect_map
+### k4c_iterator_collect_map
 
 ```c
-status iterator_collect_map(iterator *source,
+k4c_status k4c_iterator_collect_map(k4c_iterator *source,
                                   size_t dst_elem_size,
-                                  iterator_map_into_fn map,
+                                  k4c_iterator_map_into_fn map,
                                   void *context,
-                                  allocator *allocator,
-                                  vector **out);
+                                  k4c_allocator *k4c_allocator,
+                                  k4c_vector **out);
 ```
 
-- Parameters: `source`, `dst_elem_size`, `map`, `context`, `allocator`, `out`
-- Returns: `STATUS_OK` on success, or an error status.
-- Writes: vector containing mapped copies of the remaining source items to `*out`.
+- Parameters: `source`, `dst_elem_size`, `map`, `context`, `k4c_allocator`, `out`
+- Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
+- Writes: k4c_vector containing mapped copies of the remaining source items to `*out`.
 - Notes: consumes `source`. Use this when the output element type or size is
   different from the source element type.
 - Example:
@@ -209,24 +209,24 @@ static void int_to_double(void *context, const void *src, void *dst) {
     *(double *)dst = (double)*(const int *)src;
 }
 
-vector *ints = NULL;
-if (vector_create(sizeof(int), NULL, &ints) != STATUS_OK) {
+k4c_vector *ints = NULL;
+if (k4c_vector_create(sizeof(int), NULL, &ints) != K4C_STATUS_OK) {
     /* handle allocation failure */
 }
 int value = 42;
-if (vector_push(ints, &value) != STATUS_OK) {
+if (k4c_vector_push(ints, &value) != K4C_STATUS_OK) {
     /* handle allocation failure */
 }
 
-iterator iter = vector_get_iterator(ints);
-vector *doubles = NULL;
-if (iterator_collect_map(&iter, sizeof(double), int_to_double, NULL, NULL, &doubles) != STATUS_OK) {
+k4c_iterator iter = k4c_vector_get_iterator(ints);
+k4c_vector *doubles = NULL;
+if (k4c_iterator_collect_map(&iter, sizeof(double), int_to_double, NULL, NULL, &doubles) != K4C_STATUS_OK) {
     /* handle allocation failure */
 }
 
-const double *mapped = (const double *)vector_get_const(doubles, 0);
+const double *mapped = (const double *)k4c_vector_get(doubles, 0);
 /* *mapped == 42.0 */
 
-vector_destroy(ints);
-vector_destroy(doubles);
+k4c_vector_destroy(ints);
+k4c_vector_destroy(doubles);
 ```

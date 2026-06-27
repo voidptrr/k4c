@@ -25,9 +25,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "vstd/memory/utils.h"
+#include "k4c/memory/utils.h"
 
-void memswap(void *a, void *b, size_t size) {
+void k4c_memswap(void *a, void *b, size_t size) {
     uint8_t *left = (uint8_t *)a;
     uint8_t *right = (uint8_t *)b;
 

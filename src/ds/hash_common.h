@@ -22,42 +22,45 @@
  * SOFTWARE.
  */
 
-#ifndef HASH_COMMON_H
-#define HASH_COMMON_H
+#ifndef K4C_HASH_COMMON_H
+#define K4C_HASH_COMMON_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "vstd/assert.h"
-#include "vstd/ds/linked_list.h"
-#include "vstd/error.h"
-#include "vstd/memory/allocator.h"
-#include "vstd/memory/utils.h"
+#include "k4c/assert.h"
+#include "k4c/ds/linked_list.h"
+#include "k4c/error.h"
+#include "k4c/memory/allocator.h"
+#include "k4c/memory/utils.h"
 
-#define HASH_COMMON_DEFAULT_CAPACITY 16
-#define HASH_COMMON_MAX_LOAD_NUMERATOR 3
-#define HASH_COMMON_MAX_LOAD_DENOMINATOR 4
+#define K4C_HASH_COMMON_DEFAULT_CAPACITY 16
+#define K4C_HASH_COMMON_MAX_LOAD_NUMERATOR 3
+#define K4C_HASH_COMMON_MAX_LOAD_DENOMINATOR 4
 
-typedef void (*hash_common_entry_destroy_fn)(linked_list_node *node, allocator *allocator);
-typedef const void *(*hash_common_entry_value_fn)(const linked_list_node *node);
-typedef size_t (*hash_common_entry_hash_fn)(const linked_list_node *node);
-typedef bool (*hash_common_eq_fn)(const void *lhs, const void *rhs);
+typedef void (*k4c_hash_common_entry_destroy_fn)(
+    k4c_linked_list_node *node,
+    k4c_allocator *k4c_allocator
+);
+typedef const void *(*k4c_hash_common_entry_value_fn)(const k4c_linked_list_node *node);
+typedef size_t (*k4c_hash_common_entry_hash_fn)(const k4c_linked_list_node *node);
+typedef bool (*k4c_hash_common_eq_fn)(const void *lhs, const void *rhs);
 
-typedef struct hash_common_bucket {
-    linked_list_node *head;
-} hash_common_bucket;
+typedef struct k4c_hash_common_bucket {
+    k4c_linked_list_node *head;
+} k4c_hash_common_bucket;
 
 /* Return true when inserting one more item would exceed the load limit. */
-static inline bool hash_common_should_grow(size_t size, size_t capacity) {
+static inline bool k4c_hash_common_should_grow(size_t size, size_t capacity) {
     size_t next_size = 0;
     size_t scaled_size = 0;
     size_t scaled_capacity = 0;
-    if (size_add_overflow(size, 1, &next_size)
-        || size_mul_overflow(next_size, HASH_COMMON_MAX_LOAD_DENOMINATOR, &scaled_size)) {
+    if (k4c_size_add_overflow(size, 1, &next_size)
+        || k4c_size_mul_overflow(next_size, K4C_HASH_COMMON_MAX_LOAD_DENOMINATOR, &scaled_size)) {
         return true;
     }
 
-    if (size_mul_overflow(capacity, HASH_COMMON_MAX_LOAD_NUMERATOR, &scaled_capacity)) {
+    if (k4c_size_mul_overflow(capacity, K4C_HASH_COMMON_MAX_LOAD_NUMERATOR, &scaled_capacity)) {
         return false;
     }
 
@@ -65,87 +68,90 @@ static inline bool hash_common_should_grow(size_t size, size_t capacity) {
 }
 
 /* Return a power-of-two capacity that can hold size items at the max load. */
-static inline status hash_common_capacity_for_size(size_t size, size_t *out) {
-    ASSERT(out != NULL, "fatal: hash_common_capacity_for_size invalid arguments");
+static inline k4c_status k4c_hash_common_capacity_for_size(size_t size, size_t *out) {
+    K4C_ASSERT(out != NULL, "fatal: k4c_hash_common_capacity_for_size invalid arguments");
 
-    size_t capacity = HASH_COMMON_DEFAULT_CAPACITY;
+    size_t capacity = K4C_HASH_COMMON_DEFAULT_CAPACITY;
     size_t scaled_size = 0;
-    if (size_mul_overflow(size, HASH_COMMON_MAX_LOAD_DENOMINATOR, &scaled_size)) {
-        return STATUS_OVERFLOW;
+    if (k4c_size_mul_overflow(size, K4C_HASH_COMMON_MAX_LOAD_DENOMINATOR, &scaled_size)) {
+        return K4C_STATUS_OVERFLOW;
     }
 
     while (1) {
         size_t scaled_capacity = 0;
-        if (size_mul_overflow(capacity, HASH_COMMON_MAX_LOAD_NUMERATOR, &scaled_capacity)) {
-            return STATUS_OVERFLOW;
+        if (k4c_size_mul_overflow(capacity, K4C_HASH_COMMON_MAX_LOAD_NUMERATOR, &scaled_capacity)) {
+            return K4C_STATUS_OVERFLOW;
         }
         if (scaled_size <= scaled_capacity) {
             break;
         }
-        if (size_mul_overflow(capacity, 2, &capacity)) {
-            return STATUS_OVERFLOW;
+        if (k4c_size_mul_overflow(capacity, 2, &capacity)) {
+            return K4C_STATUS_OVERFLOW;
         }
     }
 
     *out = capacity;
-    return STATUS_OK;
+    return K4C_STATUS_OK;
 }
 
 /* Allocate and initialize an array of empty bucket lists. */
-NODISCARD status
-hash_common_buckets_create(size_t capacity, allocator *allocator, hash_common_bucket **out);
+k4c_status k4c_hash_common_buckets_create(
+    size_t capacity,
+    k4c_allocator *k4c_allocator,
+    k4c_hash_common_bucket **out
+);
 
 /*
  * Move all nodes into a newly allocated bucket array sized to new_capacity.
  * The old bucket array is destroyed, but entries are preserved and relinked
  * into the new buckets.
  */
-NODISCARD status hash_common_buckets_rehash(
-    hash_common_bucket *buckets,
+k4c_status k4c_hash_common_buckets_rehash(
+    k4c_hash_common_bucket *buckets,
     size_t capacity,
     size_t new_capacity,
-    allocator *allocator,
-    hash_common_entry_hash_fn entry_hash,
-    hash_common_bucket **out
+    k4c_allocator *k4c_allocator,
+    k4c_hash_common_entry_hash_fn entry_hash,
+    k4c_hash_common_bucket **out
 );
 
 /* Return the first node whose extracted value equals value, or NULL. */
-linked_list_node *hash_common_bucket_find(
-    const hash_common_bucket *bucket,
+k4c_linked_list_node *k4c_hash_common_bucket_find(
+    const k4c_hash_common_bucket *bucket,
     const void *value,
     size_t value_size,
     size_t hash,
-    hash_common_eq_fn value_eq,
-    hash_common_entry_value_fn entry_value,
-    hash_common_entry_hash_fn entry_hash
+    k4c_hash_common_eq_fn value_eq,
+    k4c_hash_common_entry_value_fn entry_value,
+    k4c_hash_common_entry_hash_fn entry_hash
 );
 
 /*
  * Unlink and return the first matching node from bucket, or NULL when no match
  * is found. The returned node remains owned by the caller.
  */
-linked_list_node *hash_common_bucket_remove(
-    hash_common_bucket *bucket,
+k4c_linked_list_node *k4c_hash_common_bucket_remove(
+    k4c_hash_common_bucket *bucket,
     const void *value,
     size_t value_size,
     size_t hash,
-    hash_common_eq_fn value_eq,
-    hash_common_entry_value_fn entry_value,
-    hash_common_entry_hash_fn entry_hash
+    k4c_hash_common_eq_fn value_eq,
+    k4c_hash_common_entry_value_fn entry_value,
+    k4c_hash_common_entry_hash_fn entry_hash
 );
 
 /* Destroy all entries, bucket lists, and the bucket array. */
-void hash_common_buckets_destroy(
-    hash_common_bucket *buckets,
+void k4c_hash_common_buckets_destroy(
+    k4c_hash_common_bucket *buckets,
     size_t capacity,
-    allocator *allocator,
-    hash_common_entry_destroy_fn entry_destroy
+    k4c_allocator *k4c_allocator,
+    k4c_hash_common_entry_destroy_fn entry_destroy
 );
 
 /* Link node at the front of bucket. */
-void hash_common_bucket_pushfront(hash_common_bucket *bucket, linked_list_node *node);
+void k4c_hash_common_bucket_pushfront(k4c_hash_common_bucket *bucket, k4c_linked_list_node *node);
 
 /* Return the first node in bucket, or NULL when empty. */
-linked_list_node *hash_common_bucket_head(const hash_common_bucket *bucket);
+k4c_linked_list_node *k4c_hash_common_bucket_head(const k4c_hash_common_bucket *bucket);
 
 #endif

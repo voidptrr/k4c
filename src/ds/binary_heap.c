@@ -25,187 +25,187 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "vstd/assert.h"
-#include "vstd/ds/binary_heap.h"
-#include "vstd/ds/iterator.h"
-#include "vstd/ds/vector.h"
-#include "vstd/error.h"
-#include "vstd/memory/allocator.h"
-#include "vstd/memory/utils.h"
+#include "k4c/assert.h"
+#include "k4c/ds/binary_heap.h"
+#include "k4c/ds/iterator.h"
+#include "k4c/ds/vector.h"
+#include "k4c/error.h"
+#include "k4c/memory/allocator.h"
+#include "k4c/memory/utils.h"
 
-struct binary_heap {
-    vector *root;
-    binary_heap_cmp_fn cmp;
-    allocator *allocator;
+struct k4c_binary_heap {
+    k4c_vector *root;
+    k4c_binary_heap_cmp_fn cmp;
+    k4c_allocator *k4c_allocator;
 };
 
-typedef struct binary_heap_iterator_state {
+typedef struct k4c_binary_heap_iterator_state {
     const uint8_t *cursor;
     size_t elem_size;
     size_t remaining;
-} binary_heap_iterator_state;
+} k4c_binary_heap_iterator_state;
 
 _Static_assert(
-    sizeof(binary_heap_iterator_state) <= ITERATOR_STATE_SIZE,
-    "binary_heap_iterator_state must fit in iterator"
+    sizeof(k4c_binary_heap_iterator_state) <= K4C_ITERATOR_STATE_SIZE,
+    "k4c_binary_heap_iterator_state must fit in k4c_iterator"
 );
 
-static void binary_heap_swap_at(binary_heap *heap, size_t i, size_t j) {
-    size_t elem_size = vector_elem_size(heap->root);
-    void *a = vector_get(heap->root, i);
-    void *b = vector_get(heap->root, j);
+static void k4c_binary_heap_swap_at(k4c_binary_heap *k4c_heap, size_t i, size_t j) {
+    size_t elem_size = k4c_vector_elem_size(k4c_heap->root);
+    void *a = k4c_vector_get(k4c_heap->root, i);
+    void *b = k4c_vector_get(k4c_heap->root, j);
 
-    memswap(a, b, elem_size);
+    k4c_memswap(a, b, elem_size);
 }
 
-static int binary_heap_compare_idx(const binary_heap *heap, size_t i, size_t j) {
-    const void *a = vector_get_const(heap->root, i);
-    const void *b = vector_get_const(heap->root, j);
-    if (heap->cmp != NULL) {
-        return heap->cmp(a, b);
+static int k4c_binary_heap_compare_idx(const k4c_binary_heap *k4c_heap, size_t i, size_t j) {
+    const void *a = k4c_vector_get(k4c_heap->root, i);
+    const void *b = k4c_vector_get(k4c_heap->root, j);
+    if (k4c_heap->cmp != NULL) {
+        return k4c_heap->cmp(a, b);
     }
-    return memcmp(a, b, vector_elem_size(heap->root));
+    return memcmp(a, b, k4c_vector_elem_size(k4c_heap->root));
 }
 
-static void binary_heap_sift_up(binary_heap *heap, size_t idx) {
+static void k4c_binary_heap_sift_up(k4c_binary_heap *k4c_heap, size_t idx) {
     while (idx > 0) {
         size_t parent = (idx - 1) / 2;
-        if (binary_heap_compare_idx(heap, idx, parent) >= 0) {
+        if (k4c_binary_heap_compare_idx(k4c_heap, idx, parent) >= 0) {
             break;
         }
-        binary_heap_swap_at(heap, idx, parent);
+        k4c_binary_heap_swap_at(k4c_heap, idx, parent);
         idx = parent;
     }
 }
 
-static void binary_heap_sift_down(binary_heap *heap, size_t idx) {
-    size_t n = vector_size(heap->root);
+static void k4c_binary_heap_sift_down(k4c_binary_heap *k4c_heap, size_t idx) {
+    size_t n = k4c_vector_size(k4c_heap->root);
 
     while (1) {
         size_t left = (2 * idx) + 1;
         size_t right = left + 1;
         size_t best = idx;
 
-        if (left < n && binary_heap_compare_idx(heap, left, best) < 0) {
+        if (left < n && k4c_binary_heap_compare_idx(k4c_heap, left, best) < 0) {
             best = left;
         }
-        if (right < n && binary_heap_compare_idx(heap, right, best) < 0) {
+        if (right < n && k4c_binary_heap_compare_idx(k4c_heap, right, best) < 0) {
             best = right;
         }
         if (best == idx) {
             break;
         }
 
-        binary_heap_swap_at(heap, idx, best);
+        k4c_binary_heap_swap_at(k4c_heap, idx, best);
         idx = best;
     }
 }
 
-static const void *binary_heap_iterator_next(void *context) {
-    ASSERT(context != NULL, "fatal: binary_heap_iterator_next invalid arguments");
+static const void *k4c_binary_heap_iterator_next(void *context) {
+    K4C_ASSERT(context != NULL, "fatal: k4c_binary_heap_iterator_next invalid arguments");
 
-    binary_heap_iterator_state *iterator = context;
-    if (iterator->remaining == 0) {
+    k4c_binary_heap_iterator_state *k4c_iterator = context;
+    if (k4c_iterator->remaining == 0) {
         return NULL;
     }
 
-    const void *item = iterator->cursor;
-    iterator->cursor += iterator->elem_size;
-    iterator->remaining -= 1;
+    const void *item = k4c_iterator->cursor;
+    k4c_iterator->cursor += k4c_iterator->elem_size;
+    k4c_iterator->remaining -= 1;
     return item;
 }
 
-status binary_heap_create(
+k4c_status k4c_binary_heap_create(
     size_t elem_size,
-    binary_heap_cmp_fn cmp,
-    allocator *allocator,
-    binary_heap **out
+    k4c_binary_heap_cmp_fn cmp,
+    k4c_allocator *k4c_allocator,
+    k4c_binary_heap **out
 ) {
-    ASSERT(elem_size > 0, "fatal: binary_heap_create invalid arguments");
-    ASSERT(out != NULL, "fatal: binary_heap_create invalid arguments");
+    K4C_ASSERT(elem_size > 0, "fatal: k4c_binary_heap_create invalid arguments");
+    K4C_ASSERT(out != NULL, "fatal: k4c_binary_heap_create invalid arguments");
 
     *out = NULL;
 
-    binary_heap *heap = NULL;
-    status st = alloc(allocator, sizeof(*heap), (void **)&heap);
-    if (st != STATUS_OK) {
+    k4c_binary_heap *k4c_heap = NULL;
+    k4c_status st = k4c_alloc(k4c_allocator, sizeof(*k4c_heap), (void **)&k4c_heap);
+    if (st != K4C_STATUS_OK) {
         return st;
     }
 
-    st = vector_create(elem_size, allocator, &heap->root);
-    if (st != STATUS_OK) {
-        dealloc(allocator, heap);
+    st = k4c_vector_create(elem_size, k4c_allocator, &k4c_heap->root);
+    if (st != K4C_STATUS_OK) {
+        k4c_dealloc(k4c_allocator, k4c_heap);
         return st;
     }
 
-    heap->cmp = cmp;
-    heap->allocator = allocator;
+    k4c_heap->cmp = cmp;
+    k4c_heap->k4c_allocator = k4c_allocator;
 
-    *out = heap;
-    return STATUS_OK;
+    *out = k4c_heap;
+    return K4C_STATUS_OK;
 }
 
-status binary_heap_push(binary_heap *heap, const void *element) {
-    ASSERT(heap != NULL, "fatal: binary_heap_push invalid arguments");
-    ASSERT(element != NULL, "fatal: binary_heap_push invalid arguments");
+k4c_status k4c_binary_heap_push(k4c_binary_heap *k4c_heap, const void *element) {
+    K4C_ASSERT(k4c_heap != NULL, "fatal: k4c_binary_heap_push invalid arguments");
+    K4C_ASSERT(element != NULL, "fatal: k4c_binary_heap_push invalid arguments");
 
-    status st = vector_push(heap->root, element);
-    if (st != STATUS_OK) {
+    k4c_status st = k4c_vector_push(k4c_heap->root, element);
+    if (st != K4C_STATUS_OK) {
         return st;
     }
 
-    binary_heap_sift_up(heap, vector_size(heap->root) - 1);
-    return STATUS_OK;
+    k4c_binary_heap_sift_up(k4c_heap, k4c_vector_size(k4c_heap->root) - 1);
+    return K4C_STATUS_OK;
 }
 
-void *binary_heap_pop(binary_heap *heap) {
-    ASSERT(heap != NULL, "fatal: binary_heap_pop invalid arguments");
-    size_t size = vector_size(heap->root);
+void *k4c_binary_heap_pop(k4c_binary_heap *k4c_heap) {
+    K4C_ASSERT(k4c_heap != NULL, "fatal: k4c_binary_heap_pop invalid arguments");
+    size_t size = k4c_vector_size(k4c_heap->root);
     if (size == 0) {
         return NULL;
     }
 
     if (size == 1) {
-        return vector_pop(heap->root);
+        return k4c_vector_pop(k4c_heap->root);
     }
 
-    binary_heap_swap_at(heap, 0, size - 1);
-    void *out = vector_pop(heap->root);
-    binary_heap_sift_down(heap, 0);
+    k4c_binary_heap_swap_at(k4c_heap, 0, size - 1);
+    void *out = k4c_vector_pop(k4c_heap->root);
+    k4c_binary_heap_sift_down(k4c_heap, 0);
 
     return out;
 }
 
-const void *binary_heap_peek(const binary_heap *heap) {
-    ASSERT(heap != NULL, "fatal: binary_heap_peek invalid arguments");
-    if (vector_size(heap->root) == 0) {
+const void *k4c_binary_heap_peek(const k4c_binary_heap *k4c_heap) {
+    K4C_ASSERT(k4c_heap != NULL, "fatal: k4c_binary_heap_peek invalid arguments");
+    if (k4c_vector_size(k4c_heap->root) == 0) {
         return NULL;
     }
 
-    return vector_get_const(heap->root, 0);
+    return k4c_vector_get(k4c_heap->root, 0);
 }
 
-size_t binary_heap_size(const binary_heap *heap) {
-    ASSERT(heap != NULL, "fatal: binary_heap_size invalid arguments");
+size_t k4c_binary_heap_size(const k4c_binary_heap *k4c_heap) {
+    K4C_ASSERT(k4c_heap != NULL, "fatal: k4c_binary_heap_size invalid arguments");
 
-    return vector_size(heap->root);
+    return k4c_vector_size(k4c_heap->root);
 }
 
-iterator binary_heap_get_iterator(const binary_heap *heap) {
-    ASSERT(heap != NULL, "fatal: binary_heap_get_iterator invalid arguments");
+k4c_iterator k4c_binary_heap_get_iterator(const k4c_binary_heap *k4c_heap) {
+    K4C_ASSERT(k4c_heap != NULL, "fatal: k4c_binary_heap_get_iterator invalid arguments");
 
-    iterator iter = iterator_from_state(binary_heap_iterator_next);
-    binary_heap_iterator_state *state = iterator_state(&iter);
-    state->cursor = (const uint8_t *)vector_data_const(heap->root);
-    state->elem_size = vector_elem_size(heap->root);
-    state->remaining = vector_size(heap->root);
-    iterator_set_size_hint(&iter, vector_size(heap->root));
+    k4c_iterator iter = k4c_iterator_from_state(k4c_binary_heap_iterator_next);
+    k4c_binary_heap_iterator_state *state = k4c_iterator_state(&iter);
+    state->cursor = (const uint8_t *)k4c_vector_data(k4c_heap->root);
+    state->elem_size = k4c_vector_elem_size(k4c_heap->root);
+    state->remaining = k4c_vector_size(k4c_heap->root);
+    k4c_iterator_set_size_hint(&iter, k4c_vector_size(k4c_heap->root));
     return iter;
 }
 
-void binary_heap_destroy(binary_heap *heap) {
-    ASSERT(heap != NULL, "fatal: binary_heap_destroy invalid arguments");
-    allocator *allocator = heap->allocator;
-    vector_destroy(heap->root);
-    dealloc(allocator, heap);
+void k4c_binary_heap_destroy(k4c_binary_heap *k4c_heap) {
+    K4C_ASSERT(k4c_heap != NULL, "fatal: k4c_binary_heap_destroy invalid arguments");
+    k4c_allocator *k4c_allocator = k4c_heap->k4c_allocator;
+    k4c_vector_destroy(k4c_heap->root);
+    k4c_dealloc(k4c_allocator, k4c_heap);
 }

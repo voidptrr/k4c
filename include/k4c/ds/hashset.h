@@ -22,19 +22,19 @@
  * SOFTWARE.
  */
 
-#ifndef HASHSET_H
-#define HASHSET_H
+#ifndef K4C_HASHSET_H
+#define K4C_HASHSET_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "vstd/ds/iterator.h"
-#include "vstd/error.h"
-#include "vstd/memory/allocator.h"
+#include "k4c/ds/iterator.h"
+#include "k4c/error.h"
+#include "k4c/memory/allocator.h"
 
-#define hashset_for_each(type, item, set) \
-    for (iterator item##_iter__ = hashset_get_iterator((set)); \
-         ((item) = ITER_NEXT_AS(type, &item##_iter__)) != NULL;)
+#define k4c_hashset_for_each(type, item, set) \
+    for (k4c_iterator item##_iter__ = k4c_hashset_get_iterator((set)); \
+         ((item) = K4C_ITER_NEXT_AS(type, &item##_iter__)) != NULL;)
 
 /*
  * Opaque hash set with unique elements.
@@ -58,10 +58,10 @@
  */
 
 /* Element equality callback used to resolve collisions and lookups. */
-typedef bool (*hashset_elem_eq_fn)(const void *lhs, const void *rhs);
+typedef bool (*k4c_hashset_elem_eq_fn)(const void *lhs, const void *rhs);
 
-typedef struct hashset hashset;
-typedef struct linked_list_node linked_list_node;
+typedef struct k4c_hashset k4c_hashset;
+typedef struct k4c_linked_list_node k4c_linked_list_node;
 
 /*
  * Create a hash set with fixed element size.
@@ -69,47 +69,46 @@ typedef struct linked_list_node linked_list_node;
  * When elem_eq is NULL, element equality compares stored element bytes.
  * Initial capacity is implementation-defined.
  */
-NODISCARD status
-hashset_create(size_t elem_size, hashset_elem_eq_fn elem_eq, allocator *allocator, hashset **out);
+k4c_status k4c_hashset_create(
+    size_t elem_size,
+    k4c_hashset_elem_eq_fn elem_eq,
+    k4c_allocator *k4c_allocator,
+    k4c_hashset **out
+);
 
 /* Ensure set can hold at least size elements without growing. */
-NODISCARD status hashset_reserve(hashset *set, size_t size);
+k4c_status k4c_hashset_reserve(k4c_hashset *set, size_t size);
 
 /*
  * Insert element when it is not already present.
  * Existing elements are left unchanged.
  */
-NODISCARD status hashset_insert(hashset *set, const void *elem);
+k4c_status k4c_hashset_insert(k4c_hashset *set, const void *elem);
 
 /*
  * Return true when element exists in set.
  */
-bool hashset_contains(const hashset *set, const void *elem);
+bool k4c_hashset_contains(const k4c_hashset *set, const void *elem);
 
 /*
  * Lookup element and return stored element pointer, or NULL when missing.
  */
-void *hashset_get(hashset *set, const void *elem);
-
-/*
- * Lookup element and return const stored element pointer, or NULL when missing.
- */
-const void *hashset_get_const(const hashset *set, const void *elem);
+void *k4c_hashset_get(const k4c_hashset *set, const void *elem);
 
 /*
  * Remove element from set.
  */
-void hashset_remove(hashset *set, const void *elem);
+void k4c_hashset_remove(k4c_hashset *set, const void *elem);
 
 /* Return the number of stored elements. */
-size_t hashset_size(const hashset *set);
+size_t k4c_hashset_size(const k4c_hashset *set);
 
-/* Return an iterator over stored elements in bucket order. */
-iterator hashset_get_iterator(const hashset *set);
+/* Return an k4c_iterator over stored elements in bucket order. */
+k4c_iterator k4c_hashset_get_iterator(const k4c_hashset *set);
 
 /*
- * Release all entries and the hashset handle.
+ * Release all entries and the k4c_hashset handle.
  */
-void hashset_destroy(hashset *set);
+void k4c_hashset_destroy(k4c_hashset *set);
 
 #endif

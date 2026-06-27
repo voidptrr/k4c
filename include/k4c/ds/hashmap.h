@@ -22,27 +22,27 @@
  * SOFTWARE.
  */
 
-#ifndef HASHMAP_H
-#define HASHMAP_H
+#ifndef K4C_HASHMAP_H
+#define K4C_HASHMAP_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "vstd/ds/iterator.h"
-#include "vstd/error.h"
-#include "vstd/memory/allocator.h"
+#include "k4c/ds/iterator.h"
+#include "k4c/error.h"
+#include "k4c/memory/allocator.h"
 
-#define hashmap_for_each_entry(item, map) \
-    for (iterator item##_iter__ = hashmap_get_iterator((map), HASHMAP_ITERATOR_ENTRY); \
-         ((item) = ITER_NEXT_AS(hashmap_entry_view, &item##_iter__)) != NULL;)
+#define k4c_hashmap_for_each_entry(item, map) \
+    for (k4c_iterator item##_iter__ = k4c_hashmap_get_iterator((map), K4C_HASHMAP_ITERATOR_ENTRY); \
+         ((item) = K4C_ITER_NEXT_AS(k4c_hashmap_entry_view, &item##_iter__)) != NULL;)
 
-#define hashmap_for_each_key(type, item, map) \
-    for (iterator item##_iter__ = hashmap_get_iterator((map), HASHMAP_ITERATOR_KEY); \
-         ((item) = ITER_NEXT_AS(type, &item##_iter__)) != NULL;)
+#define k4c_hashmap_for_each_key(type, item, map) \
+    for (k4c_iterator item##_iter__ = k4c_hashmap_get_iterator((map), K4C_HASHMAP_ITERATOR_KEY); \
+         ((item) = K4C_ITER_NEXT_AS(type, &item##_iter__)) != NULL;)
 
-#define hashmap_for_each_value(type, item, map) \
-    for (iterator item##_iter__ = hashmap_get_iterator((map), HASHMAP_ITERATOR_VALUE); \
-         ((item) = ITER_NEXT_AS(type, &item##_iter__)) != NULL;)
+#define k4c_hashmap_for_each_value(type, item, map) \
+    for (k4c_iterator item##_iter__ = k4c_hashmap_get_iterator((map), K4C_HASHMAP_ITERATOR_VALUE); \
+         ((item) = K4C_ITER_NEXT_AS(type, &item##_iter__)) != NULL;)
 
 /*
  * Opaque hash map with separate chaining.
@@ -66,21 +66,21 @@
  */
 
 /* Key equality callback used to resolve collisions and lookups. */
-typedef bool (*hashmap_key_eq_fn)(const void *lhs, const void *rhs);
+typedef bool (*k4c_hashmap_key_eq_fn)(const void *lhs, const void *rhs);
 
-typedef struct hashmap hashmap;
-typedef struct linked_list_node linked_list_node;
+typedef struct k4c_hashmap k4c_hashmap;
+typedef struct k4c_linked_list_node k4c_linked_list_node;
 
-typedef struct hashmap_entry_view {
+typedef struct k4c_hashmap_entry_view {
     const void *key;
     const void *value;
-} hashmap_entry_view;
+} k4c_hashmap_entry_view;
 
-typedef enum hashmap_iterator_type {
-    HASHMAP_ITERATOR_ENTRY,
-    HASHMAP_ITERATOR_KEY,
-    HASHMAP_ITERATOR_VALUE,
-} hashmap_iterator_type;
+typedef enum k4c_hashmap_iterator_type {
+    K4C_HASHMAP_ITERATOR_ENTRY,
+    K4C_HASHMAP_ITERATOR_KEY,
+    K4C_HASHMAP_ITERATOR_VALUE,
+} k4c_hashmap_iterator_type;
 
 /*
  * Create a hash map with fixed key/value sizes.
@@ -88,47 +88,42 @@ typedef enum hashmap_iterator_type {
  * key_eq is NULL, key equality compares stored key bytes.
  * Initial capacity is implementation-defined.
  */
-NODISCARD status hashmap_create(
+k4c_status k4c_hashmap_create(
     size_t key_size,
     size_t value_size,
-    hashmap_key_eq_fn key_eq,
-    allocator *allocator,
-    hashmap **out
+    k4c_hashmap_key_eq_fn key_eq,
+    k4c_allocator *k4c_allocator,
+    k4c_hashmap **out
 );
 
 /* Ensure map can hold at least size entries without growing. */
-NODISCARD status hashmap_reserve(hashmap *map, size_t size);
+k4c_status k4c_hashmap_reserve(k4c_hashmap *map, size_t size);
 
 /*
  * Insert or update an entry.
  * If key exists, overwrite value in place.
  */
-NODISCARD status hashmap_put(hashmap *map, const void *key, const void *value);
+k4c_status k4c_hashmap_put(k4c_hashmap *map, const void *key, const void *value);
 
 /*
  * Lookup key and return stored value pointer, or NULL when missing.
  */
-void *hashmap_get(hashmap *map, const void *key);
-
-/*
- * Lookup key and return const stored value pointer, or NULL when missing.
- */
-const void *hashmap_get_const(const hashmap *map, const void *key);
+void *k4c_hashmap_get(const k4c_hashmap *map, const void *key);
 
 /*
  * Remove key from map.
  */
-void hashmap_remove(hashmap *map, const void *key);
+void k4c_hashmap_remove(k4c_hashmap *map, const void *key);
 
 /* Return the number of stored entries. */
-size_t hashmap_size(const hashmap *map);
+size_t k4c_hashmap_size(const k4c_hashmap *map);
 
-/* Return an iterator over entries, keys, or values in bucket order. */
-iterator hashmap_get_iterator(const hashmap *map, hashmap_iterator_type type);
+/* Return an k4c_iterator over entries, keys, or values in bucket order. */
+k4c_iterator k4c_hashmap_get_iterator(const k4c_hashmap *map, k4c_hashmap_iterator_type type);
 
 /*
- * Release all entries, bucket storage, and the hashmap handle.
+ * Release all entries, bucket storage, and the k4c_hashmap handle.
  */
-void hashmap_destroy(hashmap *map);
+void k4c_hashmap_destroy(k4c_hashmap *map);
 
 #endif

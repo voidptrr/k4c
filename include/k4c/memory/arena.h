@@ -22,13 +22,13 @@
  * SOFTWARE.
  */
 
-#ifndef ARENA_H
-#define ARENA_H
+#ifndef K4C_ARENA_H
+#define K4C_ARENA_H
 
 #include <stddef.h>
 
-#include "vstd/error.h"
-#include "vstd/memory/allocator.h"
+#include "k4c/error.h"
+#include "k4c/memory/allocator.h"
 
 /*
  * Arena memory model:
@@ -40,54 +40,54 @@
  *                        current allocation offset
  *
  * Allocation strategy:
- * - bump offset forward on alloc
- * - individual dealloc is unsupported
+ * - bump offset forward on k4c_alloc
+ * - individual k4c_dealloc is unsupported
  * - reset releases all allocations together
  * - small internal allocation headers are stored before payloads so realloc can
  *   preserve existing bytes
  */
-typedef struct arena arena;
+typedef struct k4c_arena k4c_arena;
 
 /*
- * Create an arena with `capacity` bytes of internal storage.
+ * Create an k4c_arena with `capacity` bytes of internal storage.
  */
-NODISCARD status arena_create(size_t capacity, arena **out);
+k4c_status k4c_arena_create(size_t capacity, k4c_arena **out);
 
 /*
- * Return the generic allocator view owned by this arena.
+ * Return the generic k4c_allocator view owned by this k4c_arena.
  */
-allocator *arena_allocator(arena *arena);
+k4c_allocator *k4c_arena_allocator(k4c_arena *k4c_arena);
 
 /*
- * Allocate `size` bytes from arena.
- * Returns NULL when the arena does not have enough available space.
+ * Allocate `size` bytes from k4c_arena.
+ * Returns NULL when the k4c_arena does not have enough available space.
  */
-void *arena_alloc(arena *arena, size_t size);
+void *k4c_arena_alloc(k4c_arena *k4c_arena, size_t size);
 
 /*
- * Grow an arena allocation.
+ * Grow an k4c_arena allocation.
  * NULL ptr allocates. Size 0 with an existing ptr returns NULL.
  * Shrinking an existing allocation is invalid.
  */
-void *arena_realloc(arena *arena, void *ptr, size_t size);
+void *k4c_arena_realloc(k4c_arena *k4c_arena, void *ptr, size_t size);
 
 /*
- * Release all arena allocations while keeping the backing buffer.
+ * Release all k4c_arena allocations while keeping the backing buffer.
  */
-void arena_reset(arena *arena);
+void k4c_arena_reset(k4c_arena *k4c_arena);
 
 /* Total managed bytes. */
-size_t arena_capacity(const arena *arena);
+size_t k4c_arena_capacity(const k4c_arena *k4c_arena);
 
 /* Number of bytes currently consumed. */
-size_t arena_used(const arena *arena);
+size_t k4c_arena_used(const k4c_arena *k4c_arena);
 
 /* Number of bytes still available. */
-size_t arena_available(const arena *arena);
+size_t k4c_arena_available(const k4c_arena *k4c_arena);
 
 /*
- * Destroy and release arena resources.
+ * Destroy and release k4c_arena resources.
  */
-void arena_destroy(arena *arena);
+void k4c_arena_destroy(k4c_arena *k4c_arena);
 
 #endif

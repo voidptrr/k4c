@@ -22,16 +22,33 @@
  * SOFTWARE.
  */
 
-#ifndef ASSERT_H
-#define ASSERT_H
+#ifndef K4C_TEST_ALLOCATOR_H
+#define K4C_TEST_ALLOCATOR_H
 
-#define ASSERT(cond, message) \
-    do { \
-        if (!(cond)) { \
-            panic(message); \
-        } \
-    } while (0)
+#include <stdbool.h>
+#include <stddef.h>
 
-_Noreturn void panic(const char *message);
+#include "k4c/memory/allocator.h"
+
+#define K4C_TEST_ALLOCATOR_NO_FAILURE ((size_t)-1)
+
+typedef struct k4c_test_allocator {
+    size_t alloc_count;
+    size_t realloc_count;
+    size_t dealloc_count;
+    size_t outstanding_allocations;
+    size_t failed_allocations;
+    size_t fail_after;
+    k4c_allocator k4c_allocator;
+} k4c_test_allocator;
+
+/* Initialize a malloc-backed tracking k4c_allocator and return its generic adapter. */
+k4c_allocator *k4c_test_allocator_init(k4c_test_allocator *k4c_test_allocator);
+
+/* Reset event counters while keeping outstanding allocation state and fail_after. */
+void k4c_test_allocator_reset_counts(k4c_test_allocator *k4c_test_allocator);
+
+/* Return whether every tracked allocation has been released. */
+bool k4c_test_allocator_is_clean(const k4c_test_allocator *k4c_test_allocator);
 
 #endif

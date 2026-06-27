@@ -1,4 +1,4 @@
-name: vstd
+name: k4c
 
 on:
   pull_request:
@@ -6,11 +6,15 @@ on:
       - main
     paths:
       - docs/**
+      - include/**
       - src/**
       - tests/**
-      - tooling/**
+      - cmake/**
+      - nix/**
+      - scripts/**
       - flake.nix
       - flake.lock
+      - CMakeLists.txt
       - .github/workflows/flake.yml
       - .clang-format
       - .clang-tidy

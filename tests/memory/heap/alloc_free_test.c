@@ -24,33 +24,33 @@
 
 #include <stddef.h>
 
-#include "vstd/error.h"
-#include "vstd/memory/general_heap.h"
-#include "vstd/testing.h"
+#include "k4c/error.h"
+#include "k4c/memory/general_heap.h"
+#include "k4c/testing.h"
 
 int main(void) {
-    heap *heap = NULL;
-    if (test_equal(heap_create(2048, &heap), STATUS_OK)) {
+    k4c_heap *k4c_heap = NULL;
+    if (k4c_test_equal(k4c_heap_create(2048, &k4c_heap), K4C_STATUS_OK)) {
         return 1;
     }
-    size_t before = heap_available(heap);
+    size_t before = k4c_heap_available(k4c_heap);
 
-    int *a = (int *)heap_alloc(heap, sizeof(int));
-    int *b = (int *)heap_alloc(heap, sizeof(int));
-    if (test_not_null(a) != 0) {
+    int *a = (int *)k4c_heap_alloc(k4c_heap, sizeof(int));
+    int *b = (int *)k4c_heap_alloc(k4c_heap, sizeof(int));
+    if (k4c_test_not_null(a) != 0) {
         return 1;
     }
-    if (test_not_null(b) != 0) {
-        return 1;
-    }
-
-    size_t after = heap_available(heap);
-    if (test_equal(after < before, true) != 0) {
+    if (k4c_test_not_null(b) != 0) {
         return 1;
     }
 
-    heap_dealloc(heap, a);
-    heap_dealloc(heap, b);
-    heap_destroy(heap);
+    size_t after = k4c_heap_available(k4c_heap);
+    if (k4c_test_equal(after < before, true) != 0) {
+        return 1;
+    }
+
+    k4c_heap_dealloc(k4c_heap, a);
+    k4c_heap_dealloc(k4c_heap, b);
+    k4c_heap_destroy(k4c_heap);
     return 0;
 }

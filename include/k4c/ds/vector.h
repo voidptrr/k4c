@@ -22,20 +22,21 @@
  * SOFTWARE.
  */
 
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef K4C_VECTOR_H
+#define K4C_VECTOR_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "vstd/ds/iterator.h"
-#include "vstd/error.h"
-#include "vstd/memory/allocator.h"
+#include "k4c/ds/iterator.h"
+#include "k4c/error.h"
+#include "k4c/memory/allocator.h"
 
-#define vector_for_each(type, item, vector) \
-    for (iterator item##_iter__ = vector_get_iterator((vector)); item##_iter__.next != NULL; \
+#define k4c_vector_for_each(type, item, k4c_vector) \
+    for (k4c_iterator item##_iter__ = k4c_vector_get_iterator((k4c_vector)); \
+         item##_iter__.next != NULL; \
          item##_iter__.next = NULL) \
-    iterator_for_each(type, item, &item##_iter__)
+    k4c_iterator_for_each(type, item, &item##_iter__)
 
 /*
  * Opaque generic contiguous dynamic array.
@@ -51,64 +52,66 @@
  * - pop removes from the right edge
  * - get returns an item by index in O(1)
  */
-typedef struct vector vector;
+typedef struct k4c_vector k4c_vector;
 
 /* Comparator callback: negative if lhs < rhs, zero if equal, positive if lhs > rhs. */
-typedef int (*vector_cmp_fn)(const void *lhs, const void *rhs);
+typedef int (*k4c_vector_cmp_fn)(const void *lhs, const void *rhs);
 
-/* Create a vector with element size elem_size. */
-NODISCARD status vector_create(size_t elem_size, allocator *allocator, vector **out);
+/* Create a k4c_vector with element size elem_size. */
+k4c_status k4c_vector_create(size_t elem_size, k4c_allocator *k4c_allocator, k4c_vector **out);
 
-/* Create a vector with element size elem_size and at least capacity slots. */
-NODISCARD status
-vector_create_with_capacity(size_t elem_size, size_t capacity, allocator *allocator, vector **out);
+/* Create a k4c_vector with element size elem_size and at least capacity slots. */
+k4c_status k4c_vector_create_with_capacity(
+    size_t elem_size,
+    size_t capacity,
+    k4c_allocator *k4c_allocator,
+    k4c_vector **out
+);
 
-/* Ensure vector can hold at least capacity elements without growing. */
-NODISCARD status vector_reserve(vector *vector, size_t capacity);
+/* Ensure k4c_vector can hold at least capacity elements without growing. */
+k4c_status k4c_vector_reserve(k4c_vector *k4c_vector, size_t capacity);
 
 /* Append one element by copying elem_size bytes from element. */
-NODISCARD status vector_push(vector *vector, const void *element);
+k4c_status k4c_vector_push(k4c_vector *k4c_vector, const void *element);
 
 /* Remove and return the last element pointer, or NULL when empty. */
-void *vector_pop(vector *vector);
+void *k4c_vector_pop(k4c_vector *k4c_vector);
 
 /* Return item at index, or NULL when out of range. */
-void *vector_get(vector *vector, size_t index);
-
-/* Return const item at index, or NULL when out of range. */
-const void *vector_get_const(const vector *vector, size_t index);
+void *k4c_vector_get(const k4c_vector *k4c_vector, size_t index);
 
 /* Return the configured element size. */
-size_t vector_elem_size(const vector *vector);
+size_t k4c_vector_elem_size(const k4c_vector *k4c_vector);
 
-/* Return the number of elements vector can store without growing. */
-size_t vector_capacity(const vector *vector);
+/* Return the number of elements k4c_vector can store without growing. */
+size_t k4c_vector_capacity(const k4c_vector *k4c_vector);
 
 /* Return the backing storage pointer. */
-void *vector_data(vector *vector);
-
-/* Return the const backing storage pointer. */
-const void *vector_data_const(const vector *vector);
+void *k4c_vector_data(const k4c_vector *k4c_vector);
 
 /* Remove item at index by moving the last item into its slot. */
-void *vector_swap_remove(vector *vector, size_t index);
+void *k4c_vector_swap_remove(k4c_vector *k4c_vector, size_t index);
 
 /* Return the number of stored elements. */
-size_t vector_size(const vector *vector);
+size_t k4c_vector_size(const k4c_vector *k4c_vector);
 
-/* Return an iterator over vector from index 0 to size - 1. */
-iterator vector_get_iterator(const vector *vector);
+/* Return an k4c_iterator over k4c_vector from index 0 to size - 1. */
+k4c_iterator k4c_vector_get_iterator(const k4c_vector *k4c_vector);
 
 /* Return the first sorted index whose item is not less than key. */
-size_t vector_lower_bound(const vector *vector, const void *key, vector_cmp_fn cmp);
+size_t k4c_vector_lower_bound(const k4c_vector *k4c_vector, const void *key, k4c_vector_cmp_fn cmp);
 
 /* Return the first sorted index whose item is greater than key. */
-size_t vector_upper_bound(const vector *vector, const void *key, vector_cmp_fn cmp);
+size_t k4c_vector_upper_bound(const k4c_vector *k4c_vector, const void *key, k4c_vector_cmp_fn cmp);
 
-/* Return the sorted index containing key, or vector_size(vector) when absent. */
-size_t vector_binary_search(const vector *vector, const void *key, vector_cmp_fn cmp);
+/* Return the sorted index containing key, or k4c_vector_size(k4c_vector) when absent. */
+size_t k4c_vector_binary_search(
+    const k4c_vector *k4c_vector,
+    const void *key,
+    k4c_vector_cmp_fn cmp
+);
 
 /* Destroy and release owned storage. */
-void vector_destroy(vector *vector);
+void k4c_vector_destroy(k4c_vector *k4c_vector);
 
 #endif

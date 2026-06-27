@@ -1,8 +1,8 @@
-# ds.hashset
+# ds.k4c_hashset
 
 ## DESCRIPTION
 
-The hashset module provides fixed-size element storage with unique elements.
+The k4c_hashset module provides fixed-size element storage with unique elements.
 Hashing uses an internal FNV-1a function over stored element bytes. Element
 equality uses byte comparison when `elem_eq` is `NULL`, or a caller callback
 when one is provided.
@@ -17,10 +17,10 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## FUNCTIONS
 
-### hashset_for_each
+### k4c_hashset_for_each
 
 ```c
-#define hashset_for_each(type, item, set)
+#define k4c_hashset_for_each(type, item, set)
 ```
 
 - Parameters: `type`, `item`, `set`
@@ -29,76 +29,76 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ```c
 const uint64_t *value;
-hashset_for_each(uint64_t, value, set) {
+k4c_hashset_for_each(uint64_t, value, set) {
     /* use *value */
 }
 ```
 
-### hashset_create
+### k4c_hashset_create
 
 ```c
-status hashset_create(size_t elem_size,
-                            hashset_elem_eq_fn elem_eq,
-                            allocator *allocator,
-                            hashset **out);
+k4c_status k4c_hashset_create(size_t elem_size,
+                            k4c_hashset_elem_eq_fn elem_eq,
+                            k4c_allocator *k4c_allocator,
+                            k4c_hashset **out);
 ```
 
-- Parameters: `elem_size`, `elem_eq`, `allocator`, `out`
-- Returns: `STATUS_OK` on success, or an error status.
-- Writes: opaque hashset handle to `*out` on success.
-- Notes: the hashset stores `allocator` and reuses it for entries, buckets,
-  rehashing, and destroy. When `allocator` is `NULL`, hashset uses the C
-  library heap through `alloc`. Custom `elem_eq` callbacks must be
+- Parameters: `elem_size`, `elem_eq`, `k4c_allocator`, `out`
+- Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
+- Writes: opaque k4c_hashset handle to `*out` on success.
+- Notes: the k4c_hashset stores `k4c_allocator` and reuses it for entries, buckets,
+  rehashing, and destroy. When `k4c_allocator` is `NULL`, k4c_hashset uses the C
+  library k4c_heap through `k4c_alloc`. Custom `elem_eq` callbacks must be
   consistent with the byte hash used for bucket selection.
 - Example:
 
 ```c
-hashset *set = NULL;
-if (hashset_create(sizeof(uint64_t), NULL, NULL, &set) != STATUS_OK) {
+k4c_hashset *set = NULL;
+if (k4c_hashset_create(sizeof(uint64_t), NULL, NULL, &set) != K4C_STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### hashset_reserve
+### k4c_hashset_reserve
 
 ```c
-status hashset_reserve(hashset *set, size_t size);
+k4c_status k4c_hashset_reserve(k4c_hashset *set, size_t size);
 ```
 
 - Parameters: `set`, `size`
-- Returns: `STATUS_OK` on success, or an error status.
+- Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
 - Notes: grows bucket storage so at least `size` elements fit without another
   rehash at the default load factor.
 - Example:
 
 ```c
-if (hashset_reserve(set, 1024) != STATUS_OK) {
+if (k4c_hashset_reserve(set, 1024) != K4C_STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### hashset_insert
+### k4c_hashset_insert
 
 ```c
-status hashset_insert(hashset *set, const void *elem);
+k4c_status k4c_hashset_insert(k4c_hashset *set, const void *elem);
 ```
 
 - Parameters: `set`, `elem`
-- Returns: `STATUS_OK` on success, or an error status.
+- Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
 - Notes: copies `elem` into set-managed storage when it is not already present.
 - Example:
 
 ```c
 uint64_t value = 42;
-if (hashset_insert(set, &value) != STATUS_OK) {
+if (k4c_hashset_insert(set, &value) != K4C_STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### hashset_contains
+### k4c_hashset_contains
 
 ```c
-bool hashset_contains(const hashset *set, const void *elem);
+bool k4c_hashset_contains(const k4c_hashset *set, const void *elem);
 ```
 
 - Parameters: `set`, `elem`
@@ -106,13 +106,13 @@ bool hashset_contains(const hashset *set, const void *elem);
 - Example:
 
 ```c
-bool ok = hashset_contains(set, &value);
+bool ok = k4c_hashset_contains(set, &value);
 ```
 
-### hashset_get
+### k4c_hashset_get
 
 ```c
-void *hashset_get(hashset *set, const void *elem);
+void *k4c_hashset_get(const k4c_hashset *set, const void *elem);
 ```
 
 - Parameters: `set`, `elem`
@@ -120,30 +120,16 @@ void *hashset_get(hashset *set, const void *elem);
 - Example:
 
 ```c
-uint64_t *stored = (uint64_t *)hashset_get(set, &value);
+uint64_t *stored = (uint64_t *)k4c_hashset_get(set, &value);
 if (stored != NULL) {
     *stored = 7;
 }
 ```
 
-### hashset_get_const
+### k4c_hashset_remove
 
 ```c
-const void *hashset_get_const(const hashset *set, const void *elem);
-```
-
-- Parameters: `set`, `elem`
-- Returns: const pointer to stored element in set-managed storage, or `NULL` when element is missing.
-- Example:
-
-```c
-const uint64_t *stored = (const uint64_t *)hashset_get_const(set, &value);
-```
-
-### hashset_remove
-
-```c
-void hashset_remove(hashset *set, const void *elem);
+void k4c_hashset_remove(k4c_hashset *set, const void *elem);
 ```
 
 - Parameters: `set`, `elem`
@@ -152,13 +138,13 @@ void hashset_remove(hashset *set, const void *elem);
 - Example:
 
 ```c
-hashset_remove(set, &value);
+k4c_hashset_remove(set, &value);
 ```
 
-### hashset_size
+### k4c_hashset_size
 
 ```c
-size_t hashset_size(const hashset *set);
+size_t k4c_hashset_size(const k4c_hashset *set);
 ```
 
 - Parameters: `set`
@@ -166,34 +152,34 @@ size_t hashset_size(const hashset *set);
 - Example:
 
 ```c
-size_t count = hashset_size(set);
+size_t count = k4c_hashset_size(set);
 ```
 
-### hashset_get_iterator
+### k4c_hashset_get_iterator
 
 ```c
-iterator hashset_get_iterator(const hashset *set);
+k4c_iterator k4c_hashset_get_iterator(const k4c_hashset *set);
 ```
 
 - Parameters: `set`
-- Returns: iterator over stored elements in bucket order.
+- Returns: k4c_iterator over stored elements in bucket order.
 - Notes: yielded pointers refer to set-managed storage. Do not mutate the set
   while iterating.
 - Example:
 
 ```c
-iterator iter = hashset_get_iterator(set);
+k4c_iterator iter = k4c_hashset_get_iterator(set);
 
 const uint64_t *value;
-while ((value = (const uint64_t *)iterator_next(&iter)) != NULL) {
+while ((value = (const uint64_t *)k4c_iterator_next(&iter)) != NULL) {
     /* use *value */
 }
 ```
 
-### hashset_destroy
+### k4c_hashset_destroy
 
 ```c
-void hashset_destroy(hashset *set);
+void k4c_hashset_destroy(k4c_hashset *set);
 ```
 
 - Parameters: `set`
@@ -202,5 +188,5 @@ void hashset_destroy(hashset *set);
 - Example:
 
 ```c
-hashset_destroy(set);
+k4c_hashset_destroy(set);
 ```

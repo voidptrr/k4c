@@ -24,105 +24,105 @@
 
 #include <stdlib.h>
 
-#include "vstd/memory/allocator.h"
-#include "vstd/memory/test_allocator.h"
+#include "k4c/memory/allocator.h"
+#include "k4c/memory/test_allocator.h"
 
-static bool test_allocator_should_fail(test_allocator *test_allocator) {
-    if (test_allocator->fail_after == TEST_ALLOCATOR_NO_FAILURE) {
+static bool k4c_test_allocator_should_fail(k4c_test_allocator *k4c_test_allocator) {
+    if (k4c_test_allocator->fail_after == K4C_TEST_ALLOCATOR_NO_FAILURE) {
         return false;
     }
 
-    if (test_allocator->fail_after == 0) {
-        test_allocator->failed_allocations += 1;
+    if (k4c_test_allocator->fail_after == 0) {
+        k4c_test_allocator->failed_allocations += 1;
         return true;
     }
 
-    test_allocator->fail_after -= 1;
+    k4c_test_allocator->fail_after -= 1;
     return false;
 }
 
-static void *test_allocator_alloc(void *ctx, size_t size) {
-    test_allocator *test_allocator = ctx;
+static void *k4c_test_allocator_alloc(void *ctx, size_t size) {
+    k4c_test_allocator *k4c_test_allocator = ctx;
 
-    if (test_allocator_should_fail(test_allocator)) {
+    if (k4c_test_allocator_should_fail(k4c_test_allocator)) {
         return NULL;
     }
 
     void *ptr = malloc(size);
     if (ptr == NULL) {
-        test_allocator->failed_allocations += 1;
+        k4c_test_allocator->failed_allocations += 1;
         return NULL;
     }
 
-    test_allocator->alloc_count += 1;
-    test_allocator->outstanding_allocations += 1;
+    k4c_test_allocator->alloc_count += 1;
+    k4c_test_allocator->outstanding_allocations += 1;
     return ptr;
 }
 
-static void test_allocator_dealloc(void *ctx, void *ptr) {
-    test_allocator *test_allocator = ctx;
+static void k4c_test_allocator_dealloc(void *ctx, void *ptr) {
+    k4c_test_allocator *k4c_test_allocator = ctx;
 
     if (ptr == NULL) {
         return;
     }
 
-    test_allocator->dealloc_count += 1;
-    if (test_allocator->outstanding_allocations > 0) {
-        test_allocator->outstanding_allocations -= 1;
+    k4c_test_allocator->dealloc_count += 1;
+    if (k4c_test_allocator->outstanding_allocations > 0) {
+        k4c_test_allocator->outstanding_allocations -= 1;
     }
     free(ptr);
 }
 
-static void *test_allocator_realloc(void *ctx, void *ptr, size_t size) {
-    test_allocator *test_allocator = ctx;
+static void *k4c_test_allocator_realloc(void *ctx, void *ptr, size_t size) {
+    k4c_test_allocator *k4c_test_allocator = ctx;
 
     if (ptr == NULL) {
-        return test_allocator_alloc(ctx, size);
+        return k4c_test_allocator_alloc(ctx, size);
     }
 
     if (size == 0) {
-        test_allocator_dealloc(ctx, ptr);
+        k4c_test_allocator_dealloc(ctx, ptr);
         return NULL;
     }
 
-    if (test_allocator_should_fail(test_allocator)) {
+    if (k4c_test_allocator_should_fail(k4c_test_allocator)) {
         return NULL;
     }
 
     void *new_ptr = realloc(ptr, size);
     if (new_ptr == NULL) {
-        test_allocator->failed_allocations += 1;
+        k4c_test_allocator->failed_allocations += 1;
         return NULL;
     }
 
-    test_allocator->realloc_count += 1;
+    k4c_test_allocator->realloc_count += 1;
     return new_ptr;
 }
 
-allocator *test_allocator_init(test_allocator *test_allocator) {
-    test_allocator->alloc_count = 0;
-    test_allocator->realloc_count = 0;
-    test_allocator->dealloc_count = 0;
-    test_allocator->outstanding_allocations = 0;
-    test_allocator->failed_allocations = 0;
-    test_allocator->fail_after = TEST_ALLOCATOR_NO_FAILURE;
-    test_allocator->allocator = (allocator){
-        .ctx = test_allocator,
-        .features = ALLOCATOR_FEATURE_DEALLOC | ALLOCATOR_FEATURE_REALLOC,
-        .alloc = test_allocator_alloc,
-        .realloc = test_allocator_realloc,
-        .dealloc = test_allocator_dealloc,
+k4c_allocator *k4c_test_allocator_init(k4c_test_allocator *k4c_test_allocator) {
+    k4c_test_allocator->alloc_count = 0;
+    k4c_test_allocator->realloc_count = 0;
+    k4c_test_allocator->dealloc_count = 0;
+    k4c_test_allocator->outstanding_allocations = 0;
+    k4c_test_allocator->failed_allocations = 0;
+    k4c_test_allocator->fail_after = K4C_TEST_ALLOCATOR_NO_FAILURE;
+    k4c_test_allocator->k4c_allocator = (k4c_allocator){
+        .ctx = k4c_test_allocator,
+        .features = K4C_ALLOCATOR_FEATURE_DEALLOC | K4C_ALLOCATOR_FEATURE_REALLOC,
+        .k4c_alloc = k4c_test_allocator_alloc,
+        .realloc = k4c_test_allocator_realloc,
+        .k4c_dealloc = k4c_test_allocator_dealloc,
     };
-    return &test_allocator->allocator;
+    return &k4c_test_allocator->k4c_allocator;
 }
 
-void test_allocator_reset_counts(test_allocator *test_allocator) {
-    test_allocator->alloc_count = 0;
-    test_allocator->realloc_count = 0;
-    test_allocator->dealloc_count = 0;
-    test_allocator->failed_allocations = 0;
+void k4c_test_allocator_reset_counts(k4c_test_allocator *k4c_test_allocator) {
+    k4c_test_allocator->alloc_count = 0;
+    k4c_test_allocator->realloc_count = 0;
+    k4c_test_allocator->dealloc_count = 0;
+    k4c_test_allocator->failed_allocations = 0;
 }
 
-bool test_allocator_is_clean(const test_allocator *test_allocator) {
-    return test_allocator->outstanding_allocations == 0;
+bool k4c_test_allocator_is_clean(const k4c_test_allocator *k4c_test_allocator) {
+    return k4c_test_allocator->outstanding_allocations == 0;
 }

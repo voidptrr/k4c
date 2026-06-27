@@ -22,24 +22,25 @@
  * SOFTWARE.
  */
 
-#ifndef LINKED_LIST_H
-#define LINKED_LIST_H
+#ifndef K4C_LINKED_LIST_H
+#define K4C_LINKED_LIST_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "vstd/ds/iterator.h"
-#include "vstd/error.h"
-#include "vstd/memory/allocator.h"
-#include "vstd/memory/utils.h"
+#include "k4c/ds/iterator.h"
+#include "k4c/error.h"
+#include "k4c/memory/allocator.h"
+#include "k4c/memory/utils.h"
 
-#define linked_list_for_each_node(item, list) \
-    for (iterator item##_iter__ = linked_list_get_iterator((list)); \
-         ((item) = ITER_NEXT_AS(linked_list_node, &item##_iter__)) != NULL;)
+#define k4c_linked_list_for_each_node(item, list) \
+    for (k4c_iterator item##_iter__ = k4c_linked_list_get_iterator((list)); \
+         ((item) = K4C_ITER_NEXT_AS(k4c_linked_list_node, &item##_iter__)) != NULL;)
 
-#define linked_list_for_each_entry(type, member, item, list) \
-    for (iterator item##_iter__ = linked_list_get_iterator((list)); \
-         ((item) = CONTAINER_OF_CONST_OR_NULL(iterator_next(&item##_iter__), type, member)) \
+#define k4c_linked_list_for_each_entry(type, member, item, list) \
+    for (k4c_iterator item##_iter__ = k4c_linked_list_get_iterator((list)); \
+         ((item) = \
+              K4C_CONTAINER_OF_CONST_OR_NULL(k4c_iterator_next(&item##_iter__), type, member)) \
          != NULL;)
 
 /*
@@ -55,7 +56,7 @@
  *  +------+    +------+    +------+        +------+
  *     ^           ^           ^               ^
  *     |           |           |               |
- *  user object embeds linked_list_node
+ *  user object embeds k4c_linked_list_node
  *
  * - push appends at tail
  * - pushfront prepends at head
@@ -63,37 +64,40 @@
  * - linked list nodes and owning objects are caller-owned
  */
 
-typedef struct linked_list_node {
-    struct linked_list_node *next;
-} linked_list_node;
+typedef struct k4c_linked_list_node {
+    struct k4c_linked_list_node *next;
+} k4c_linked_list_node;
 
-typedef struct linked_list linked_list;
+typedef struct k4c_linked_list k4c_linked_list;
 
 /* Create an intrusive linked list. */
-NODISCARD status linked_list_create(allocator *allocator, linked_list **out);
+k4c_status k4c_linked_list_create(k4c_allocator *k4c_allocator, k4c_linked_list **out);
 
 /* Append node at the tail. */
-void linked_list_push(linked_list *list, linked_list_node *node);
+void k4c_linked_list_push(k4c_linked_list *list, k4c_linked_list_node *node);
 
 /* Prepend node at the head. */
-void linked_list_pushfront(linked_list *list, linked_list_node *node);
+void k4c_linked_list_pushfront(k4c_linked_list *list, k4c_linked_list_node *node);
 
 /* Remove and return the head node, or NULL when empty. */
-linked_list_node *linked_list_popleft(linked_list *list);
+k4c_linked_list_node *k4c_linked_list_popleft(k4c_linked_list *list);
 
 /* Remove and return the node after prev, or the head node when prev is NULL. */
-linked_list_node *linked_list_remove_after(linked_list *list, linked_list_node *prev);
+k4c_linked_list_node *k4c_linked_list_remove_after(
+    k4c_linked_list *list,
+    k4c_linked_list_node *prev
+);
 
 /* Return the number of stored elements. */
-size_t linked_list_size(const linked_list *list);
+size_t k4c_linked_list_size(const k4c_linked_list *list);
 
 /* Return the head node, or NULL when empty. */
-linked_list_node *linked_list_head(const linked_list *list);
+k4c_linked_list_node *k4c_linked_list_head(const k4c_linked_list *list);
 
-/* Return an iterator over list nodes from head to tail. */
-iterator linked_list_get_iterator(const linked_list *list);
+/* Return an k4c_iterator over list nodes from head to tail. */
+k4c_iterator k4c_linked_list_get_iterator(const k4c_linked_list *list);
 
 /* Release the linked-list handle. Nodes remain caller-owned. */
-void linked_list_destroy(linked_list *list);
+void k4c_linked_list_destroy(k4c_linked_list *list);
 
 #endif

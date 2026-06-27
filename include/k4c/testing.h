@@ -22,60 +22,61 @@
  * SOFTWARE.
  */
 
-#ifndef TESTING_H
-#define TESTING_H
+#ifndef K4C_TESTING_H
+#define K4C_TESTING_H
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
-#define TEST(name) static int test_case_##name(void)
-#define TEST_CASE(name) {#name, test_case_##name}
-#define TEST_MAIN(...) \
+#define K4C_TEST(name) static int test_case_##name(void)
+#define K4C_TEST_CASE(name) {#name, test_case_##name}
+#define K4C_TEST_MAIN(...) \
     int main(void) { \
-        static const test_case test_cases[] = {__VA_ARGS__}; \
-        return test_run(test_cases, sizeof(test_cases) / sizeof(test_cases[0])); \
+        static const k4c_test_case test_cases[] = {__VA_ARGS__}; \
+        return k4c_test_run(test_cases, sizeof(test_cases) / sizeof(test_cases[0])); \
     }
 
-#define test_equal(actual, expected) test_equal_intmax((intmax_t)(actual), (intmax_t)(expected))
+#define k4c_test_equal(actual, expected) \
+    k4c_test_equal_intmax((intmax_t)(actual), (intmax_t)(expected))
 
-#define test_not_equal(actual, expected) \
-    test_not_equal_intmax((intmax_t)(actual), (intmax_t)(expected))
+#define k4c_test_not_equal(actual, expected) \
+    k4c_test_not_equal_intmax((intmax_t)(actual), (intmax_t)(expected))
 
-#define test_status_ok(expr) test_equal((expr), 0)
+#define k4c_test_status_ok(expr) k4c_test_equal((expr), 0)
 
-typedef int (*test_fn)(void);
+typedef int (*k4c_test_fn)(void);
 
-typedef struct test_case {
+typedef struct k4c_test_case {
     const char *name;
-    test_fn fn;
-} test_case;
+    k4c_test_fn fn;
+} k4c_test_case;
 
 /* Return 0 when scalar values are equal, otherwise print both values and return 1. */
-int test_equal_intmax(intmax_t actual, intmax_t expected);
+int k4c_test_equal_intmax(intmax_t actual, intmax_t expected);
 
 /* Return 0 when scalar values differ, otherwise print both values and return 1. */
-int test_not_equal_intmax(intmax_t actual, intmax_t expected);
+int k4c_test_not_equal_intmax(intmax_t actual, intmax_t expected);
 
 /* Return 0 when pointers are equal, otherwise print both addresses and return 1. */
-int test_equal_ptr(const void *actual, const void *expected);
+int k4c_test_equal_ptr(const void *actual, const void *expected);
 
 /* Return 0 when pointers differ, otherwise print both addresses and return 1. */
-int test_not_equal_ptr(const void *actual, const void *expected);
+int k4c_test_not_equal_ptr(const void *actual, const void *expected);
 
 /* Return 0 when ptr is NULL, otherwise print the address and return 1. */
-int test_null(const void *ptr);
+int k4c_test_null(const void *ptr);
 
 /* Return 0 when ptr is not NULL, otherwise print a failure and return 1. */
-int test_not_null(const void *ptr);
+int k4c_test_not_null(const void *ptr);
 
 /* Return 0 when C strings are equal, otherwise print both values and return 1. */
-int test_equal_str(const char *actual, const char *expected);
+int k4c_test_equal_str(const char *actual, const char *expected);
 
 /* Return whether two C strings are equal, treating two NULL pointers as equal. */
-bool test_str_eq(const char *actual, const char *expected);
+bool k4c_test_str_eq(const char *actual, const char *expected);
 
 /* Run named test cases and return 1 if any case fails. */
-int test_run(const test_case *cases, size_t count);
+int k4c_test_run(const k4c_test_case *cases, size_t count);
 
 #endif
