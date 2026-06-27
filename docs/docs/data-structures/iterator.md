@@ -154,7 +154,7 @@ vs_status vs_iterator_collect(vs_iterator *source,
 ```
 
 - Parameters: `source`, `elem_size`, `allocator`, `out`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Writes: vector containing copies of the remaining source items to `*out`.
 - Notes: consumes `source`. The returned vector owns its storage and can outlive
   the original data structure.
@@ -167,8 +167,12 @@ if (vs_vector_create(sizeof(int), NULL, &values) != VS_STATUS_OK) {
 }
 int one = 1;
 int two = 2;
-vs_vector_push(values, &one);
-vs_vector_push(values, &two);
+if (vs_vector_push(values, &one) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
+if (vs_vector_push(values, &two) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 
 vs_iterator iter = vs_vector_get_iterator(values);
 vs_vector *copy = NULL;
@@ -193,7 +197,7 @@ vs_status vs_iterator_collect_map(vs_iterator *source,
 ```
 
 - Parameters: `source`, `dst_elem_size`, `map`, `context`, `allocator`, `out`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Writes: vector containing mapped copies of the remaining source items to `*out`.
 - Notes: consumes `source`. Use this when the output element type or size is
   different from the source element type.
@@ -210,7 +214,9 @@ if (vs_vector_create(sizeof(int), NULL, &ints) != VS_STATUS_OK) {
     /* handle allocation failure */
 }
 int value = 42;
-vs_vector_push(ints, &value);
+if (vs_vector_push(ints, &value) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 
 vs_iterator iter = vs_vector_get_iterator(ints);
 vs_vector *doubles = NULL;

@@ -127,7 +127,7 @@ vs_status vs_binary_heap_create(
     *out = NULL;
 
     vs_binary_heap *heap = NULL;
-    vs_status status = vs_malloc(allocator, sizeof(vs_binary_heap), (void **)&heap);
+    vs_status status = vs_alloc(allocator, sizeof(vs_binary_heap), (void **)&heap);
     if (status != VS_STATUS_OK) {
         return status;
     }

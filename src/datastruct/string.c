@@ -31,6 +31,7 @@
 #include "vstd/datastruct/string.h"
 #include "vstd/error.h"
 #include "vstd/memory/allocator.h"
+#include "vstd/memory/utils.h"
 
 #define VS_STRING_DEFAULT_CAPACITY 16
 
@@ -59,14 +60,19 @@ static vs_string_header *vs_string_header_from_buf(vs_string string) {
     return (vs_string_header *)((uint8_t *)string - offsetof(vs_string_header, buf));
 }
 
-static size_t vs_string_capacity_for(size_t len) {
+static vs_status vs_string_capacity_for(size_t len, size_t *out) {
+    VSTD_ASSERT(out != NULL, "fatal: vs_string_capacity_for invalid arguments");
+
     size_t capacity = VS_STRING_DEFAULT_CAPACITY;
 
     while (capacity <= len) {
-        capacity *= 2;
+        if (vs_size_mul_overflow(capacity, 2, &capacity)) {
+            return VS_STATUS_OVERFLOW;
+        }
     }
 
-    return capacity;
+    *out = capacity;
+    return VS_STATUS_OK;
 }
 
 static vs_status vs_string_ensure_capacity(vs_string *string, size_t len, vs_string_header **out) {
@@ -78,12 +84,17 @@ static vs_status vs_string_ensure_capacity(vs_string *string, size_t len, vs_str
         return VS_STATUS_OK;
     }
 
-    size_t new_capacity = vs_string_capacity_for(len);
-    size_t alloc_size = sizeof(vs_string_header) + new_capacity;
+    size_t new_capacity = 0;
+    VS_RETURN_IF_ERROR(vs_string_capacity_for(len, &new_capacity));
+
+    size_t alloc_size = 0;
+    if (vs_size_add_overflow(sizeof(vs_string_header), new_capacity, &alloc_size)) {
+        return VS_STATUS_OVERFLOW;
+    }
 
     vs_allocator *allocator = header->allocator;
     vs_string_header *tmp = NULL;
-    vs_status status = vs_realloc(allocator, header, alloc_size, (void **)&tmp);
+    vs_status status = vs_resize(allocator, header, alloc_size, (void **)&tmp);
     if (status != VS_STATUS_OK) {
         return status;
     }
@@ -112,11 +123,16 @@ vs_status vs_string_create(const char *initial, vs_allocator *allocator, vs_stri
     *out = NULL;
 
     size_t len = initial == NULL ? 0 : strlen(initial);
-    size_t capacity = vs_string_capacity_for(len);
-    size_t alloc_size = sizeof(vs_string_header) + capacity;
+    size_t capacity = 0;
+    VS_RETURN_IF_ERROR(vs_string_capacity_for(len, &capacity));
+
+    size_t alloc_size = 0;
+    if (vs_size_add_overflow(sizeof(vs_string_header), capacity, &alloc_size)) {
+        return VS_STATUS_OVERFLOW;
+    }
 
     vs_string_header *header = NULL;
-    vs_status status = vs_malloc(allocator, alloc_size, (void **)&header);
+    vs_status status = vs_alloc(allocator, alloc_size, (void **)&header);
     if (status != VS_STATUS_OK) {
         return status;
     }
@@ -145,7 +161,11 @@ vs_status vs_string_append(vs_string *string, const char *suffix) {
     }
 
     vs_string_header *header = vs_string_header_from_buf(*string);
-    size_t new_len = header->len + suffix_len;
+    size_t new_len = 0;
+    if (vs_size_add_overflow(header->len, suffix_len, &new_len)) {
+        return VS_STATUS_OVERFLOW;
+    }
+
     vs_status status = vs_string_ensure_capacity(string, new_len, &header);
     if (status != VS_STATUS_OK) {
         return status;
@@ -169,7 +189,11 @@ vs_status vs_string_prepend(vs_string *string, const char *prefix) {
 
     vs_string_header *header = vs_string_header_from_buf(*string);
     size_t old_len = header->len;
-    size_t new_len = old_len + prefix_len;
+    size_t new_len = 0;
+    if (vs_size_add_overflow(old_len, prefix_len, &new_len)) {
+        return VS_STATUS_OVERFLOW;
+    }
+
     vs_status status = vs_string_ensure_capacity(string, new_len, &header);
     if (status != VS_STATUS_OK) {
         return status;

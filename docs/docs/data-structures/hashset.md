@@ -44,11 +44,11 @@ vs_status vs_hashset_create(size_t elem_size,
 ```
 
 - Parameters: `elem_size`, `elem_eq`, `allocator`, `out`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Writes: opaque hashset handle to `*out` on success.
 - Notes: the hashset stores `allocator` and reuses it for entries, buckets,
   rehashing, and destroy. When `allocator` is `NULL`, hashset uses the C
-  library heap through `vs_malloc`. Custom `elem_eq` callbacks must be
+  library heap through `vs_alloc`. Custom `elem_eq` callbacks must be
   consistent with the byte hash used for bucket selection.
 - Example:
 
@@ -66,7 +66,7 @@ vs_status vs_hashset_reserve(vs_hashset *set, size_t size);
 ```
 
 - Parameters: `set`, `size`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Notes: grows bucket storage so at least `size` elements fit without another
   rehash at the default load factor.
 - Example:
@@ -84,7 +84,7 @@ vs_status vs_hashset_insert(vs_hashset *set, const void *elem);
 ```
 
 - Parameters: `set`, `elem`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Notes: copies `elem` into set-managed storage when it is not already present.
 - Example:
 

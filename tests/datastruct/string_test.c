@@ -48,7 +48,10 @@ VS_TEST(allocator) {
         return 1;
     }
 
-    vs_string_append(&value, "012345678901234567890123456789");
+    if (vs_test_status_ok(vs_string_append(&value, "012345678901234567890123456789"))) {
+
+        return 1;
+    }
     if (test_allocator.realloc_count != 1) {
         return 1;
     }
@@ -77,9 +80,16 @@ VS_TEST(append) {
         return 1;
     }
 
-    vs_string_append(&value, ", ");
-    vs_string_append(&value, "world");
-    vs_string_append(&value, "");
+    if (vs_test_status_ok(vs_string_append(&value, ", "))) {
+
+        return 1;
+    }
+    if (vs_test_status_ok(vs_string_append(&value, "world"))) {
+        return 1;
+    }
+    if (vs_test_status_ok(vs_string_append(&value, ""))) {
+        return 1;
+    }
     if (vs_string_len(value) != 12) {
         return 1;
     }
@@ -87,7 +97,10 @@ VS_TEST(append) {
         return 1;
     }
 
-    vs_string_append(&value, "012345678901234567890123456789");
+    if (vs_test_status_ok(vs_string_append(&value, "012345678901234567890123456789"))) {
+
+        return 1;
+    }
     if (vs_string_len(value) != 42) {
         return 1;
     }
@@ -118,7 +131,10 @@ VS_TEST(clear) {
         return 1;
     }
 
-    vs_string_append(&value, "again");
+    if (vs_test_status_ok(vs_string_append(&value, "again"))) {
+
+        return 1;
+    }
     if (vs_test_equal_str(value, "again") != 0) {
         return 1;
     }
@@ -179,12 +195,18 @@ VS_TEST(prepend) {
         return 1;
     }
 
-    vs_string_prepend(&value, "hello ");
+    if (vs_test_status_ok(vs_string_prepend(&value, "hello "))) {
+
+        return 1;
+    }
     if (vs_test_equal_str(value, "hello world") != 0) {
         return 1;
     }
 
-    vs_string_prepend(&value, "");
+    if (vs_test_status_ok(vs_string_prepend(&value, ""))) {
+
+        return 1;
+    }
     if (vs_test_equal_str(value, "hello world") != 0) {
         return 1;
     }

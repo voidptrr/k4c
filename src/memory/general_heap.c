@@ -110,7 +110,10 @@ static void *vs_heap_alloc_impl(vs_heap *heap, size_t size) {
     VSTD_ASSERT(heap->blocks != NULL, "fatal: vs_heap_alloc invalid heap");
     VSTD_ASSERT(size > 0, "fatal: vs_heap_alloc invalid arguments");
 
-    size = vs_align_up(size, VS_MEMORY_ALIGN);
+    if (vs_align_up_overflow(size, VS_MEMORY_ALIGN, &size)) {
+        return NULL;
+    }
+
     vs_heap_block *block = vs_heap_head(heap);
     while (block != NULL) {
         if (block->is_free && block->size >= size) {
@@ -156,7 +159,10 @@ static void *vs_heap_realloc_impl(vs_heap *heap, void *ptr, size_t size) {
         return NULL;
     }
 
-    size = vs_align_up(size, VS_MEMORY_ALIGN);
+    if (vs_align_up_overflow(size, VS_MEMORY_ALIGN, &size)) {
+        return NULL;
+    }
+
     vs_heap_block *block = (vs_heap_block *)((uint8_t *)ptr - sizeof(vs_heap_block));
     if (block->size >= size) {
         vs_heap_split_block(heap, block, size);
@@ -195,7 +201,10 @@ static void *vs_heap_realloc_callback(void *ctx, void *ptr, size_t size) {
 }
 
 vs_status vs_heap_create(size_t capacity, vs_heap **out) {
-    capacity = vs_align_up(capacity, VS_MEMORY_ALIGN);
+    if (vs_align_up_overflow(capacity, VS_MEMORY_ALIGN, &capacity)) {
+        return VS_STATUS_OVERFLOW;
+    }
+
     VSTD_ASSERT(
         capacity > sizeof(vs_heap_block) + VS_MEMORY_ALIGN,
         "fatal: vs_heap_create invalid capacity"
@@ -205,12 +214,12 @@ vs_status vs_heap_create(size_t capacity, vs_heap **out) {
     *out = NULL;
 
     vs_heap *heap = NULL;
-    vs_status status = vs_malloc(NULL, sizeof(vs_heap), (void **)&heap);
+    vs_status status = vs_alloc(NULL, sizeof(vs_heap), (void **)&heap);
     if (status != VS_STATUS_OK) {
         return status;
     }
 
-    status = vs_malloc(NULL, capacity, &heap->buffer);
+    status = vs_alloc(NULL, capacity, &heap->buffer);
     if (status != VS_STATUS_OK) {
         vs_dealloc(NULL, heap);
         return status;

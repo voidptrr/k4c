@@ -67,7 +67,7 @@ typedef int (*vs_binary_heap_cmp_fn)(const void *lhs, const void *rhs);
 typedef struct vs_binary_heap vs_binary_heap;
 
 /* Create a heap for elements of size elem_size. NULL cmp uses byte-wise ordering. */
-vs_status vs_binary_heap_create(
+VS_NODISCARD vs_status vs_binary_heap_create(
     size_t elem_size,
     vs_binary_heap_cmp_fn cmp,
     vs_allocator *allocator,
@@ -75,7 +75,7 @@ vs_status vs_binary_heap_create(
 );
 
 /* Insert one element by copying elem_size bytes from element. */
-vs_status vs_binary_heap_push(vs_binary_heap *heap, const void *element);
+VS_NODISCARD vs_status vs_binary_heap_push(vs_binary_heap *heap, const void *element);
 
 /* Remove and return the top element pointer, or NULL when empty. */
 void *vs_binary_heap_pop(vs_binary_heap *heap);

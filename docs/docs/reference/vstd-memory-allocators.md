@@ -46,25 +46,25 @@ typedef enum vs_allocator_features {
 
 ## FUNCTIONS
 
-### vs_malloc
+### vs_alloc
 
 ```c
-vs_status vs_malloc(vs_allocator *allocator, size_t size, void **out);
+vs_status vs_alloc(vs_allocator *allocator, size_t size, void **out);
 ```
 
 - Parameters: `allocator`, `size`, `out`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY` when allocation fails.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Writes: allocated memory pointer to `*out` on success; `NULL` on failure.
 - Notes: when `allocator` is `NULL` or has no `alloc` callback, uses the C library heap.
 
-### vs_realloc
+### vs_resize
 
 ```c
-vs_status vs_realloc(vs_allocator *allocator, void *ptr, size_t size, void **out);
+vs_status vs_resize(vs_allocator *allocator, void *ptr, size_t size, void **out);
 ```
 
 - Parameters: `allocator`, `ptr`, `size`, `out`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY` when allocation fails.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Writes: resized memory pointer to `*out` on success; `NULL` when `size == 0` or allocation fails.
 - Notes: when `allocator` is `NULL` or has no `realloc` callback, uses the C library heap. When `size == 0`, deallocates `ptr`.
 

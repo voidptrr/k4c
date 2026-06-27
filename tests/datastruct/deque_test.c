@@ -60,8 +60,13 @@ VS_TEST(peekback) {
     int first = 1;
     int second = 2;
 
-    vs_deque_push(q, &first);
-    vs_deque_push(q, &second);
+    if (vs_test_status_ok(vs_deque_push(q, &first))) {
+
+        return 1;
+    }
+    if (vs_test_status_ok(vs_deque_push(q, &second))) {
+        return 1;
+    }
 
     const int *out = (const int *)vs_deque_peekback(q);
     if (vs_test_not_null(out) != 0) {
@@ -88,8 +93,13 @@ VS_TEST(peekleft) {
     int first = 1;
     int second = 2;
 
-    vs_deque_push(q, &first);
-    vs_deque_push(q, &second);
+    if (vs_test_status_ok(vs_deque_push(q, &first))) {
+
+        return 1;
+    }
+    if (vs_test_status_ok(vs_deque_push(q, &second))) {
+        return 1;
+    }
 
     const int *out = (const int *)vs_deque_peekleft(q);
     if (vs_test_not_null(out) != 0) {
@@ -116,8 +126,13 @@ VS_TEST(popback) {
     int first = 1;
     int second = 2;
 
-    vs_deque_push(q, &first);
-    vs_deque_push(q, &second);
+    if (vs_test_status_ok(vs_deque_push(q, &first))) {
+
+        return 1;
+    }
+    if (vs_test_status_ok(vs_deque_push(q, &second))) {
+        return 1;
+    }
 
     int *out = (int *)vs_deque_popback(q);
     if (vs_test_not_null(out) != 0) {
@@ -147,8 +162,13 @@ VS_TEST(popleft) {
         return 1;
     }
 
-    vs_deque_push(q, &values[0]);
-    vs_deque_push(q, &values[1]);
+    if (vs_test_status_ok(vs_deque_push(q, &values[0]))) {
+
+        return 1;
+    }
+    if (vs_test_status_ok(vs_deque_push(q, &values[1]))) {
+        return 1;
+    }
     int *out = (int *)vs_deque_popleft(q);
     if (vs_test_not_null(out) != 0) {
         return 1;
@@ -173,7 +193,10 @@ VS_TEST(push) {
     }
     int value = 42;
 
-    vs_deque_push(q, &value);
+    if (vs_test_status_ok(vs_deque_push(q, &value))) {
+
+        return 1;
+    }
 
     const int *out = vs_deque_peekback(q);
     if (vs_deque_size(q) != 1) {
@@ -203,8 +226,13 @@ VS_TEST(pushfront) {
     int first = 1;
     int second = 2;
 
-    vs_deque_push(q, &first);
-    vs_deque_pushfront(q, &second);
+    if (vs_test_status_ok(vs_deque_push(q, &first))) {
+
+        return 1;
+    }
+    if (vs_test_status_ok(vs_deque_pushfront(q, &second))) {
+        return 1;
+    }
 
     int *out = (int *)vs_deque_popleft(q);
     if (vs_test_not_null(out) != 0) {
@@ -233,7 +261,9 @@ VS_TEST(iterator_walks_front_to_back) {
     size_t index = 0;
 
     for (size_t i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
-        vs_deque_push(q, &expected[i]);
+        if (vs_test_status_ok(vs_deque_push(q, &expected[i]))) {
+            return 1;
+        }
     }
 
     vs_iterator iter = vs_deque_get_iterator(q);
@@ -267,7 +297,9 @@ VS_TEST(iterator_collect_copies_items) {
     int expected[] = {1, 2, 3, 4};
 
     for (size_t i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
-        vs_deque_push(q, &expected[i]);
+        if (vs_test_status_ok(vs_deque_push(q, &expected[i]))) {
+            return 1;
+        }
     }
 
     vs_iterator iter = vs_deque_get_iterator(q);

@@ -47,11 +47,11 @@ vs_status vs_doubly_linked_list_create(vs_allocator *allocator, vs_doubly_linked
 ```
 
 - Parameters: `allocator`, `out`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Writes: opaque doubly linked-list handle to `*out` on success.
 - Notes: the list stores `allocator` and reuses it to destroy the list handle.
   Nodes remain caller-owned. When `allocator` is `NULL`, the handle uses the C
-  library heap through `vs_malloc`.
+  library heap through `vs_alloc`.
 - Example:
 
 ```c

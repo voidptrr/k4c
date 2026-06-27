@@ -185,8 +185,22 @@ vs_status vs_hashmap_create(
 
     *out = NULL;
 
+    size_t value_offset = 0;
+    if (vs_align_up_overflow(key_size, VS_MEMORY_ALIGN, &value_offset)) {
+        return VS_STATUS_OVERFLOW;
+    }
+    size_t entry_payload_size = 0;
+    if (vs_size_add_overflow(value_offset, value_size, &entry_payload_size)) {
+        return VS_STATUS_OVERFLOW;
+    }
+    size_t max_entry_size = 0;
+    if (vs_size_add_overflow(sizeof(vs_hashmap_entry), entry_payload_size, &max_entry_size)) {
+        return VS_STATUS_OVERFLOW;
+    }
+    (void)max_entry_size;
+
     vs_hashmap *map = NULL;
-    vs_status status = vs_malloc(allocator, sizeof(vs_hashmap), (void **)&map);
+    vs_status status = vs_alloc(allocator, sizeof(vs_hashmap), (void **)&map);
     if (status != VS_STATUS_OK) {
         return status;
     }
@@ -212,7 +226,8 @@ vs_status vs_hashmap_create(
 vs_status vs_hashmap_reserve(vs_hashmap *map, size_t size) {
     VSTD_ASSERT(map != NULL, "fatal: vs_hashmap_reserve invalid arguments");
 
-    size_t new_capacity = vs_hash_common_capacity_for_size(size);
+    size_t new_capacity = 0;
+    VS_RETURN_IF_ERROR(vs_hash_common_capacity_for_size(size, &new_capacity));
     if (new_capacity <= map->capacity) {
         return VS_STATUS_OK;
     }
@@ -259,17 +274,28 @@ vs_status vs_hashmap_put(vs_hashmap *map, const void *key, const void *value) {
     }
 
     if (vs_hash_common_should_grow(map->size, map->capacity)) {
-        vs_status status = vs_hashmap_reserve(map, map->size + 1);
-        if (status != VS_STATUS_OK) {
-            return status;
+        size_t reserve_size = 0;
+        if (vs_size_add_overflow(map->size, 1, &reserve_size)) {
+            return VS_STATUS_OVERFLOW;
         }
+
+        VS_RETURN_IF_ERROR(vs_hashmap_reserve(map, reserve_size));
         bucket = vs_hash_common_bucket_index(hash, map->capacity);
     }
 
-    size_t value_offset = vs_align_up(map->key_size, VS_MEMORY_ALIGN);
-    size_t alloc_size = sizeof(vs_hashmap_entry) + value_offset + map->value_size;
+    size_t value_offset = 0;
+    if (vs_align_up_overflow(map->key_size, VS_MEMORY_ALIGN, &value_offset)) {
+        return VS_STATUS_OVERFLOW;
+    }
+
+    size_t alloc_size = 0;
+    if (vs_size_add_overflow(value_offset, map->value_size, &alloc_size)
+        || vs_size_add_overflow(sizeof(vs_hashmap_entry), alloc_size, &alloc_size)) {
+        return VS_STATUS_OVERFLOW;
+    }
+
     vs_hashmap_entry *entry = NULL;
-    vs_status status = vs_malloc(allocator, alloc_size, (void **)&entry);
+    vs_status status = vs_alloc(allocator, alloc_size, (void **)&entry);
     if (status != VS_STATUS_OK) {
         return status;
     }

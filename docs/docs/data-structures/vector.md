@@ -30,7 +30,9 @@ Typed cursor for walking vector elements.
 - Example:
 
 ```c
-VS_VECTOR_PUSH_AS(vector, int, 42);
+if (VS_VECTOR_PUSH_AS(vector, int, 42) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 ```
 
 ### vs_vector_for_each
@@ -56,11 +58,11 @@ vs_status vs_vector_create(size_t elem_size, vs_allocator *allocator, vs_vector 
 ```
 
 - Parameters: `elem_size`, `allocator`, `out`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Writes: opaque vector handle to `*out` on success.
 - Notes: the vector stores `allocator` and reuses it for growth and destroy.
   When `allocator` is `NULL`, vector uses the C library heap through
-  `vs_malloc`/`vs_realloc`.
+  `vs_alloc`/`vs_resize`.
 - Example:
 
 ```c
@@ -80,7 +82,7 @@ vs_status vs_vector_create_with_capacity(size_t elem_size,
 ```
 
 - Parameters: `elem_size`, `capacity`, `allocator`, `out`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Writes: opaque vector handle with at least `capacity` slots allocated to `*out`.
 - Example:
 
@@ -98,7 +100,7 @@ vs_status vs_vector_reserve(vs_vector *vector, size_t capacity);
 ```
 
 - Parameters: `vector`, `capacity`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Notes: grows backing storage when needed; existing items are preserved.
 - Example:
 
@@ -115,7 +117,7 @@ vs_status vs_vector_push(vs_vector *vector, const void *element);
 ```
 
 - Parameters: `vector`, `element`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Example:
 
 ```c

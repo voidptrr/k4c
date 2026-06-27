@@ -50,7 +50,10 @@ VS_TEST(allocator) {
     }
     vs_test_allocator_reset_counts(&test_allocator);
 
-    vs_hashset_insert(set, &value);
+    if (vs_test_status_ok(vs_hashset_insert(set, &value))) {
+
+        return 1;
+    }
     if (test_allocator.alloc_count != 1) {
         return 1;
     }
@@ -76,7 +79,10 @@ VS_TEST(contains) {
         return 1;
     }
 
-    vs_hashset_insert(set, &present);
+    if (vs_test_status_ok(vs_hashset_insert(set, &present))) {
+
+        return 1;
+    }
     if (vs_test_equal(vs_hashset_contains(set, &present), true) != 0) {
         return 1;
     }
@@ -86,7 +92,9 @@ VS_TEST(contains) {
     }
 
     for (uint64_t i = 0; i < 256; i++) {
-        vs_hashset_insert(set, &i);
+        if (vs_test_status_ok(vs_hashset_insert(set, &i))) {
+            return 1;
+        }
     }
 
     if (vs_test_equal(vs_hashset_contains(set, &missing), true) != 0) {
@@ -114,7 +122,10 @@ VS_TEST(get) {
         return 1;
     }
 
-    vs_hashset_insert(set, &value);
+    if (vs_test_status_ok(vs_hashset_insert(set, &value))) {
+
+        return 1;
+    }
 
     uint64_t *found = (uint64_t *)vs_hashset_get(set, &value);
     if (vs_test_not_null(found) != 0) {
@@ -172,8 +183,13 @@ VS_TEST(default_byte_equality) {
     uint64_t value = 42;
     uint64_t same_value = 42;
 
-    vs_hashset_insert(set, &value);
-    vs_hashset_insert(set, &same_value);
+    if (vs_test_status_ok(vs_hashset_insert(set, &value))) {
+
+        return 1;
+    }
+    if (vs_test_status_ok(vs_hashset_insert(set, &same_value))) {
+        return 1;
+    }
     if (vs_test_equal(vs_hashset_contains(set, &same_value), true) != 0) {
         return 1;
     }
@@ -203,8 +219,13 @@ VS_TEST(custom_equality) {
         return 1;
     }
 
-    vs_hashset_insert(set, &value);
-    vs_hashset_insert(set, &same_value);
+    if (vs_test_status_ok(vs_hashset_insert(set, &value))) {
+
+        return 1;
+    }
+    if (vs_test_status_ok(vs_hashset_insert(set, &same_value))) {
+        return 1;
+    }
     if (vs_test_equal(vs_hashset_contains(set, &same_value), true) != 0) {
         return 1;
     }
@@ -231,14 +252,20 @@ VS_TEST(insert) {
     }
 
     uint64_t first = 42;
-    vs_hashset_insert(set, &first);
-    vs_hashset_insert(set, &first);
+    if (vs_test_status_ok(vs_hashset_insert(set, &first))) {
+        return 1;
+    }
+    if (vs_test_status_ok(vs_hashset_insert(set, &first))) {
+        return 1;
+    }
     if (vs_hashset_size(set) != 1) {
         return 1;
     }
 
     for (uint64_t i = 0; i < 256; i++) {
-        vs_hashset_insert(set, &i);
+        if (vs_test_status_ok(vs_hashset_insert(set, &i))) {
+            return 1;
+        }
     }
 
     if (vs_hashset_size(set) != 256) {
@@ -259,10 +286,14 @@ VS_TEST(reserve) {
     if (vs_test_equal(vs_hashset_create(sizeof(uint64_t), NULL, allocator, &set), VS_STATUS_OK)) {
         return 1;
     }
-    vs_hashset_reserve(set, 512);
+    if (vs_test_status_ok(vs_hashset_reserve(set, 512))) {
+        return 1;
+    }
 
     for (uint64_t i = 0; i < 512; i++) {
-        vs_hashset_insert(set, &i);
+        if (vs_test_status_ok(vs_hashset_insert(set, &i))) {
+            return 1;
+        }
     }
 
     for (uint64_t i = 0; i < 512; i++) {
@@ -287,7 +318,9 @@ VS_TEST(remove) {
     }
 
     for (uint64_t i = 0; i < 256; i++) {
-        vs_hashset_insert(set, &i);
+        if (vs_test_status_ok(vs_hashset_insert(set, &i))) {
+            return 1;
+        }
     }
 
     uint64_t removed = 42;
@@ -337,7 +370,9 @@ VS_TEST(foreach_macro_walks_elements) {
     size_t count = 0;
 
     for (uint64_t i = 1; i <= 4; i++) {
-        vs_hashset_insert(set, &i);
+        if (vs_test_status_ok(vs_hashset_insert(set, &i))) {
+            return 1;
+        }
     }
 
     vs_hashset_for_each(uint64_t, elem, set) {
@@ -371,7 +406,9 @@ VS_TEST(iterator_walks_elements) {
     size_t count = 0;
 
     for (uint64_t i = 1; i <= 4; i++) {
-        vs_hashset_insert(set, &i);
+        if (vs_test_status_ok(vs_hashset_insert(set, &i))) {
+            return 1;
+        }
     }
 
     vs_iterator iter = vs_hashset_get_iterator(set);

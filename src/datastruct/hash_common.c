@@ -30,6 +30,7 @@
 #include "vstd/datastruct/linked_list.h"
 #include "vstd/error.h"
 #include "vstd/memory/allocator.h"
+#include "vstd/memory/utils.h"
 
 static bool vs_hash_common_value_eq(
     const void *lhs,
@@ -53,9 +54,13 @@ vs_status vs_hash_common_buckets_create(
 
     *out = NULL;
 
-    size_t alloc_size = sizeof(vs_hash_common_bucket) * capacity;
+    size_t alloc_size = 0;
+    if (vs_size_mul_overflow(sizeof(vs_hash_common_bucket), capacity, &alloc_size)) {
+        return VS_STATUS_OVERFLOW;
+    }
+
     vs_hash_common_bucket *buckets = NULL;
-    vs_status status = vs_malloc(allocator, alloc_size, (void **)&buckets);
+    vs_status status = vs_alloc(allocator, alloc_size, (void **)&buckets);
     if (status != VS_STATUS_OK) {
         return status;
     }

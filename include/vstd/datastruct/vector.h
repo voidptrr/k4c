@@ -60,10 +60,10 @@ typedef struct vs_vector vs_vector;
 typedef int (*vs_vector_cmp_fn)(const void *lhs, const void *rhs);
 
 /* Create a vector with element size elem_size. */
-vs_status vs_vector_create(size_t elem_size, vs_allocator *allocator, vs_vector **out);
+VS_NODISCARD vs_status vs_vector_create(size_t elem_size, vs_allocator *allocator, vs_vector **out);
 
 /* Create a vector with element size elem_size and at least capacity slots. */
-vs_status vs_vector_create_with_capacity(
+VS_NODISCARD vs_status vs_vector_create_with_capacity(
     size_t elem_size,
     size_t capacity,
     vs_allocator *allocator,
@@ -71,10 +71,10 @@ vs_status vs_vector_create_with_capacity(
 );
 
 /* Ensure vector can hold at least capacity elements without growing. */
-vs_status vs_vector_reserve(vs_vector *vector, size_t capacity);
+VS_NODISCARD vs_status vs_vector_reserve(vs_vector *vector, size_t capacity);
 
 /* Append one element by copying elem_size bytes from element. */
-vs_status vs_vector_push(vs_vector *vector, const void *element);
+VS_NODISCARD vs_status vs_vector_push(vs_vector *vector, const void *element);
 
 /* Remove and return the last element pointer, or NULL when empty. */
 void *vs_vector_pop(vs_vector *vector);

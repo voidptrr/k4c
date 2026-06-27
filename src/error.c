@@ -40,7 +40,7 @@ const char *vs_status_message(vs_status status) {
             return "not found";
         case VS_STATUS_EOF:
             return "end of file";
-        case VS_STATUS_IO_ERROR:
+        case VS_STATUS_IO:
             return "I/O error";
         case VS_STATUS_INVALID_DATA:
             return "invalid data";

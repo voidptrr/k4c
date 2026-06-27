@@ -47,7 +47,10 @@ void *vs_arena_alloc(vs_arena *arena, size_t size) {
     VSTD_ASSERT(arena->buffer != NULL, "fatal: vs_arena_alloc invalid arena");
     VSTD_ASSERT(size > 0, "fatal: vs_arena_alloc invalid arguments");
 
-    size = vs_align_up(size, VS_MEMORY_ALIGN);
+    if (vs_align_up_overflow(size, VS_MEMORY_ALIGN, &size)) {
+        return NULL;
+    }
+
     size_t header_size = vs_align_up(sizeof(vs_arena_alloc_header), VS_MEMORY_ALIGN);
     if (size > arena->capacity || header_size > arena->capacity - size
         || arena->offset > arena->capacity - header_size - size) {
@@ -76,7 +79,10 @@ void *vs_arena_realloc(vs_arena *arena, void *ptr, size_t size) {
 
     size_t header_size = vs_align_up(sizeof(vs_arena_alloc_header), VS_MEMORY_ALIGN);
     vs_arena_alloc_header *header = (vs_arena_alloc_header *)((uint8_t *)ptr - header_size);
-    size = vs_align_up(size, VS_MEMORY_ALIGN);
+    if (vs_align_up_overflow(size, VS_MEMORY_ALIGN, &size)) {
+        return NULL;
+    }
+
     VSTD_ASSERT(size >= header->size, "fatal: vs_arena_realloc cannot shrink allocation");
 
     if (size == header->size) {
@@ -101,19 +107,22 @@ static void *vs_arena_realloc_callback(void *ctx, void *ptr, size_t size) {
 }
 
 vs_status vs_arena_create(size_t capacity, vs_arena **out) {
-    capacity = vs_align_up(capacity, VS_MEMORY_ALIGN);
+    if (vs_align_up_overflow(capacity, VS_MEMORY_ALIGN, &capacity)) {
+        return VS_STATUS_OVERFLOW;
+    }
+
     VSTD_ASSERT(capacity > 0, "fatal: vs_arena_create invalid capacity");
     VSTD_ASSERT(out != NULL, "fatal: vs_arena_create invalid arguments");
 
     *out = NULL;
 
     vs_arena *arena = NULL;
-    vs_status status = vs_malloc(NULL, sizeof(vs_arena), (void **)&arena);
+    vs_status status = vs_alloc(NULL, sizeof(vs_arena), (void **)&arena);
     if (status != VS_STATUS_OK) {
         return status;
     }
 
-    status = vs_malloc(NULL, capacity, &arena->buffer);
+    status = vs_alloc(NULL, capacity, &arena->buffer);
     if (status != VS_STATUS_OK) {
         vs_dealloc(NULL, arena);
         return status;

@@ -73,7 +73,8 @@ typedef struct vs_doubly_linked_list_node {
 typedef struct vs_doubly_linked_list vs_doubly_linked_list;
 
 /* Create an intrusive doubly linked list. */
-vs_status vs_doubly_linked_list_create(vs_allocator *allocator, vs_doubly_linked_list **out);
+VS_NODISCARD vs_status
+vs_doubly_linked_list_create(vs_allocator *allocator, vs_doubly_linked_list **out);
 
 /* Append node at the tail. */
 void vs_doubly_linked_list_push(vs_doubly_linked_list *list, vs_doubly_linked_list_node *node);

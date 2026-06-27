@@ -60,13 +60,14 @@
 typedef char *vs_string;
 
 /* Create a string from initial, or an empty string when initial is NULL. */
-vs_status vs_string_create(const char *initial, vs_allocator *allocator, vs_string *out);
+VS_NODISCARD vs_status
+vs_string_create(const char *initial, vs_allocator *allocator, vs_string *out);
 
 /* Append suffix to string, growing storage as needed. */
-vs_status vs_string_append(vs_string *string, const char *suffix);
+VS_NODISCARD vs_status vs_string_append(vs_string *string, const char *suffix);
 
 /* Prepend prefix to string, growing storage as needed. */
-vs_status vs_string_prepend(vs_string *string, const char *prefix);
+VS_NODISCARD vs_status vs_string_prepend(vs_string *string, const char *prefix);
 
 /* Return whether string contains needle. */
 bool vs_string_contains(const vs_string string, const char *needle);

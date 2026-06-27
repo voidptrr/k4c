@@ -146,7 +146,7 @@ vs_status vs_iterator_collect_map(
         }
     }
     void *dst = NULL;
-    status = vs_malloc(allocator, dst_elem_size, &dst);
+    status = vs_alloc(allocator, dst_elem_size, &dst);
     if (status != VS_STATUS_OK) {
         vs_vector_destroy(vector);
         return status;

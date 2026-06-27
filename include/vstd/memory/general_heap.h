@@ -56,7 +56,7 @@ typedef struct vs_heap vs_heap;
 /*
  * Create a heap with `capacity` bytes of internal storage.
  */
-vs_status vs_heap_create(size_t capacity, vs_heap **out);
+VS_NODISCARD vs_status vs_heap_create(size_t capacity, vs_heap **out);
 
 /*
  * Return the generic allocator view owned by this heap.

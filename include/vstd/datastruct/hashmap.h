@@ -88,7 +88,7 @@ typedef enum vs_hashmap_iterator_type {
  * key_eq is NULL, key equality compares stored key bytes.
  * Initial capacity is implementation-defined.
  */
-vs_status vs_hashmap_create(
+VS_NODISCARD vs_status vs_hashmap_create(
     size_t key_size,
     size_t value_size,
     vs_hashmap_key_eq_fn key_eq,
@@ -97,13 +97,13 @@ vs_status vs_hashmap_create(
 );
 
 /* Ensure map can hold at least size entries without growing. */
-vs_status vs_hashmap_reserve(vs_hashmap *map, size_t size);
+VS_NODISCARD vs_status vs_hashmap_reserve(vs_hashmap *map, size_t size);
 
 /*
  * Insert or update an entry.
  * If key exists, overwrite value in place.
  */
-vs_status vs_hashmap_put(vs_hashmap *map, const void *key, const void *value);
+VS_NODISCARD vs_status vs_hashmap_put(vs_hashmap *map, const void *key, const void *value);
 
 /*
  * Lookup key and return stored value pointer, or NULL when missing.

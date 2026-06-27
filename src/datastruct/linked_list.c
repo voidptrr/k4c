@@ -65,7 +65,7 @@ vs_status vs_linked_list_create(vs_allocator *allocator, vs_linked_list **out) {
     *out = NULL;
 
     vs_linked_list *list = NULL;
-    vs_status status = vs_malloc(allocator, sizeof(vs_linked_list), (void **)&list);
+    vs_status status = vs_alloc(allocator, sizeof(vs_linked_list), (void **)&list);
     if (status != VS_STATUS_OK) {
         return status;
     }

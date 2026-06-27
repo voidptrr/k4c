@@ -25,12 +25,12 @@ vs_status vs_string_create(const char *initial, vs_allocator *allocator, vs_stri
 ```
 
 - Parameters: `initial`, `allocator`, `out`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Writes: created string to `*out` on success.
 - Notes: when `initial` is `NULL`, creates an empty string. The string stores
   `allocator` in its header and reuses it for growth and destroy. When
   `allocator` is `NULL`, uses the C library heap through
-  `vs_malloc`/`vs_realloc`.
+  `vs_alloc`/`vs_resize`.
 - Example:
 
 ```c
@@ -47,7 +47,7 @@ vs_status vs_string_append(vs_string *string, const char *suffix);
 ```
 
 - Parameters: `string`, `suffix`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Notes: may reallocate and update `*string`.
 - Example:
 
@@ -64,7 +64,7 @@ vs_status vs_string_prepend(vs_string *string, const char *prefix);
 ```
 
 - Parameters: `string`, `prefix`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Notes: may reallocate and update `*string`.
 - Example:
 

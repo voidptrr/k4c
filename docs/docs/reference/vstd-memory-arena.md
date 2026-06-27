@@ -33,7 +33,7 @@ vs_status vs_arena_create(size_t capacity, vs_arena **out);
 ```
 
 - Parameters: `capacity`, `out`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Writes: arena pointer to `*out` on success.
 - Notes: capacity is aligned up to the arena's internal memory alignment.
 

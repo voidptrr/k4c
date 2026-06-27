@@ -81,7 +81,10 @@ VS_TEST(peek) {
         return 1;
     }
 
-    vs_binary_heap_push(heap, &value);
+    if (vs_test_status_ok(vs_binary_heap_push(heap, &value))) {
+
+        return 1;
+    }
     const int *out = (const int *)vs_binary_heap_peek(heap);
     if (vs_test_not_null(out) != 0) {
         return 1;
@@ -110,7 +113,9 @@ VS_TEST(pop) {
     int values[] = {4, 1, 3};
 
     for (size_t i = 0; i < 3; i++) {
-        vs_binary_heap_push(heap, &values[i]);
+        if (vs_test_status_ok(vs_binary_heap_push(heap, &values[i]))) {
+            return 1;
+        }
     }
 
     int expected[] = {1, 3, 4};
@@ -149,7 +154,9 @@ VS_TEST(pop_uses_custom_comparator_order) {
     int expected[] = {8, 5, 2, 1};
 
     for (size_t i = 0; i < sizeof(values) / sizeof(values[0]); i++) {
-        vs_binary_heap_push(heap, &values[i]);
+        if (vs_test_status_ok(vs_binary_heap_push(heap, &values[i]))) {
+            return 1;
+        }
     }
 
     for (size_t i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
@@ -182,7 +189,9 @@ VS_TEST(push) {
     int values[] = {5, 2, 8, 1};
 
     for (size_t i = 0; i < 4; i++) {
-        vs_binary_heap_push(heap, &values[i]);
+        if (vs_test_status_ok(vs_binary_heap_push(heap, &values[i]))) {
+            return 1;
+        }
     }
 
     const int *top = (const int *)vs_binary_heap_peek(heap);
@@ -216,7 +225,9 @@ VS_TEST(default_byte_ordering) {
     uint8_t values[] = {5, 2, 8, 1};
 
     for (size_t i = 0; i < 4; i++) {
-        vs_binary_heap_push(heap, &values[i]);
+        if (vs_test_status_ok(vs_binary_heap_push(heap, &values[i]))) {
+            return 1;
+        }
     }
 
     const uint8_t *top = (const uint8_t *)vs_binary_heap_peek(heap);
@@ -247,7 +258,9 @@ VS_TEST(custom_comparator) {
     int values[] = {5, 2, 8, 1};
 
     for (size_t i = 0; i < 4; i++) {
-        vs_binary_heap_push(heap, &values[i]);
+        if (vs_test_status_ok(vs_binary_heap_push(heap, &values[i]))) {
+            return 1;
+        }
     }
 
     const int *top = (const int *)vs_binary_heap_peek(heap);
@@ -281,7 +294,9 @@ VS_TEST(iterator_walks_backing_storage) {
     size_t count = 0;
 
     for (size_t i = 0; i < sizeof(values) / sizeof(values[0]); i++) {
-        vs_binary_heap_push(heap, &values[i]);
+        if (vs_test_status_ok(vs_binary_heap_push(heap, &values[i]))) {
+            return 1;
+        }
     }
 
     vs_iterator iter = vs_binary_heap_get_iterator(heap);

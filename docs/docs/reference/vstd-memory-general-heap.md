@@ -28,7 +28,7 @@ vs_status vs_heap_create(size_t capacity, vs_heap **out);
 ```
 
 - Parameters: `capacity`, `out`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Writes: heap pointer to `*out` on success.
 
 ### vs_heap_allocator

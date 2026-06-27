@@ -128,8 +128,14 @@ vs_status vs_hashset_create(
 
     *out = NULL;
 
+    size_t max_entry_size = 0;
+    if (vs_size_add_overflow(sizeof(vs_hashset_entry), elem_size, &max_entry_size)) {
+        return VS_STATUS_OVERFLOW;
+    }
+    (void)max_entry_size;
+
     vs_hashset *set = NULL;
-    vs_status status = vs_malloc(allocator, sizeof(vs_hashset), (void **)&set);
+    vs_status status = vs_alloc(allocator, sizeof(vs_hashset), (void **)&set);
     if (status != VS_STATUS_OK) {
         return status;
     }
@@ -154,7 +160,8 @@ vs_status vs_hashset_create(
 vs_status vs_hashset_reserve(vs_hashset *set, size_t size) {
     VSTD_ASSERT(set != NULL, "fatal: vs_hashset_reserve invalid arguments");
 
-    size_t new_capacity = vs_hash_common_capacity_for_size(size);
+    size_t new_capacity = 0;
+    VS_RETURN_IF_ERROR(vs_hash_common_capacity_for_size(size, &new_capacity));
     if (new_capacity <= set->capacity) {
         return VS_STATUS_OK;
     }
@@ -198,16 +205,22 @@ vs_status vs_hashset_insert(vs_hashset *set, const void *elem) {
     }
 
     if (vs_hash_common_should_grow(set->size, set->capacity)) {
-        vs_status status = vs_hashset_reserve(set, set->size + 1);
-        if (status != VS_STATUS_OK) {
-            return status;
+        size_t reserve_size = 0;
+        if (vs_size_add_overflow(set->size, 1, &reserve_size)) {
+            return VS_STATUS_OVERFLOW;
         }
+
+        VS_RETURN_IF_ERROR(vs_hashset_reserve(set, reserve_size));
         bucket = vs_hash_common_bucket_index(hash, set->capacity);
     }
 
     vs_hashset_entry *entry = NULL;
-    vs_status status =
-        vs_malloc(allocator, sizeof(vs_hashset_entry) + set->elem_size, (void **)&entry);
+    size_t alloc_size = 0;
+    if (vs_size_add_overflow(sizeof(vs_hashset_entry), set->elem_size, &alloc_size)) {
+        return VS_STATUS_OVERFLOW;
+    }
+
+    vs_status status = vs_alloc(allocator, alloc_size, (void **)&entry);
     if (status != VS_STATUS_OK) {
         return status;
     }

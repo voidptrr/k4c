@@ -30,11 +30,11 @@ vs_status vs_binary_heap_create(size_t elem_size,
 ```
 
 - Parameters: `elem_size`, `cmp`, `allocator`, `out`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Writes: opaque binary-heap handle to `*out` on success.
 - Notes: the binary heap stores `allocator` and reuses it for growth and
   destroy. When `allocator` is `NULL`, binary heap storage uses the C library
-  heap through `vs_malloc`/`vs_realloc`. When `cmp` is `NULL`, element ordering
+  heap through `vs_alloc`/`vs_resize`. When `cmp` is `NULL`, element ordering
   uses byte comparison.
 - Example:
 
@@ -58,7 +58,7 @@ vs_status vs_binary_heap_push(vs_binary_heap *heap, const void *element);
 ```
 
 - Parameters: `heap`, `element`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Example:
 
 ```c

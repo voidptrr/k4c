@@ -28,8 +28,8 @@
 #include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 
-vs_status vs_malloc(vs_allocator *allocator, size_t size, void **out) {
-    VSTD_ASSERT(out != NULL, "fatal: vs_malloc invalid arguments");
+vs_status vs_alloc(vs_allocator *allocator, size_t size, void **out) {
+    VSTD_ASSERT(out != NULL, "fatal: vs_alloc invalid arguments");
 
     void *ptr = NULL;
     if (allocator == NULL || allocator->alloc == NULL) {
@@ -47,8 +47,8 @@ vs_status vs_malloc(vs_allocator *allocator, size_t size, void **out) {
     return VS_STATUS_OK;
 }
 
-vs_status vs_realloc(vs_allocator *allocator, void *ptr, size_t size, void **out) {
-    VSTD_ASSERT(out != NULL, "fatal: vs_realloc invalid arguments");
+vs_status vs_resize(vs_allocator *allocator, void *ptr, size_t size, void **out) {
+    VSTD_ASSERT(out != NULL, "fatal: vs_resize invalid arguments");
 
     if (size == 0) {
         vs_dealloc(allocator, ptr);

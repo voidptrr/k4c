@@ -85,11 +85,11 @@ vs_status vs_hashmap_create(size_t key_size,
 ```
 
 - Parameters: `key_size`, `value_size`, `key_eq`, `allocator`, `out`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Writes: opaque hashmap handle to `*out` on success.
 - Notes: the hashmap stores `allocator` and reuses it for entries, buckets,
   rehashing, and destroy. When `allocator` is `NULL`, hashmap uses the C
-  library heap through `vs_malloc`. Custom `key_eq` callbacks must be
+  library heap through `vs_alloc`. Custom `key_eq` callbacks must be
   consistent with the byte hash used for bucket selection.
 - Example:
 
@@ -107,7 +107,7 @@ vs_status vs_hashmap_reserve(vs_hashmap *map, size_t size);
 ```
 
 - Parameters: `map`, `size`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Notes: grows bucket storage so at least `size` entries fit without another
   rehash at the default load factor.
 - Example:
@@ -125,7 +125,7 @@ vs_status vs_hashmap_put(vs_hashmap *map, const void *key, const void *value);
 ```
 
 - Parameters: `map`, `key`, `value`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Example:
 
 ```c

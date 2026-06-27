@@ -51,7 +51,7 @@ typedef struct vs_arena vs_arena;
 /*
  * Create an arena with `capacity` bytes of internal storage.
  */
-vs_status vs_arena_create(size_t capacity, vs_arena **out);
+VS_NODISCARD vs_status vs_arena_create(size_t capacity, vs_arena **out);
 
 /*
  * Return the generic allocator view owned by this arena.

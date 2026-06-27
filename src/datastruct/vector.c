@@ -30,6 +30,7 @@
 #include "vstd/datastruct/vector.h"
 #include "vstd/error.h"
 #include "vstd/memory/allocator.h"
+#include "vstd/memory/utils.h"
 
 #define VS_VECTOR_DEFAULT_CAPACITY 16
 
@@ -83,15 +84,20 @@ vs_status vs_vector_create_with_capacity(
     *out = NULL;
 
     vs_vector *vector = NULL;
-    vs_status status = vs_malloc(allocator, sizeof(vs_vector), (void **)&vector);
+    vs_status status = vs_alloc(allocator, sizeof(vs_vector), (void **)&vector);
     if (status != VS_STATUS_OK) {
         return status;
     }
     vector->allocator = allocator;
 
-    size_t alloc_size = elem_size * capacity;
+    size_t alloc_size = 0;
+    if (vs_size_mul_overflow(elem_size, capacity, &alloc_size)) {
+        vs_dealloc(allocator, vector);
+        return VS_STATUS_OVERFLOW;
+    }
+
     void *buffer = NULL;
-    status = vs_malloc(allocator, alloc_size, &buffer);
+    status = vs_alloc(allocator, alloc_size, &buffer);
     if (status != VS_STATUS_OK) {
         vs_dealloc(allocator, vector);
         return status;
@@ -113,9 +119,13 @@ vs_status vs_vector_reserve(vs_vector *vector, size_t capacity) {
         return VS_STATUS_OK;
     }
 
-    size_t alloc_size = capacity * vector->elem_size;
+    size_t alloc_size = 0;
+    if (vs_size_mul_overflow(capacity, vector->elem_size, &alloc_size)) {
+        return VS_STATUS_OVERFLOW;
+    }
+
     void *buffer = NULL;
-    vs_status status = vs_realloc(vector->allocator, vector->buffer, alloc_size, &buffer);
+    vs_status status = vs_resize(vector->allocator, vector->buffer, alloc_size, &buffer);
     if (status != VS_STATUS_OK) {
         return status;
     }
@@ -130,7 +140,12 @@ vs_status vs_vector_push(vs_vector *vector, const void *element) {
     VSTD_ASSERT(element != NULL, "fatal: vs_vector_push invalid arguments");
 
     if (vector->size == vector->capacity) {
-        vs_status status = vs_vector_reserve(vector, vector->capacity * 2);
+        size_t new_capacity = 0;
+        if (vs_size_mul_overflow(vector->capacity, 2, &new_capacity)) {
+            return VS_STATUS_OVERFLOW;
+        }
+
+        vs_status status = vs_vector_reserve(vector, new_capacity);
         if (status != VS_STATUS_OK) {
             return status;
         }

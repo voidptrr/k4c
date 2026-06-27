@@ -91,7 +91,10 @@ VS_TEST(init) {
         return 1;
     }
 
-    vs_vector_push(v, &value);
+    if (vs_test_status_ok(vs_vector_push(v, &value))) {
+
+        return 1;
+    }
     if (vs_vector_size(v) != 1) {
         return 1;
     }
@@ -117,8 +120,13 @@ VS_TEST(pop) {
         return 1;
     }
 
-    vs_vector_push(v, &first);
-    vs_vector_push(v, &second);
+    if (vs_test_status_ok(vs_vector_push(v, &first))) {
+
+        return 1;
+    }
+    if (vs_test_status_ok(vs_vector_push(v, &second))) {
+        return 1;
+    }
 
     int *popped = (int *)vs_vector_pop(v);
     if (vs_test_not_null(popped) != 0) {
@@ -152,7 +160,10 @@ VS_TEST(push_single_element) {
     }
     int value = 42;
 
-    vs_vector_push(v, &value);
+    if (vs_test_status_ok(vs_vector_push(v, &value))) {
+
+        return 1;
+    }
 
     if (vs_vector_size(v) != 1) {
         return 1;
@@ -178,7 +189,9 @@ VS_TEST(push_grows_storage) {
 
     for (size_t i = 0; i < 17; i++) {
         int value = (int)i;
-        vs_vector_push(v, &value);
+        if (vs_test_status_ok(vs_vector_push(v, &value))) {
+            return 1;
+        }
     }
 
     if (vs_vector_size(v) != 17) {
@@ -202,7 +215,9 @@ VS_TEST(push_preserves_existing_items_after_growth) {
 
     for (size_t i = 0; i < 17; i++) {
         int value = (int)i;
-        vs_vector_push(v, &value);
+        if (vs_test_status_ok(vs_vector_push(v, &value))) {
+            return 1;
+        }
     }
 
     for (size_t i = 0; i < 17; i++) {
@@ -232,13 +247,20 @@ VS_TEST(reserve_and_data_access) {
         return 1;
     }
 
-    vs_vector_reserve(v, 32);
+    if (vs_test_status_ok(vs_vector_reserve(v, 32))) {
+
+        return 1;
+    }
     if (vs_vector_capacity(v) < 32) {
         return 1;
     }
 
-    VS_VECTOR_PUSH_AS(v, int, 7);
-    VS_VECTOR_PUSH_AS(v, int, 11);
+    if (vs_test_status_ok(VS_VECTOR_PUSH_AS(v, int, 7))) {
+        return 1;
+    }
+    if (vs_test_status_ok(VS_VECTOR_PUSH_AS(v, int, 11))) {
+        return 1;
+    }
 
     const int *items = (const int *)vs_vector_data_const(v);
     if (vs_test_equal(items[0], 7) != 0) {
@@ -269,7 +291,9 @@ VS_TEST(iterator_walks_vector) {
     int expected = 0;
 
     for (int i = 0; i < 4; i++) {
-        vs_vector_push(v, &i);
+        if (vs_test_status_ok(vs_vector_push(v, &i))) {
+            return 1;
+        }
     }
 
     vs_iterator iter = vs_vector_get_iterator(v);
@@ -302,7 +326,9 @@ VS_TEST(vector_for_each_macro_walks_items) {
     size_t count = 0;
 
     for (int i = 1; i <= 4; i++) {
-        VS_VECTOR_PUSH_AS(v, int, i);
+        if (vs_test_status_ok(VS_VECTOR_PUSH_AS(v, int, i))) {
+            return 1;
+        }
     }
 
     vs_vector_for_each(int, item, v) {
@@ -368,7 +394,9 @@ VS_TEST(iterator_collect_copies_items) {
     int expected[] = {1, 2, 3};
 
     for (size_t i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
-        vs_vector_push(v, &expected[i]);
+        if (vs_test_status_ok(vs_vector_push(v, &expected[i]))) {
+            return 1;
+        }
     }
 
     vs_iterator iter = vs_vector_get_iterator(v);
@@ -403,7 +431,9 @@ VS_TEST(iterator_collect_reserves_from_size_hint) {
     }
 
     for (int i = 0; i < 25; i++) {
-        vs_vector_push(v, &i);
+        if (vs_test_status_ok(vs_vector_push(v, &i))) {
+            return 1;
+        }
     }
 
     vs_iterator iter = vs_vector_get_iterator(v);
@@ -437,7 +467,9 @@ VS_TEST(iterator_collect_map_changes_type) {
     int values[] = {1, 2, 3};
 
     for (size_t i = 0; i < sizeof(values) / sizeof(values[0]); i++) {
-        vs_vector_push(v, &values[i]);
+        if (vs_test_status_ok(vs_vector_push(v, &values[i]))) {
+            return 1;
+        }
     }
 
     vs_iterator iter = vs_vector_get_iterator(v);
@@ -477,7 +509,9 @@ VS_TEST(binary_search_bounds) {
     int values[] = {1, 2, 2, 2, 4, 8};
 
     for (size_t i = 0; i < sizeof(values) / sizeof(values[0]); i++) {
-        vs_vector_push(v, &values[i]);
+        if (vs_test_status_ok(vs_vector_push(v, &values[i]))) {
+            return 1;
+        }
     }
 
     int key = 2;

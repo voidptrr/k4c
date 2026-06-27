@@ -26,11 +26,11 @@ vs_status vs_deque_create(size_t elem_size, vs_allocator *allocator, vs_deque **
 ```
 
 - Parameters: `elem_size`, `allocator`, `out`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Writes: opaque deque handle to `*out` on success.
 - Notes: the deque stores `allocator` and reuses it for growth and destroy.
   When `allocator` is `NULL`, deque uses the C library heap through
-  `vs_malloc`/`vs_realloc`.
+  `vs_alloc`/`vs_resize`.
 - Example:
 
 ```c
@@ -47,7 +47,7 @@ vs_status vs_deque_push(vs_deque *deque, const void *element);
 ```
 
 - Parameters: `deque`, `element`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Example:
 
 ```c
@@ -64,7 +64,7 @@ vs_status vs_deque_pushfront(vs_deque *deque, const void *element);
 ```
 
 - Parameters: `deque`, `element`
-- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Example:
 
 ```c

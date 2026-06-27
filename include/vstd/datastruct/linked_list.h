@@ -71,7 +71,7 @@ typedef struct vs_linked_list_node {
 typedef struct vs_linked_list vs_linked_list;
 
 /* Create an intrusive linked list. */
-vs_status vs_linked_list_create(vs_allocator *allocator, vs_linked_list **out);
+VS_NODISCARD vs_status vs_linked_list_create(vs_allocator *allocator, vs_linked_list **out);
 
 /* Append node at the tail. */
 void vs_linked_list_push(vs_linked_list *list, vs_linked_list_node *node);

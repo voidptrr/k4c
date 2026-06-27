@@ -30,6 +30,7 @@
 #include "vstd/datastruct/iterator.h"
 #include "vstd/error.h"
 #include "vstd/memory/allocator.h"
+#include "vstd/memory/utils.h"
 
 #define VS_DEQUE_DEFAULT_CAPACITY 16
 
@@ -59,12 +60,20 @@ _Static_assert(
 static vs_status vs_deque_grow(vs_deque *deque) {
     vs_allocator *allocator = deque->allocator;
     size_t old_capacity = deque->capacity;
-    size_t new_capacity = old_capacity * 2;
+    size_t new_capacity = 0;
+    if (vs_size_mul_overflow(old_capacity, 2, &new_capacity)) {
+        return VS_STATUS_OVERFLOW;
+    }
+
     uint8_t *old_buffer = (uint8_t *)deque->buffer;
 
-    size_t alloc_size = new_capacity * deque->elem_size;
+    size_t alloc_size = 0;
+    if (vs_size_mul_overflow(new_capacity, deque->elem_size, &alloc_size)) {
+        return VS_STATUS_OVERFLOW;
+    }
+
     uint8_t *new_buffer = NULL;
-    vs_status status = vs_malloc(allocator, alloc_size, (void **)&new_buffer);
+    vs_status status = vs_alloc(allocator, alloc_size, (void **)&new_buffer);
     if (status != VS_STATUS_OK) {
         return status;
     }
@@ -124,15 +133,20 @@ vs_status vs_deque_create(size_t elem_size, vs_allocator *allocator, vs_deque **
     *out = NULL;
 
     vs_deque *deque = NULL;
-    vs_status status = vs_malloc(allocator, sizeof(vs_deque), (void **)&deque);
+    vs_status status = vs_alloc(allocator, sizeof(vs_deque), (void **)&deque);
     if (status != VS_STATUS_OK) {
         return status;
     }
     deque->allocator = allocator;
 
-    size_t alloc_size = elem_size * VS_DEQUE_DEFAULT_CAPACITY;
+    size_t alloc_size = 0;
+    if (vs_size_mul_overflow(elem_size, VS_DEQUE_DEFAULT_CAPACITY, &alloc_size)) {
+        vs_dealloc(allocator, deque);
+        return VS_STATUS_OVERFLOW;
+    }
+
     void *buffer = NULL;
-    status = vs_malloc(allocator, alloc_size, &buffer);
+    status = vs_alloc(allocator, alloc_size, &buffer);
     if (status != VS_STATUS_OK) {
         vs_dealloc(allocator, deque);
         return status;
