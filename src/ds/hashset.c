@@ -35,6 +35,7 @@
 #include "k4c/error.h"
 #include "k4c/memory/allocator.h"
 #include "k4c/memory/utils.h"
+#include "memory/size.h"
 
 typedef struct k4c_hashset_entry {
     k4c_linked_list_node node;

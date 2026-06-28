@@ -32,7 +32,7 @@
 #include "k4c/ds/linked_list.h"
 #include "k4c/error.h"
 #include "k4c/memory/allocator.h"
-#include "k4c/memory/utils.h"
+#include "memory/size.h"
 
 #define K4C_HASH_COMMON_DEFAULT_CAPACITY 16
 #define K4C_HASH_COMMON_MAX_LOAD_NUMERATOR 3

@@ -30,6 +30,7 @@
 #include "k4c/memory/allocator.h"
 #include "k4c/memory/arena.h"
 #include "k4c/memory/utils.h"
+#include "memory/size.h"
 
 typedef struct k4c_arena_alloc_header {
     size_t size;

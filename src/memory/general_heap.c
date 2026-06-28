@@ -32,6 +32,7 @@
 #include "k4c/memory/allocator.h"
 #include "k4c/memory/general_heap.h"
 #include "k4c/memory/utils.h"
+#include "memory/size.h"
 
 /* Header stored immediately before each k4c_heap-managed payload block. */
 typedef struct k4c_heap_block {

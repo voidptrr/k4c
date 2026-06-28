@@ -22,17 +22,44 @@
  * SOFTWARE.
  */
 
-#ifndef K4C_MEMORY_UTILS_H
-#define K4C_MEMORY_UTILS_H
+#ifndef K4C_MEMORY_SIZE_H
+#define K4C_MEMORY_SIZE_H
 
+#include <stdbool.h>
 #include <stddef.h>
-#include <stdint.h> /* IWYU pragma: keep */
+#include <stdint.h>
 
-#define K4C_CONTAINER_OF(ptr, type, member) ((type *)((uint8_t *)(ptr) - offsetof(type, member)))
+static inline size_t k4c_align_up(size_t value, size_t alignment) {
+    size_t mask = alignment - 1;
+    return (value + mask) & ~mask;
+}
 
-#define K4C_MEMORY_ALIGN (_Alignof(max_align_t))
+static inline bool k4c_size_add_overflow(size_t lhs, size_t rhs, size_t *out) {
+    if (lhs > SIZE_MAX - rhs) {
+        return true;
+    }
 
-/* Swap size bytes between memory regions a and b. */
-void k4c_memswap(void *a, void *b, size_t size);
+    *out = lhs + rhs;
+    return false;
+}
+
+static inline bool k4c_size_mul_overflow(size_t lhs, size_t rhs, size_t *out) {
+    if (rhs != 0 && lhs > SIZE_MAX / rhs) {
+        return true;
+    }
+
+    *out = lhs * rhs;
+    return false;
+}
+
+static inline bool k4c_align_up_overflow(size_t value, size_t alignment, size_t *out) {
+    size_t mask = alignment - 1;
+    if (k4c_size_add_overflow(value, mask, out)) {
+        return true;
+    }
+
+    *out &= ~mask;
+    return false;
+}
 
 #endif
