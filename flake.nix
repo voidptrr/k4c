@@ -54,7 +54,15 @@
       default = vtools.lib.mkShell {
         inherit pkgs;
         enableC = true;
-        extraPackages = [pkgs.zensical];
+        extraPackages = [
+          pkgs.zensical
+          (vtools.packages.${pkgs.stdenv.hostPlatform.system}.format-code.override {
+            enableNix = true;
+            enableC = true;
+            nixDirs = ["flake.nix" "nix"];
+            cFormatDirs = ["src" "include" "tests"];
+          })
+        ];
       };
     });
 
