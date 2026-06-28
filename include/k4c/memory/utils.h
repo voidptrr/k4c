@@ -31,12 +31,6 @@
 
 #define K4C_CONTAINER_OF(ptr, type, member) ((type *)((uint8_t *)(ptr) - offsetof(type, member)))
 
-#define K4C_CONTAINER_OF_CONST(ptr, type, member) \
-    ((const type *)((const uint8_t *)(ptr) - offsetof(type, member)))
-
-#define K4C_CONTAINER_OF_CONST_OR_NULL(ptr, type, member) \
-    ((ptr) != NULL ? K4C_CONTAINER_OF_CONST((ptr), type, member) : NULL)
-
 #define K4C_MEMORY_ALIGN (_Alignof(max_align_t))
 
 /*
