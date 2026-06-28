@@ -34,6 +34,9 @@ nav = [
   { "Error" = "reference/k4c-error.md" },
   { "Logging" = "reference/k4c-logging.md" },
   { "Testing" = "reference/k4c-testing.md" },
+  { "Buffer" = [
+    { "Cursor" = "buffer/cursor.md" },
+  ] },
   { "Memory" = [
     { "Utilities" = "reference/k4c-memory-utils.md" },
     { "Allocators" = [
