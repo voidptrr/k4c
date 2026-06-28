@@ -38,9 +38,12 @@
 
 #define k4c_doubly_linked_list_for_each_entry(type, member, item, list) \
     for (k4c_iterator item##_iter__ = k4c_doubly_linked_list_get_iterator((list)); \
-         ((item) = \
-              K4C_CONTAINER_OF_CONST_OR_NULL(k4c_iterator_next(&item##_iter__), type, member)) \
-         != NULL;)
+         item##_iter__.next != NULL; \
+         item##_iter__.next = NULL) \
+        for (const k4c_doubly_linked_list_node *item##_node__ = k4c_iterator_next(&item##_iter__); \
+             item##_node__ != NULL \
+             && ((item) = K4C_CONTAINER_OF(item##_node__, type, member)) != NULL; \
+             item##_node__ = k4c_iterator_next(&item##_iter__))
 
 /*
  * Opaque intrusive doubly linked list.

@@ -30,7 +30,7 @@
 #include "k4c/ds/linked_list.h"
 #include "k4c/error.h"
 #include "k4c/memory/allocator.h"
-#include "k4c/memory/utils.h"
+#include "memory/size.h"
 
 static bool k4c_hash_common_value_eq(
     const void *lhs,

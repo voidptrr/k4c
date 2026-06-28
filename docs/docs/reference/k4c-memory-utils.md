@@ -31,54 +31,6 @@ alignment, and intrusive data structures.
 
 ## FUNCTIONS
 
-### k4c_align_up
-
-```c
-#include <k4c/memory/utils.h>
-
-static inline size_t k4c_align_up(size_t value, size_t alignment);
-```
-
-- Parameters: `value`, `alignment`
-- Returns: `value` rounded up to the next multiple of `alignment`.
-- Notes: `alignment` must be non-zero and a power of two.
-
-### k4c_size_add_overflow
-
-```c
-#include <k4c/memory/utils.h>
-
-static inline bool k4c_size_add_overflow(size_t lhs, size_t rhs, size_t *out);
-```
-
-- Parameters: `lhs`, `rhs`, `out`
-- Returns: true when `lhs + rhs` would overflow.
-- Writes: sum to `*out` when no overflow occurs.
-
-### k4c_size_mul_overflow
-
-```c
-#include <k4c/memory/utils.h>
-
-static inline bool k4c_size_mul_overflow(size_t lhs, size_t rhs, size_t *out);
-```
-
-- Parameters: `lhs`, `rhs`, `out`
-- Returns: true when `lhs * rhs` would overflow.
-- Writes: product to `*out` when no overflow occurs.
-
-### k4c_align_up_overflow
-
-```c
-#include <k4c/memory/utils.h>
-
-static inline bool k4c_align_up_overflow(size_t value, size_t alignment, size_t *out);
-```
-
-- Parameters: `value`, `alignment`, `out`
-- Returns: true when rounding up would overflow.
-- Writes: aligned value to `*out` when no overflow occurs.
-
 ### k4c_memswap
 
 ```c

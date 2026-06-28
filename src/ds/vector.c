@@ -30,7 +30,7 @@
 #include "k4c/ds/vector.h"
 #include "k4c/error.h"
 #include "k4c/memory/allocator.h"
-#include "k4c/memory/utils.h"
+#include "memory/size.h"
 
 #define K4C_VECTOR_DEFAULT_CAPACITY 16
 
