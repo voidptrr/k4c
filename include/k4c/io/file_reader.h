@@ -52,7 +52,7 @@ typedef struct k4c_file_reader {
  * The caller owns file and data. data must point to buffer_capacity bytes and
  * outlive the reader.
  * buffer_capacity is both the maximum chunk size and the maximum accepted line
- * length in line mode.
+ * length in line mode. Lines that fill the buffer without a newline overflow.
  */
 k4c_status k4c_file_reader_init(
     k4c_file_reader *reader,

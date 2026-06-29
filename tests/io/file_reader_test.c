@@ -334,7 +334,7 @@ K4C_TEST(next_rejects_lines_over_buffer_capacity) {
     return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 0);
 }
 
-K4C_TEST(next_accepts_final_line_at_buffer_capacity) {
+K4C_TEST(next_rejects_final_line_at_buffer_capacity) {
     char dir[256];
     if (k4c_io_test_make_temp_dir(dir, sizeof(dir), "k4c-file-reader-test") != 0) {
         return 1;
@@ -361,8 +361,11 @@ K4C_TEST(next_accepts_final_line_at_buffer_capacity) {
         return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
     }
 
-    const char *expected[] = {"abcd"};
-    if (reader_next_matches(&reader, expected, sizeof(expected) / sizeof(expected[0])) != 0) {
+    k4c_buf_cursor cursor;
+    if (k4c_test_equal(k4c_file_reader_next(&reader, &cursor), K4C_STATUS_OVERFLOW) != 0) {
+        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
+    }
+    if (k4c_test_equal(reader.len, 4) != 0) {
         return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
     }
 
@@ -377,5 +380,5 @@ K4C_TEST_MAIN(
     K4C_TEST_CASE(next_reads_byte_chunks),
     K4C_TEST_CASE(next_reads_lines),
     K4C_TEST_CASE(next_rejects_lines_over_buffer_capacity),
-    K4C_TEST_CASE(next_accepts_final_line_at_buffer_capacity)
+    K4C_TEST_CASE(next_rejects_final_line_at_buffer_capacity)
 )

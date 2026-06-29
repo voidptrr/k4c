@@ -84,9 +84,10 @@ static k4c_status k4c_file_reader_next_bytes(k4c_file_reader *reader, k4c_buf_cu
 
 static k4c_status k4c_file_reader_next_line(k4c_file_reader *reader, k4c_buf_cursor *out) {
     reader->len = 0;
+    int ch = 0;
 
-    while (reader->len < reader->buffer_capacity) {
-        int ch = fgetc(reader->file);
+    while (reader->len < reader->buffer_capacity && ch != '\n') {
+        ch = fgetc(reader->file);
         if (ch == EOF) {
             if (ferror(reader->file)) {
                 return K4C_STATUS_IO;
@@ -97,24 +98,14 @@ static k4c_status k4c_file_reader_next_line(k4c_file_reader *reader, k4c_buf_cur
             *out = k4c_buf_cursor_create(reader->data, reader->len);
             return K4C_STATUS_OK;
         }
-
         reader->data[reader->len] = (uint8_t)ch;
         reader->len++;
-        if (ch == '\n') {
-            *out = k4c_buf_cursor_create(reader->data, reader->len);
-            return K4C_STATUS_OK;
-        }
     }
 
-    int ch = fgetc(reader->file);
-    if (ch == EOF) {
-        if (ferror(reader->file)) {
-            return K4C_STATUS_IO;
-        }
+    if (ch == '\n') {
         *out = k4c_buf_cursor_create(reader->data, reader->len);
         return K4C_STATUS_OK;
     }
-
     return K4C_STATUS_OVERFLOW;
 }
 
