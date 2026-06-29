@@ -33,7 +33,6 @@
 #include "k4c/io/reader.h"
 
 typedef struct k4c_file_reader {
-    k4c_reader reader;
     FILE *file;
     uint8_t *data;
     size_t len;
@@ -54,9 +53,11 @@ k4c_status k4c_file_reader_create(
     k4c_file_reader *reader,
     FILE *file,
     uint8_t *data,
-    size_t buffer_capacity,
-    k4c_reader **out
+    size_t buffer_capacity
 );
+
+/* Return a generic reader value over reader. */
+k4c_reader k4c_file_reader_view(k4c_file_reader *reader);
 
 /* Reset the reader. Caller-owned file and data are not released. */
 k4c_status k4c_file_reader_close(k4c_file_reader *reader);
