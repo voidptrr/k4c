@@ -29,13 +29,13 @@
 #include "k4c/error.h"
 #include "k4c/io/reader.h"
 
-k4c_reader k4c_reader_create(void *context, const k4c_reader_vtable *vtable) {
+k4c_reader k4c_reader_create(void *ctx, const k4c_reader_vtable *vtable) {
     K4C_ASSERT(vtable != NULL, "fatal: k4c_reader_create invalid arguments");
     K4C_ASSERT(vtable->take_byte != NULL, "fatal: k4c_reader_create invalid arguments");
     K4C_ASSERT(vtable->take_delimiter != NULL, "fatal: k4c_reader_create invalid arguments");
 
     return (k4c_reader){
-        .context = context,
+        .ctx = ctx,
         .vtable = vtable,
     };
 }
@@ -43,15 +43,20 @@ k4c_reader k4c_reader_create(void *context, const k4c_reader_vtable *vtable) {
 k4c_status k4c_reader_take_byte(k4c_reader *reader, uint8_t *out) {
     K4C_ASSERT(reader != NULL, "fatal: k4c_reader_take_byte invalid arguments");
     K4C_ASSERT(reader->vtable != NULL, "fatal: k4c_reader_take_byte invalid arguments");
+    K4C_ASSERT(reader->vtable->take_byte != NULL, "fatal: k4c_reader_take_byte invalid arguments");
     K4C_ASSERT(out != NULL, "fatal: k4c_reader_take_byte invalid arguments");
 
-    return reader->vtable->take_byte(reader->context, out);
+    return reader->vtable->take_byte(reader->ctx, out);
 }
 
 k4c_status k4c_reader_take_delimiter(k4c_reader *reader, uint8_t delimiter, k4c_buf_cursor *out) {
     K4C_ASSERT(reader != NULL, "fatal: k4c_reader_take_delimiter invalid arguments");
     K4C_ASSERT(reader->vtable != NULL, "fatal: k4c_reader_take_delimiter invalid arguments");
+    K4C_ASSERT(
+        reader->vtable->take_delimiter != NULL,
+        "fatal: k4c_reader_take_delimiter invalid arguments"
+    );
     K4C_ASSERT(out != NULL, "fatal: k4c_reader_take_delimiter invalid arguments");
 
-    return reader->vtable->take_delimiter(reader->context, delimiter, out);
+    return reader->vtable->take_delimiter(reader->ctx, delimiter, out);
 }

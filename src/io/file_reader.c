@@ -33,9 +33,22 @@
 #include "k4c/io/file_reader.h"
 #include "k4c/io/reader.h"
 
+static k4c_status k4c_file_reader_take_byte(void *context, uint8_t *out);
+static k4c_status k4c_file_reader_take_delimiter(
+    void *context,
+    uint8_t delimiter,
+    k4c_buf_cursor *out
+);
+
+static const k4c_reader_vtable k4c_file_reader_vtable = {
+    .take_byte = k4c_file_reader_take_byte,
+    .take_delimiter = k4c_file_reader_take_delimiter,
+};
+
 static void k4c_file_reader_reset(k4c_file_reader *reader) {
     K4C_ASSERT(reader != NULL, "fatal: k4c_file_reader_reset invalid arguments");
 
+    reader->reader = (k4c_reader){0};
     reader->file = NULL;
     reader->data = NULL;
     reader->len = 0;
@@ -66,17 +79,14 @@ static k4c_status k4c_file_reader_fill(k4c_file_reader *reader) {
     return K4C_STATUS_EOF;
 }
 
-static k4c_status k4c_file_reader_vtable_take_byte(void *context, uint8_t *out) {
+static k4c_status k4c_file_reader_take_byte(void *context, uint8_t *out) {
     k4c_file_reader *reader = context;
 
-    K4C_ASSERT(reader != NULL, "fatal: k4c_file_reader_vtable_take_byte invalid arguments");
-    K4C_ASSERT(out != NULL, "fatal: k4c_file_reader_vtable_take_byte invalid arguments");
-    K4C_ASSERT(reader->file != NULL, "fatal: k4c_file_reader_vtable_take_byte invalid arguments");
-    K4C_ASSERT(reader->data != NULL, "fatal: k4c_file_reader_vtable_take_byte invalid arguments");
-    K4C_ASSERT(
-        reader->buffer_capacity > 0,
-        "fatal: k4c_file_reader_vtable_take_byte invalid arguments"
-    );
+    K4C_ASSERT(reader != NULL, "fatal: k4c_file_reader_take_byte invalid arguments");
+    K4C_ASSERT(out != NULL, "fatal: k4c_file_reader_take_byte invalid arguments");
+    K4C_ASSERT(reader->file != NULL, "fatal: k4c_file_reader_take_byte invalid arguments");
+    K4C_ASSERT(reader->data != NULL, "fatal: k4c_file_reader_take_byte invalid arguments");
+    K4C_ASSERT(reader->buffer_capacity > 0, "fatal: k4c_file_reader_take_byte invalid arguments");
 
     reader->len = 0;
     if (reader->buffer_pos >= reader->buffer_len) {
@@ -92,26 +102,20 @@ static k4c_status k4c_file_reader_vtable_take_byte(void *context, uint8_t *out) 
     return K4C_STATUS_OK;
 }
 
-static k4c_status k4c_file_reader_vtable_take_delimiter(
+static k4c_status k4c_file_reader_take_delimiter(
     void *context,
     uint8_t delimiter,
     k4c_buf_cursor *out
 ) {
     k4c_file_reader *reader = context;
 
-    K4C_ASSERT(reader != NULL, "fatal: k4c_file_reader_vtable_take_delimiter invalid arguments");
-    K4C_ASSERT(out != NULL, "fatal: k4c_file_reader_vtable_take_delimiter invalid arguments");
-    K4C_ASSERT(
-        reader->file != NULL,
-        "fatal: k4c_file_reader_vtable_take_delimiter invalid arguments"
-    );
-    K4C_ASSERT(
-        reader->data != NULL,
-        "fatal: k4c_file_reader_vtable_take_delimiter invalid arguments"
-    );
+    K4C_ASSERT(reader != NULL, "fatal: k4c_file_reader_take_delimiter invalid arguments");
+    K4C_ASSERT(out != NULL, "fatal: k4c_file_reader_take_delimiter invalid arguments");
+    K4C_ASSERT(reader->file != NULL, "fatal: k4c_file_reader_take_delimiter invalid arguments");
+    K4C_ASSERT(reader->data != NULL, "fatal: k4c_file_reader_take_delimiter invalid arguments");
     K4C_ASSERT(
         reader->buffer_capacity > 0,
-        "fatal: k4c_file_reader_vtable_take_delimiter invalid arguments"
+        "fatal: k4c_file_reader_take_delimiter invalid arguments"
     );
 
     reader->len = 0;
@@ -153,37 +157,29 @@ static k4c_status k4c_file_reader_vtable_take_delimiter(
     }
 }
 
-static const k4c_reader_vtable k4c_file_reader_vtable = {
-    .take_byte = k4c_file_reader_vtable_take_byte,
-    .take_delimiter = k4c_file_reader_vtable_take_delimiter,
-};
-
-k4c_status k4c_file_reader_init(
+k4c_status k4c_file_reader_create(
     k4c_file_reader *reader,
     FILE *file,
     uint8_t *data,
-    size_t buffer_capacity
+    size_t buffer_capacity,
+    k4c_reader **out
 ) {
-    K4C_ASSERT(reader != NULL, "fatal: k4c_file_reader_init invalid arguments");
+    K4C_ASSERT(reader != NULL, "fatal: k4c_file_reader_create invalid arguments");
 
     k4c_file_reader_reset(reader);
-    if (file == NULL || data == NULL || buffer_capacity == 0) {
+    if (file == NULL || data == NULL || buffer_capacity == 0 || out == NULL) {
         return K4C_STATUS_INVALID_ARGUMENT;
     }
 
+    reader->reader = k4c_reader_create(reader, &k4c_file_reader_vtable);
     reader->file = file;
     reader->data = data;
     reader->len = 0;
     reader->buffer_capacity = buffer_capacity;
     reader->buffer_pos = 0;
     reader->buffer_len = 0;
+    *out = &reader->reader;
     return K4C_STATUS_OK;
-}
-
-k4c_reader k4c_file_reader_as_reader(k4c_file_reader *reader) {
-    K4C_ASSERT(reader != NULL, "fatal: k4c_file_reader_as_reader invalid arguments");
-
-    return k4c_reader_create(reader, &k4c_file_reader_vtable);
 }
 
 k4c_status k4c_file_reader_close(k4c_file_reader *reader) {

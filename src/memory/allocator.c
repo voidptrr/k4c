@@ -32,10 +32,11 @@ k4c_status k4c_alloc(k4c_allocator *k4c_allocator, size_t size, void **out) {
     K4C_ASSERT(out != NULL, "fatal: k4c_alloc invalid arguments");
 
     void *ptr = NULL;
-    if (k4c_allocator == NULL || k4c_allocator->k4c_alloc == NULL) {
+    if (k4c_allocator == NULL || k4c_allocator->vtable == NULL
+        || k4c_allocator->vtable->alloc == NULL) {
         ptr = malloc(size);
     } else {
-        ptr = k4c_allocator->k4c_alloc(k4c_allocator->ctx, size);
+        ptr = k4c_allocator->vtable->alloc(k4c_allocator->ctx, size);
     }
 
     if (ptr == NULL) {
@@ -57,10 +58,11 @@ k4c_status k4c_resize(k4c_allocator *k4c_allocator, void *ptr, size_t size, void
     }
 
     void *new_ptr = NULL;
-    if (k4c_allocator == NULL || k4c_allocator->realloc == NULL) {
+    if (k4c_allocator == NULL || k4c_allocator->vtable == NULL
+        || k4c_allocator->vtable->resize == NULL) {
         new_ptr = realloc(ptr, size);
     } else {
-        new_ptr = k4c_allocator->realloc(k4c_allocator->ctx, ptr, size);
+        new_ptr = k4c_allocator->vtable->resize(k4c_allocator->ctx, ptr, size);
     }
 
     if (new_ptr == NULL) {
@@ -82,6 +84,7 @@ void k4c_dealloc(k4c_allocator *k4c_allocator, void *ptr) {
         return;
     }
 
-    K4C_ASSERT(k4c_allocator->k4c_dealloc != NULL, "fatal: k4c_dealloc invalid arguments");
-    k4c_allocator->k4c_dealloc(k4c_allocator->ctx, ptr);
+    K4C_ASSERT(k4c_allocator->vtable != NULL, "fatal: k4c_dealloc invalid arguments");
+    K4C_ASSERT(k4c_allocator->vtable->dealloc != NULL, "fatal: k4c_dealloc invalid arguments");
+    k4c_allocator->vtable->dealloc(k4c_allocator->ctx, ptr);
 }

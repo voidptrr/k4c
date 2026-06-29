@@ -35,6 +35,14 @@ typedef struct test_reader_context {
     k4c_buf_cursor cursor;
 } test_reader_context;
 
+static k4c_status test_reader_take_byte(void *context, uint8_t *out);
+static k4c_status test_reader_take_delimiter(void *context, uint8_t delimiter, k4c_buf_cursor *out);
+
+static const k4c_reader_vtable test_reader_vtable = {
+    .take_byte = test_reader_take_byte,
+    .take_delimiter = test_reader_take_delimiter,
+};
+
 static k4c_status test_reader_take_byte(void *context, uint8_t *out) {
     test_reader_context *reader = context;
 
@@ -65,11 +73,6 @@ static k4c_status test_reader_take_delimiter(
     return K4C_STATUS_EOF;
 }
 
-static const k4c_reader_vtable test_reader_vtable = {
-    .take_byte = test_reader_take_byte,
-    .take_delimiter = test_reader_take_delimiter,
-};
-
 static int cursor_equal(k4c_buf_cursor *cursor, const char *text) {
     size_t len = strlen(text);
     if (k4c_test_equal(cursor->len, len) != 0) {
@@ -87,7 +90,7 @@ K4C_TEST(create_tracks_context_and_vtable) {
     };
     k4c_reader reader = k4c_reader_create(&context, &test_reader_vtable);
 
-    if (k4c_test_equal_ptr(reader.context, &context) != 0) {
+    if (k4c_test_equal_ptr(reader.ctx, &context) != 0) {
         return 1;
     }
     if (k4c_test_equal_ptr(reader.vtable, &test_reader_vtable) != 0) {

@@ -33,6 +33,7 @@
 #include "k4c/io/reader.h"
 
 typedef struct k4c_file_reader {
+    k4c_reader reader;
     FILE *file;
     uint8_t *data;
     size_t len;
@@ -43,21 +44,19 @@ typedef struct k4c_file_reader {
 } k4c_file_reader;
 
 /*
- * Initialize reader from an existing FILE pointer and caller-provided storage.
+ * Create a reader from an existing FILE pointer and caller-provided storage.
  * The caller owns file and data. data must point to buffer_capacity bytes and
  * outlive the reader.
  * buffer_capacity is the maximum buffered window. Delimited chunks that fill
  * the buffer without finding the delimiter overflow.
  */
-k4c_status k4c_file_reader_init(
+k4c_status k4c_file_reader_create(
     k4c_file_reader *reader,
     FILE *file,
     uint8_t *data,
-    size_t buffer_capacity
+    size_t buffer_capacity,
+    k4c_reader **out
 );
-
-/* Return a generic reader view over file reader. */
-k4c_reader k4c_file_reader_as_reader(k4c_file_reader *reader);
 
 /* Reset the reader. Caller-owned file and data are not released. */
 k4c_status k4c_file_reader_close(k4c_file_reader *reader);

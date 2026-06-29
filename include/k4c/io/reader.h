@@ -40,18 +40,18 @@ typedef k4c_status (*k4c_reader_take_delimiter_fn)(
     k4c_buf_cursor *out
 );
 
+struct k4c_reader {
+    void *ctx;
+    const k4c_reader_vtable *vtable;
+};
+
 struct k4c_reader_vtable {
     k4c_reader_take_byte_fn take_byte;
     k4c_reader_take_delimiter_fn take_delimiter;
 };
 
-struct k4c_reader {
-    void *context;
-    const k4c_reader_vtable *vtable;
-};
-
-/* Create a non-owning reader over context using vtable for operations. */
-k4c_reader k4c_reader_create(void *context, const k4c_reader_vtable *vtable);
+/* Create a non-owning reader over ctx using vtable for operations. */
+k4c_reader k4c_reader_create(void *ctx, const k4c_reader_vtable *vtable);
 
 /* Take and return the next byte from reader. */
 k4c_status k4c_reader_take_byte(k4c_reader *reader, uint8_t *out);
