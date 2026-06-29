@@ -30,7 +30,7 @@
 #include "k4c/error.h"
 #include "k4c/io/reader.h"
 
-static k4c_status k4c_reader_fill_more(k4c_reader *reader) {
+static k4c_status k4c_reader_fill_more(k4c_reader *reader, size_t max_read_len) {
     size_t available = reader->len - reader->pos;
     if (available == reader->capacity) {
         return K4C_STATUS_OVERFLOW;
@@ -45,17 +45,16 @@ static k4c_status k4c_reader_fill_more(k4c_reader *reader) {
         reader->len = available;
     }
 
+    size_t free_capacity = reader->capacity - reader->len;
+    size_t read_capacity = max_read_len < free_capacity ? max_read_len : free_capacity;
+    if (read_capacity == 0) {
+        return K4C_STATUS_OVERFLOW;
+    }
+
     size_t read_len = 0;
-    k4c_status st = reader->vtable->read(
-        reader->ctx,
-        reader->data + reader->len,
-        reader->capacity - reader->len,
-        &read_len
-    );
-    K4C_ASSERT(
-        read_len <= reader->capacity - reader->len,
-        "fatal: k4c_reader_fill_more invalid read result"
-    );
+    k4c_status st =
+        reader->vtable->read(reader->ctx, reader->data + reader->len, read_capacity, &read_len);
+    K4C_ASSERT(read_len <= read_capacity, "fatal: k4c_reader_fill_more invalid read result");
 
     reader->len += read_len;
     if (read_len > 0) {
@@ -97,7 +96,7 @@ k4c_status k4c_reader_take_byte(k4c_reader *reader, uint8_t *out) {
     K4C_ASSERT(out != NULL, "fatal: k4c_reader_take_byte invalid arguments");
 
     if (reader->pos >= reader->len) {
-        k4c_status st = k4c_reader_fill_more(reader);
+        k4c_status st = k4c_reader_fill_more(reader, reader->capacity);
         if (st != K4C_STATUS_OK) {
             return st;
         }
@@ -105,6 +104,31 @@ k4c_status k4c_reader_take_byte(k4c_reader *reader, uint8_t *out) {
 
     *out = reader->data[reader->pos];
     reader->pos += 1;
+    return K4C_STATUS_OK;
+}
+
+k4c_status k4c_reader_take_array(k4c_reader *reader, size_t count, k4c_buf_cursor *out) {
+    K4C_ASSERT(reader != NULL, "fatal: k4c_reader_take_array invalid arguments");
+    K4C_ASSERT(reader->vtable != NULL, "fatal: k4c_reader_take_array invalid arguments");
+    K4C_ASSERT(reader->vtable->read != NULL, "fatal: k4c_reader_take_array invalid arguments");
+    K4C_ASSERT(reader->data != NULL, "fatal: k4c_reader_take_array invalid arguments");
+    K4C_ASSERT(reader->capacity > 0, "fatal: k4c_reader_take_array invalid arguments");
+    K4C_ASSERT(out != NULL, "fatal: k4c_reader_take_array invalid arguments");
+
+    if (count > reader->capacity) {
+        return K4C_STATUS_OVERFLOW;
+    }
+
+    while (reader->len - reader->pos < count) {
+        size_t available = reader->len - reader->pos;
+        k4c_status st = k4c_reader_fill_more(reader, count - available);
+        if (st != K4C_STATUS_OK) {
+            return st;
+        }
+    }
+
+    *out = k4c_buf_cursor_create(reader->data + reader->pos, count);
+    reader->pos += count;
     return K4C_STATUS_OK;
 }
 
@@ -121,7 +145,7 @@ k4c_status k4c_reader_take_delimiter(k4c_reader *reader, uint8_t delimiter, k4c_
         size_t available = reader->len - reader->pos;
 
         if (available == 0) {
-            k4c_status st = k4c_reader_fill_more(reader);
+            k4c_status st = k4c_reader_fill_more(reader, reader->capacity);
             if (st != K4C_STATUS_OK) {
                 return st;
             }
@@ -134,7 +158,7 @@ k4c_status k4c_reader_take_delimiter(k4c_reader *reader, uint8_t delimiter, k4c_
         }
 
         if (found == NULL) {
-            k4c_status st = k4c_reader_fill_more(reader);
+            k4c_status st = k4c_reader_fill_more(reader, reader->capacity);
             if (st == K4C_STATUS_EOF) {
                 available = reader->len - reader->pos;
                 if (available == 0) {

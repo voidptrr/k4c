@@ -73,6 +73,22 @@ k4c_status k4c_reader_take_byte(k4c_reader *reader, uint8_t *out);
 - Writes: the consumed byte to `*out` on success.
 - Notes: refills the reader buffer through `vtable->read` when needed.
 
+### k4c_reader_take_array
+
+```c
+k4c_status k4c_reader_take_array(k4c_reader *reader, size_t count, k4c_buf_cursor *out);
+```
+
+- Parameters: `reader`, `count`, `out`
+- Returns: `K4C_STATUS_OK` when `count` bytes were consumed,
+  `K4C_STATUS_EOF` when fewer than `count` bytes are available,
+  `K4C_STATUS_OVERFLOW` when `count` is larger than the reader buffer, or
+  another status from the concrete reader.
+- Writes: a cursor over exactly `count` bytes to `*out` on success.
+- Notes: when the reader needs more bytes for this operation, `count` controls
+  how many bytes are requested from `vtable->read`, minus any bytes already
+  buffered. The returned cursor points into `reader->data`.
+
 ### k4c_reader_take_delimiter
 
 ```c
@@ -152,6 +168,19 @@ int main(void) {
     }
     return 0;
 }
+```
+
+### Read fixed chunks
+
+Use `k4c_reader_take_array` when the protocol has a fixed-size field or chunk.
+
+```c
+k4c_buf_cursor magic;
+if (k4c_reader_take_array(&reader, 4, &magic) != K4C_STATUS_OK) {
+    /* handle EOF, overflow, or source error */
+}
+
+/* magic.data points into reader's buffer and has exactly magic.len == 4 bytes */
 ```
 
 ### Consume any reader
