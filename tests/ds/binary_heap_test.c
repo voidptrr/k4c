@@ -46,7 +46,8 @@ static int cmp_int_desc(const void *a, const void *b) {
 
 K4C_TEST(init) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_binary_heap *k4c_heap = NULL;
     if (k4c_test_equal(
             k4c_binary_heap_create(sizeof(int), cmp_int_asc, k4c_allocator, &k4c_heap),
@@ -68,7 +69,8 @@ K4C_TEST(init) {
 
 K4C_TEST(peek) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_binary_heap *k4c_heap = NULL;
     if (k4c_test_equal(
             k4c_binary_heap_create(sizeof(int), cmp_int_asc, k4c_allocator, &k4c_heap),
@@ -103,7 +105,8 @@ K4C_TEST(peek) {
 
 K4C_TEST(pop) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_binary_heap *k4c_heap = NULL;
     if (k4c_test_equal(
             k4c_binary_heap_create(sizeof(int), cmp_int_asc, k4c_allocator, &k4c_heap),
@@ -143,7 +146,8 @@ K4C_TEST(pop) {
 
 K4C_TEST(pop_uses_custom_comparator_order) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_binary_heap *k4c_heap = NULL;
     if (k4c_test_equal(
             k4c_binary_heap_create(sizeof(int), cmp_int_desc, k4c_allocator, &k4c_heap),
@@ -179,7 +183,8 @@ K4C_TEST(pop_uses_custom_comparator_order) {
 
 K4C_TEST(push) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_binary_heap *k4c_heap = NULL;
     if (k4c_test_equal(
             k4c_binary_heap_create(sizeof(int), cmp_int_asc, k4c_allocator, &k4c_heap),
@@ -215,7 +220,8 @@ K4C_TEST(push) {
 
 K4C_TEST(default_byte_ordering) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_binary_heap *k4c_heap = NULL;
     if (k4c_test_equal(
             k4c_binary_heap_create(sizeof(uint8_t), NULL, k4c_allocator, &k4c_heap),
@@ -248,7 +254,8 @@ K4C_TEST(default_byte_ordering) {
 
 K4C_TEST(custom_comparator) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_binary_heap *k4c_heap = NULL;
     if (k4c_test_equal(
             k4c_binary_heap_create(sizeof(int), cmp_int_desc, k4c_allocator, &k4c_heap),
@@ -281,7 +288,8 @@ K4C_TEST(custom_comparator) {
 
 K4C_TEST(iterator_walks_backing_storage) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_binary_heap *k4c_heap = NULL;
     if (k4c_test_equal(
             k4c_binary_heap_create(sizeof(int), cmp_int_asc, k4c_allocator, &k4c_heap),

@@ -25,6 +25,7 @@
 #include <stddef.h>
 
 #include "k4c/error.h"
+#include "k4c/memory/allocator.h"
 #include "k4c/memory/general_heap.h"
 #include "k4c/testing.h"
 
@@ -34,9 +35,16 @@ int main(void) {
         return 1;
     }
     size_t before = k4c_heap_available(k4c_heap);
+    k4c_allocator allocator = k4c_heap_allocator_view(k4c_heap);
 
-    int *a = (int *)k4c_heap_alloc(k4c_heap, sizeof(int));
-    int *b = (int *)k4c_heap_alloc(k4c_heap, sizeof(int));
+    int *a = NULL;
+    int *b = NULL;
+    if (k4c_test_status_ok(k4c_alloc(&allocator, sizeof(int), (void **)&a)) != 0) {
+        return 1;
+    }
+    if (k4c_test_status_ok(k4c_alloc(&allocator, sizeof(int), (void **)&b)) != 0) {
+        return 1;
+    }
     if (k4c_test_not_null(a) != 0) {
         return 1;
     }
@@ -49,8 +57,8 @@ int main(void) {
         return 1;
     }
 
-    k4c_heap_dealloc(k4c_heap, a);
-    k4c_heap_dealloc(k4c_heap, b);
+    k4c_dealloc(&allocator, a);
+    k4c_dealloc(&allocator, b);
     k4c_heap_destroy(k4c_heap);
     return 0;
 }

@@ -50,7 +50,7 @@ struct k4c_hashset {
     size_t capacity;
     k4c_hash_common_bucket *buckets;
     k4c_hashset_elem_eq_fn elem_eq;
-    k4c_allocator *k4c_allocator;
+    k4c_allocator k4c_allocator;
 };
 
 typedef struct k4c_hashset_iterator_state {
@@ -141,14 +141,14 @@ k4c_status k4c_hashset_create(
         return st;
     }
 
-    set->k4c_allocator = k4c_allocator;
+    set->k4c_allocator = k4c_allocator_copy(k4c_allocator);
     st = k4c_hash_common_buckets_create(
         K4C_HASH_COMMON_DEFAULT_CAPACITY,
-        k4c_allocator,
+        &set->k4c_allocator,
         &set->buckets
     );
     if (st != K4C_STATUS_OK) {
-        k4c_dealloc(k4c_allocator, set);
+        k4c_dealloc(&set->k4c_allocator, set);
         return st;
     }
 
@@ -175,7 +175,7 @@ k4c_status k4c_hashset_reserve(k4c_hashset *set, size_t size) {
         set->buckets,
         set->capacity,
         new_capacity,
-        set->k4c_allocator,
+        &set->k4c_allocator,
         k4c_hashset_entry_hash,
         &new_buckets
     );
@@ -192,7 +192,7 @@ k4c_status k4c_hashset_insert(k4c_hashset *set, const void *elem) {
     K4C_ASSERT(set != NULL, "fatal: k4c_hashset_insert invalid arguments");
     K4C_ASSERT(elem != NULL, "fatal: k4c_hashset_insert invalid arguments");
 
-    k4c_allocator *k4c_allocator = set->k4c_allocator;
+    k4c_allocator *k4c_allocator = &set->k4c_allocator;
     size_t hash = k4c_fnv1a_hash(elem, set->elem_size);
     size_t bucket = hash % set->capacity;
     k4c_linked_list_node *node = k4c_hash_common_bucket_find(
@@ -259,7 +259,7 @@ void k4c_hashset_remove(k4c_hashset *set, const void *elem) {
     K4C_ASSERT(set != NULL, "fatal: k4c_hashset_remove invalid arguments");
     K4C_ASSERT(elem != NULL, "fatal: k4c_hashset_remove invalid arguments");
 
-    k4c_allocator *k4c_allocator = set->k4c_allocator;
+    k4c_allocator *k4c_allocator = &set->k4c_allocator;
     size_t hash = k4c_fnv1a_hash(elem, set->elem_size);
     size_t bucket = hash % set->capacity;
     k4c_linked_list_node *node = k4c_hash_common_bucket_remove(
@@ -299,7 +299,7 @@ k4c_iterator k4c_hashset_get_iterator(const k4c_hashset *set) {
 void k4c_hashset_destroy(k4c_hashset *set) {
     K4C_ASSERT(set != NULL, "fatal: k4c_hashset_destroy invalid arguments");
 
-    k4c_allocator *k4c_allocator = set->k4c_allocator;
+    k4c_allocator *k4c_allocator = &set->k4c_allocator;
     k4c_hash_common_buckets_destroy(
         set->buckets,
         set->capacity,

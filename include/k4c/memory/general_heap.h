@@ -59,26 +59,9 @@ typedef struct k4c_heap k4c_heap;
 k4c_status k4c_heap_create(size_t capacity, k4c_heap **out);
 
 /*
- * Return the generic k4c_allocator view owned by this k4c_heap.
+ * Return the generic k4c_allocator view for this k4c_heap.
  */
-k4c_allocator *k4c_heap_allocator(k4c_heap *k4c_heap);
-
-/*
- * Allocate `size` bytes from k4c_heap.
- * Returns NULL when no suitable free block exists.
- */
-void *k4c_heap_alloc(k4c_heap *k4c_heap, size_t size);
-
-/*
- * Free a pointer previously returned by k4c_heap_alloc/k4c_heap_realloc.
- */
-void k4c_heap_dealloc(k4c_heap *k4c_heap, void *ptr);
-
-/*
- * Resize an existing k4c_heap allocation.
- * Behaves like realloc: NULL ptr allocates, size 0 frees and returns NULL.
- */
-void *k4c_heap_realloc(k4c_heap *k4c_heap, void *ptr, size_t size);
+k4c_allocator k4c_heap_allocator_view(k4c_heap *k4c_heap);
 
 /* Total managed bytes (including internal metadata overhead). */
 size_t k4c_heap_capacity(const k4c_heap *k4c_heap);

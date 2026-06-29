@@ -44,7 +44,8 @@ K4C_TEST(k4c_allocator) {
     k4c_test_allocator k4c_test_allocator;
     uint64_t value = 11;
 
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_hashset *set = NULL;
     if (k4c_test_equal(
             k4c_hashset_create(sizeof(uint64_t), NULL, k4c_allocator, &set),
@@ -71,7 +72,8 @@ K4C_TEST(k4c_allocator) {
 
 K4C_TEST(contains) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_hashset *set = NULL;
     if (k4c_test_equal(
             k4c_hashset_create(sizeof(uint64_t), NULL, k4c_allocator, &set),
@@ -117,7 +119,8 @@ K4C_TEST(contains) {
 
 K4C_TEST(get) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_hashset *set = NULL;
     if (k4c_test_equal(
             k4c_hashset_create(sizeof(uint64_t), NULL, k4c_allocator, &set),
@@ -167,7 +170,8 @@ K4C_TEST(get) {
 
 K4C_TEST(init) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_hashset *set = NULL;
     if (k4c_test_equal(
             k4c_hashset_create(sizeof(uint64_t), NULL, k4c_allocator, &set),
@@ -188,7 +192,8 @@ K4C_TEST(init) {
 
 K4C_TEST(default_byte_equality) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_hashset *set = NULL;
     if (k4c_test_equal(
             k4c_hashset_create(sizeof(uint64_t), NULL, k4c_allocator, &set),
@@ -222,7 +227,8 @@ K4C_TEST(default_byte_equality) {
 
 K4C_TEST(custom_equality) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     uint64_t value = 42;
     uint64_t same_value = 42;
 
@@ -261,7 +267,8 @@ K4C_TEST(custom_equality) {
 
 K4C_TEST(insert) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_hashset *set = NULL;
     if (k4c_test_equal(
             k4c_hashset_create(sizeof(uint64_t), NULL, k4c_allocator, &set),
@@ -300,7 +307,8 @@ K4C_TEST(insert) {
 
 K4C_TEST(reserve) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_hashset *set = NULL;
     if (k4c_test_equal(
             k4c_hashset_create(sizeof(uint64_t), NULL, k4c_allocator, &set),
@@ -333,7 +341,8 @@ K4C_TEST(reserve) {
 
 K4C_TEST(remove) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_hashset *set = NULL;
     if (k4c_test_equal(
             k4c_hashset_create(sizeof(uint64_t), NULL, k4c_allocator, &set),
@@ -385,7 +394,8 @@ K4C_TEST(remove) {
 
 K4C_TEST(foreach_macro_walks_elements) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_hashset *set = NULL;
     if (k4c_test_equal(
             k4c_hashset_create(sizeof(uint64_t), NULL, k4c_allocator, &set),
@@ -424,7 +434,8 @@ K4C_TEST(foreach_macro_walks_elements) {
 
 K4C_TEST(iterator_walks_elements) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_hashset *set = NULL;
     if (k4c_test_equal(
             k4c_hashset_create(sizeof(uint64_t), NULL, k4c_allocator, &set),

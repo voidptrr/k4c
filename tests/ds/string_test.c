@@ -34,7 +34,8 @@
 K4C_TEST(k4c_allocator) {
     k4c_test_allocator k4c_test_allocator;
 
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_string value = NULL;
     if (k4c_test_equal(k4c_string_create("abc", k4c_allocator, &value), K4C_STATUS_OK)) {
         return 1;
@@ -75,7 +76,8 @@ K4C_TEST(k4c_allocator) {
 
 K4C_TEST(append) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_string value = NULL;
     if (k4c_test_equal(k4c_string_create("hello", k4c_allocator, &value), K4C_STATUS_OK)) {
         return 1;
@@ -118,7 +120,8 @@ K4C_TEST(append) {
 
 K4C_TEST(clear) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_string value = NULL;
     if (k4c_test_equal(k4c_string_create("hello", k4c_allocator, &value), K4C_STATUS_OK)) {
         return 1;
@@ -149,7 +152,8 @@ K4C_TEST(clear) {
 
 K4C_TEST(init) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_string empty = NULL;
     if (k4c_test_equal(k4c_string_create(NULL, k4c_allocator, &empty), K4C_STATUS_OK)) {
         return 1;
@@ -190,7 +194,8 @@ K4C_TEST(init) {
 
 K4C_TEST(prepend) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_string value = NULL;
     if (k4c_test_equal(k4c_string_create("world", k4c_allocator, &value), K4C_STATUS_OK)) {
         return 1;
@@ -221,7 +226,8 @@ K4C_TEST(prepend) {
 
 K4C_TEST(search) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_string value = NULL;
     if (k4c_test_equal(k4c_string_create("hello world", k4c_allocator, &value), K4C_STATUS_OK)) {
         return 1;
@@ -268,7 +274,8 @@ K4C_TEST(search) {
 
 K4C_TEST(iterator_walks_bytes) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_string value = NULL;
     if (k4c_test_equal(k4c_string_create("abc", k4c_allocator, &value), K4C_STATUS_OK)) {
         return 1;

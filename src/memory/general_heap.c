@@ -42,7 +42,6 @@ typedef struct k4c_heap_block {
 } k4c_heap_block;
 
 struct k4c_heap {
-    k4c_allocator k4c_allocator;
     void *buffer;
     size_t capacity;
     k4c_doubly_linked_list *blocks;
@@ -238,12 +237,6 @@ k4c_status k4c_heap_create(size_t capacity, k4c_heap **out) {
         return st;
     }
 
-    k4c_heap->k4c_allocator = (k4c_allocator){
-        .ctx = k4c_heap,
-        .features = K4C_ALLOCATOR_FEATURE_DEALLOC | K4C_ALLOCATOR_FEATURE_REALLOC,
-        .vtable = &k4c_heap_allocator_vtable,
-    };
-
     k4c_heap_block *block = (k4c_heap_block *)k4c_heap->buffer;
     block->size = capacity - sizeof(k4c_heap_block);
     block->is_free = true;
@@ -253,24 +246,16 @@ k4c_status k4c_heap_create(size_t capacity, k4c_heap **out) {
     return K4C_STATUS_OK;
 }
 
-k4c_allocator *k4c_heap_allocator(k4c_heap *k4c_heap) {
+k4c_allocator k4c_heap_allocator_view(k4c_heap *k4c_heap) {
     K4C_ASSERT(k4c_heap != NULL, "fatal: k4c_heap_allocator invalid arguments");
     K4C_ASSERT(k4c_heap->buffer != NULL, "fatal: k4c_heap_allocator invalid k4c_heap");
     K4C_ASSERT(k4c_heap->blocks != NULL, "fatal: k4c_heap_allocator invalid k4c_heap");
 
-    return &k4c_heap->k4c_allocator;
-}
-
-void *k4c_heap_alloc(k4c_heap *k4c_heap, size_t size) {
-    return k4c_heap_vtable_alloc(k4c_heap, size);
-}
-
-void k4c_heap_dealloc(k4c_heap *k4c_heap, void *ptr) {
-    k4c_heap_vtable_dealloc(k4c_heap, ptr);
-}
-
-void *k4c_heap_realloc(k4c_heap *k4c_heap, void *ptr, size_t size) {
-    return k4c_heap_vtable_realloc(k4c_heap, ptr, size);
+    return (k4c_allocator){
+        .ctx = k4c_heap,
+        .features = K4C_ALLOCATOR_FEATURE_DEALLOC | K4C_ALLOCATOR_FEATURE_REALLOC,
+        .vtable = &k4c_heap_allocator_vtable,
+    };
 }
 
 size_t k4c_heap_capacity(const k4c_heap *k4c_heap) {

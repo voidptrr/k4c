@@ -37,7 +37,8 @@ typedef struct test_item {
 
 K4C_TEST(head) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_linked_list *list = NULL;
     if (k4c_test_equal(k4c_linked_list_create(k4c_allocator, &list), K4C_STATUS_OK)) {
         return 1;
@@ -62,7 +63,8 @@ K4C_TEST(head) {
 
 K4C_TEST(init) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_linked_list *list = NULL;
     if (k4c_test_equal(k4c_linked_list_create(k4c_allocator, &list), K4C_STATUS_OK)) {
         return 1;
@@ -81,7 +83,8 @@ K4C_TEST(init) {
 
 K4C_TEST(popleft) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_linked_list *list = NULL;
     if (k4c_test_equal(k4c_linked_list_create(k4c_allocator, &list), K4C_STATUS_OK)) {
         return 1;
@@ -125,7 +128,8 @@ K4C_TEST(popleft) {
 
 K4C_TEST(push) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_linked_list *list = NULL;
     if (k4c_test_equal(k4c_linked_list_create(k4c_allocator, &list), K4C_STATUS_OK)) {
         return 1;
@@ -166,7 +170,8 @@ K4C_TEST(push) {
 
 K4C_TEST(pushfront) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_linked_list *list = NULL;
     if (k4c_test_equal(k4c_linked_list_create(k4c_allocator, &list), K4C_STATUS_OK)) {
         return 1;
@@ -207,7 +212,8 @@ K4C_TEST(pushfront) {
 
 K4C_TEST(remove_after) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_linked_list *list = NULL;
     if (k4c_test_equal(k4c_linked_list_create(k4c_allocator, &list), K4C_STATUS_OK)) {
         return 1;
@@ -255,7 +261,8 @@ K4C_TEST(remove_after) {
 
 K4C_TEST(iterator_walks_nodes) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_linked_list *list = NULL;
     if (k4c_test_equal(k4c_linked_list_create(k4c_allocator, &list), K4C_STATUS_OK)) {
         return 1;

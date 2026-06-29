@@ -81,7 +81,8 @@ static k4c_iterator paged_array_iter(paged_array_iterator *state, const int *ite
 
 K4C_TEST(init) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_vector *v = NULL;
     if (k4c_test_equal(k4c_vector_create(sizeof(int), k4c_allocator, &v), K4C_STATUS_OK)) {
         return 1;
@@ -109,7 +110,8 @@ K4C_TEST(init) {
 
 K4C_TEST(pop) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_vector *v = NULL;
     if (k4c_test_equal(k4c_vector_create(sizeof(int), k4c_allocator, &v), K4C_STATUS_OK)) {
         return 1;
@@ -154,7 +156,8 @@ K4C_TEST(pop) {
 
 K4C_TEST(push_single_element) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_vector *v = NULL;
     if (k4c_test_equal(k4c_vector_create(sizeof(int), k4c_allocator, &v), K4C_STATUS_OK)) {
         return 1;
@@ -182,7 +185,8 @@ K4C_TEST(push_single_element) {
 
 K4C_TEST(push_grows_storage) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_vector *v = NULL;
     if (k4c_test_equal(k4c_vector_create(sizeof(int), k4c_allocator, &v), K4C_STATUS_OK)) {
         return 1;
@@ -208,7 +212,8 @@ K4C_TEST(push_grows_storage) {
 
 K4C_TEST(push_preserves_existing_items_after_growth) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_vector *v = NULL;
     if (k4c_test_equal(k4c_vector_create(sizeof(int), k4c_allocator, &v), K4C_STATUS_OK)) {
         return 1;
@@ -236,7 +241,8 @@ K4C_TEST(push_preserves_existing_items_after_growth) {
 
 K4C_TEST(reserve_and_data_access) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_vector *v = NULL;
     if (k4c_test_equal(
             k4c_vector_create_with_capacity(sizeof(int), 2, k4c_allocator, &v),
@@ -285,7 +291,8 @@ K4C_TEST(reserve_and_data_access) {
 
 K4C_TEST(iterator_walks_vector) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_vector *v = NULL;
     if (k4c_test_equal(k4c_vector_create(sizeof(int), k4c_allocator, &v), K4C_STATUS_OK)) {
         return 1;
@@ -320,7 +327,8 @@ K4C_TEST(iterator_walks_vector) {
 
 K4C_TEST(vector_for_each_macro_walks_items) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_vector *v = NULL;
     if (k4c_test_equal(k4c_vector_create(sizeof(int), k4c_allocator, &v), K4C_STATUS_OK)) {
         return 1;
@@ -390,7 +398,8 @@ K4C_TEST(custom_callback_iterator_takes_ten_at_a_time) {
 
 K4C_TEST(vector_collect_copies_items) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_vector *v = NULL;
     if (k4c_test_equal(k4c_vector_create(sizeof(int), k4c_allocator, &v), K4C_STATUS_OK)) {
         return 1;
@@ -431,7 +440,8 @@ K4C_TEST(vector_collect_copies_items) {
 
 K4C_TEST(vector_collect_reserves_from_size_hint) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_vector *v = NULL;
     if (k4c_test_equal(k4c_vector_create(sizeof(int), k4c_allocator, &v), K4C_STATUS_OK)) {
         return 1;
@@ -469,7 +479,8 @@ K4C_TEST(vector_collect_reserves_from_size_hint) {
 
 K4C_TEST(vector_collect_map_changes_type) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_vector *v = NULL;
     if (k4c_test_equal(k4c_vector_create(sizeof(int), k4c_allocator, &v), K4C_STATUS_OK)) {
         return 1;
@@ -511,7 +522,8 @@ K4C_TEST(vector_collect_map_changes_type) {
 
 K4C_TEST(binary_search_bounds) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_vector *v = NULL;
     if (k4c_test_equal(k4c_vector_create(sizeof(int), k4c_allocator, &v), K4C_STATUS_OK)) {
         return 1;

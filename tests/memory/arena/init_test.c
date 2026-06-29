@@ -34,26 +34,25 @@ int main(void) {
     if (k4c_test_equal(k4c_arena_create(128, &k4c_arena), K4C_STATUS_OK)) {
         return 1;
     }
-    k4c_allocator *k4c_allocator = k4c_arena_allocator(k4c_arena);
+    k4c_allocator k4c_allocator = k4c_arena_allocator_view(k4c_arena);
 
-    if (k4c_test_equal_ptr(k4c_allocator->ctx, k4c_arena) != 0) {
+    if (k4c_test_equal_ptr(k4c_allocator.ctx, k4c_arena) != 0) {
         return 1;
     }
-    if (k4c_allocator->vtable == NULL) {
+    if (k4c_allocator.vtable == NULL) {
         return 1;
     }
-    if (k4c_test_equal(k4c_allocator->vtable->alloc != NULL, true) != 0) {
+    if (k4c_test_equal(k4c_allocator.vtable->alloc != NULL, true) != 0) {
         return 1;
     }
-    if (k4c_test_equal(k4c_allocator->vtable->resize != NULL, true) != 0) {
+    if (k4c_test_equal(k4c_allocator.vtable->resize != NULL, true) != 0) {
         return 1;
     }
-    if (k4c_test_equal(k4c_allocator->vtable->dealloc == NULL, true) != 0) {
+    if (k4c_test_equal(k4c_allocator.vtable->dealloc == NULL, true) != 0) {
         return 1;
     }
     if (k4c_test_equal(
-            k4c_allocator->features
-                == (K4C_ALLOCATOR_FEATURE_REALLOC | K4C_ALLOCATOR_FEATURE_RESET),
+            k4c_allocator.features == (K4C_ALLOCATOR_FEATURE_REALLOC | K4C_ALLOCATOR_FEATURE_RESET),
             true
         )
         != 0) {

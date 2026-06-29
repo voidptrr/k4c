@@ -25,6 +25,7 @@
 #include <stdint.h>
 
 #include "k4c/error.h"
+#include "k4c/memory/allocator.h"
 #include "k4c/memory/arena.h"
 #include "k4c/testing.h"
 
@@ -33,7 +34,11 @@ int main(void) {
     if (k4c_test_equal(k4c_arena_create(128, &k4c_arena), K4C_STATUS_OK)) {
         return 1;
     }
-    void *before = k4c_arena_alloc(k4c_arena, 8);
+    k4c_allocator allocator = k4c_arena_allocator_view(k4c_arena);
+    void *before = NULL;
+    if (k4c_test_status_ok(k4c_alloc(&allocator, 8, &before)) != 0) {
+        return 1;
+    }
     if (k4c_test_not_null(before) != 0) {
         return 1;
     }
@@ -46,7 +51,10 @@ int main(void) {
         return 1;
     }
 
-    void *after = k4c_arena_alloc(k4c_arena, 8);
+    void *after = NULL;
+    if (k4c_test_status_ok(k4c_alloc(&allocator, 8, &after)) != 0) {
+        return 1;
+    }
     if (k4c_test_equal_ptr(after, before) != 0) {
         return 1;
     }

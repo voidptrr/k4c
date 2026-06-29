@@ -51,7 +51,7 @@ struct k4c_hashmap {
     size_t capacity;
     k4c_hash_common_bucket *buckets;
     k4c_hashmap_key_eq_fn key_eq;
-    k4c_allocator *k4c_allocator;
+    k4c_allocator k4c_allocator;
 };
 
 typedef struct k4c_hashmap_iterator_state {
@@ -208,14 +208,14 @@ k4c_status k4c_hashmap_create(
         return st;
     }
 
-    map->k4c_allocator = k4c_allocator;
+    map->k4c_allocator = k4c_allocator_copy(k4c_allocator);
     st = k4c_hash_common_buckets_create(
         K4C_HASH_COMMON_DEFAULT_CAPACITY,
-        k4c_allocator,
+        &map->k4c_allocator,
         &map->buckets
     );
     if (st != K4C_STATUS_OK) {
-        k4c_dealloc(k4c_allocator, map);
+        k4c_dealloc(&map->k4c_allocator, map);
         return st;
     }
 
@@ -243,7 +243,7 @@ k4c_status k4c_hashmap_reserve(k4c_hashmap *map, size_t size) {
         map->buckets,
         map->capacity,
         new_capacity,
-        map->k4c_allocator,
+        &map->k4c_allocator,
         k4c_hashmap_entry_hash,
         &new_buckets
     );
@@ -261,7 +261,7 @@ k4c_status k4c_hashmap_put(k4c_hashmap *map, const void *key, const void *value)
     K4C_ASSERT(key != NULL, "fatal: k4c_hashmap_put invalid arguments");
     K4C_ASSERT(value != NULL, "fatal: k4c_hashmap_put invalid arguments");
 
-    k4c_allocator *k4c_allocator = map->k4c_allocator;
+    k4c_allocator *k4c_allocator = &map->k4c_allocator;
     size_t hash = k4c_fnv1a_hash(key, map->key_size);
     size_t bucket = hash % map->capacity;
     k4c_linked_list_node *node = k4c_hash_common_bucket_find(
@@ -331,7 +331,7 @@ void k4c_hashmap_remove(k4c_hashmap *map, const void *key) {
     K4C_ASSERT(map != NULL, "fatal: k4c_hashmap_remove invalid arguments");
     K4C_ASSERT(key != NULL, "fatal: k4c_hashmap_remove invalid arguments");
 
-    k4c_allocator *k4c_allocator = map->k4c_allocator;
+    k4c_allocator *k4c_allocator = &map->k4c_allocator;
     size_t hash = k4c_fnv1a_hash(key, map->key_size);
     size_t bucket = hash % map->capacity;
     k4c_linked_list_node *node = k4c_hash_common_bucket_remove(
@@ -387,7 +387,7 @@ k4c_iterator k4c_hashmap_get_iterator(const k4c_hashmap *map, k4c_hashmap_iterat
 void k4c_hashmap_destroy(k4c_hashmap *map) {
     K4C_ASSERT(map != NULL, "fatal: k4c_hashmap_destroy invalid arguments");
 
-    k4c_allocator *k4c_allocator = map->k4c_allocator;
+    k4c_allocator *k4c_allocator = &map->k4c_allocator;
     k4c_hash_common_buckets_destroy(
         map->buckets,
         map->capacity,

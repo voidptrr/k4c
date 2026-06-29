@@ -34,7 +34,7 @@ struct k4c_doubly_linked_list {
     size_t size;
     k4c_doubly_linked_list_node *head;
     k4c_doubly_linked_list_node *tail;
-    k4c_allocator *k4c_allocator;
+    k4c_allocator k4c_allocator;
 };
 
 typedef struct k4c_doubly_linked_list_iterator_state {
@@ -76,7 +76,7 @@ k4c_status k4c_doubly_linked_list_create(
     list->size = 0;
     list->head = NULL;
     list->tail = NULL;
-    list->k4c_allocator = k4c_allocator;
+    list->k4c_allocator = k4c_allocator_copy(k4c_allocator);
 
     *out = list;
     return K4C_STATUS_OK;
@@ -244,6 +244,6 @@ k4c_iterator k4c_doubly_linked_list_get_iterator(const k4c_doubly_linked_list *l
 void k4c_doubly_linked_list_destroy(k4c_doubly_linked_list *list) {
     K4C_ASSERT(list != NULL, "fatal: k4c_doubly_linked_list_destroy invalid arguments");
 
-    k4c_allocator *k4c_allocator = list->k4c_allocator;
+    k4c_allocator *k4c_allocator = &list->k4c_allocator;
     k4c_dealloc(k4c_allocator, list);
 }

@@ -41,7 +41,7 @@ struct k4c_deque {
     size_t head;
     size_t tail;
     void *buffer;
-    k4c_allocator *k4c_allocator;
+    k4c_allocator k4c_allocator;
 };
 
 typedef struct k4c_deque_iterator_state {
@@ -82,7 +82,7 @@ static k4c_status k4c_deque_capacity_grow(size_t capacity, size_t min_capacity, 
 }
 
 static k4c_status k4c_deque_grow(k4c_deque *k4c_deque) {
-    k4c_allocator *k4c_allocator = k4c_deque->k4c_allocator;
+    k4c_allocator *k4c_allocator = &k4c_deque->k4c_allocator;
     size_t old_capacity = k4c_deque->capacity;
     size_t min_capacity = 0;
     if (k4c_size_add_overflow(k4c_deque->size, 1, &min_capacity)) {
@@ -164,7 +164,7 @@ k4c_status k4c_deque_create(size_t elem_size, k4c_allocator *k4c_allocator, k4c_
     if (st != K4C_STATUS_OK) {
         return st;
     }
-    k4c_deque->k4c_allocator = k4c_allocator;
+    k4c_deque->k4c_allocator = k4c_allocator_copy(k4c_allocator);
 
     size_t alloc_size = 0;
     if (k4c_size_mul_overflow(elem_size, K4C_DEQUE_DEFAULT_CAPACITY, &alloc_size)) {
@@ -173,9 +173,9 @@ k4c_status k4c_deque_create(size_t elem_size, k4c_allocator *k4c_allocator, k4c_
     }
 
     void *buffer = NULL;
-    st = k4c_alloc(k4c_allocator, alloc_size, &buffer);
+    st = k4c_alloc(&k4c_deque->k4c_allocator, alloc_size, &buffer);
     if (st != K4C_STATUS_OK) {
-        k4c_dealloc(k4c_allocator, k4c_deque);
+        k4c_dealloc(&k4c_deque->k4c_allocator, k4c_deque);
         return st;
     }
 
@@ -315,7 +315,7 @@ k4c_iterator k4c_deque_get_iterator(const k4c_deque *k4c_deque) {
 void k4c_deque_destroy(k4c_deque *k4c_deque) {
     K4C_ASSERT(k4c_deque != NULL, "fatal: k4c_deque_destroy invalid arguments");
 
-    k4c_allocator *k4c_allocator = k4c_deque->k4c_allocator;
+    k4c_allocator *k4c_allocator = &k4c_deque->k4c_allocator;
     k4c_dealloc(k4c_allocator, k4c_deque->buffer);
     k4c_dealloc(k4c_allocator, k4c_deque);
 }
