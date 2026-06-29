@@ -22,44 +22,44 @@
  * SOFTWARE.
  */
 
-#ifndef K4C_IO_FILE_READER_H
-#define K4C_IO_FILE_READER_H
+#ifndef K4C_IO_READER_H
+#define K4C_IO_READER_H
 
-#include <stddef.h>
 #include <stdint.h>
-#include <stdio.h>
 
+#include "k4c/buffer/cursor.h"
 #include "k4c/error.h"
-#include "k4c/io/reader.h"
 
-typedef struct k4c_file_reader {
-    FILE *file;
-    uint8_t *data;
-    size_t len;
-    /* Maximum bytes held in data for one read result or buffered window. */
-    size_t buffer_capacity;
-    size_t buffer_pos;
-    size_t buffer_len;
-} k4c_file_reader;
+typedef struct k4c_reader k4c_reader;
+typedef struct k4c_reader_vtable k4c_reader_vtable;
 
-/*
- * Initialize reader from an existing FILE pointer and caller-provided storage.
- * The caller owns file and data. data must point to buffer_capacity bytes and
- * outlive the reader.
- * buffer_capacity is the maximum buffered window. Delimited chunks that fill
- * the buffer without finding the delimiter overflow.
- */
-k4c_status k4c_file_reader_init(
-    k4c_file_reader *reader,
-    FILE *file,
-    uint8_t *data,
-    size_t buffer_capacity
+typedef k4c_status (*k4c_reader_take_byte_fn)(void *context, uint8_t *out);
+typedef k4c_status (*k4c_reader_take_delimiter_fn)(
+    void *context,
+    uint8_t delimiter,
+    k4c_buf_cursor *out
 );
 
-/* Return a generic reader view over file reader. */
-k4c_reader k4c_file_reader_as_reader(k4c_file_reader *reader);
+struct k4c_reader_vtable {
+    k4c_reader_take_byte_fn take_byte;
+    k4c_reader_take_delimiter_fn take_delimiter;
+};
 
-/* Reset the reader. Caller-owned file and data are not released. */
-k4c_status k4c_file_reader_close(k4c_file_reader *reader);
+struct k4c_reader {
+    void *context;
+    const k4c_reader_vtable *vtable;
+};
+
+/* Create a non-owning reader over context using vtable for operations. */
+k4c_reader k4c_reader_create(void *context, const k4c_reader_vtable *vtable);
+
+/* Take and return the next byte from reader. */
+k4c_status k4c_reader_take_byte(k4c_reader *reader, uint8_t *out);
+
+/*
+ * Take bytes through delimiter and return them as a cursor.
+ * Implementations decide how to represent a final unterminated segment.
+ */
+k4c_status k4c_reader_take_delimiter(k4c_reader *reader, uint8_t delimiter, k4c_buf_cursor *out);
 
 #endif
