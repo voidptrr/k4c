@@ -37,13 +37,16 @@ int main(void) {
     if (k4c_test_equal_ptr(k4c_allocator->ctx, k4c_heap) != 0) {
         return 1;
     }
-    if (k4c_test_equal(k4c_allocator->k4c_alloc != NULL, true) != 0) {
+    if (k4c_allocator->vtable == NULL) {
         return 1;
     }
-    if (k4c_test_equal(k4c_allocator->realloc != NULL, true) != 0) {
+    if (k4c_test_equal(k4c_allocator->vtable->alloc != NULL, true) != 0) {
         return 1;
     }
-    if (k4c_test_equal(k4c_allocator->k4c_dealloc != NULL, true) != 0) {
+    if (k4c_test_equal(k4c_allocator->vtable->resize != NULL, true) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(k4c_allocator->vtable->dealloc != NULL, true) != 0) {
         return 1;
     }
     if (k4c_test_equal(

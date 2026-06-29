@@ -40,6 +40,7 @@ nav = [
   { "IO" = [
     { "File" = "io/file.md" },
     { "File reader" = "io/file-reader.md" },
+    { "Reader" = "io/reader.md" },
   ] },
   { "Memory" = [
     { "Utilities" = "reference/k4c-memory-utils.md" },

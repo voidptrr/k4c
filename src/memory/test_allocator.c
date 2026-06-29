@@ -27,6 +27,16 @@
 #include "k4c/memory/allocator.h"
 #include "k4c/memory/test_allocator.h"
 
+static void *k4c_test_allocator_alloc(void *ctx, size_t size);
+static void k4c_test_allocator_dealloc(void *ctx, void *ptr);
+static void *k4c_test_allocator_realloc(void *ctx, void *ptr, size_t size);
+
+static const k4c_allocator_vtable k4c_test_allocator_vtable = {
+    .alloc = k4c_test_allocator_alloc,
+    .resize = k4c_test_allocator_realloc,
+    .dealloc = k4c_test_allocator_dealloc,
+};
+
 static bool k4c_test_allocator_should_fail(k4c_test_allocator *k4c_test_allocator) {
     if (k4c_test_allocator->fail_after == K4C_TEST_ALLOCATOR_NO_FAILURE) {
         return false;
@@ -109,9 +119,7 @@ k4c_allocator *k4c_test_allocator_init(k4c_test_allocator *k4c_test_allocator) {
     k4c_test_allocator->k4c_allocator = (k4c_allocator){
         .ctx = k4c_test_allocator,
         .features = K4C_ALLOCATOR_FEATURE_DEALLOC | K4C_ALLOCATOR_FEATURE_REALLOC,
-        .k4c_alloc = k4c_test_allocator_alloc,
-        .realloc = k4c_test_allocator_realloc,
-        .k4c_dealloc = k4c_test_allocator_dealloc,
+        .vtable = &k4c_test_allocator_vtable,
     };
     return &k4c_test_allocator->k4c_allocator;
 }
