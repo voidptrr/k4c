@@ -33,6 +33,8 @@
 
 typedef struct test_reader_context {
     k4c_buf_cursor cursor;
+    size_t read_count;
+    size_t last_capacity;
 } test_reader_context;
 
 static k4c_status test_reader_read(void *context, uint8_t *data, size_t capacity, size_t *out_len);
@@ -43,6 +45,9 @@ static const k4c_reader_vtable test_reader_vtable = {
 
 static k4c_status test_reader_read(void *context, uint8_t *data, size_t capacity, size_t *out_len) {
     test_reader_context *reader = context;
+    reader->read_count += 1;
+    reader->last_capacity = capacity;
+
     size_t remaining = k4c_buf_cursor_remaining(&reader->cursor);
     size_t read_len = remaining < capacity ? remaining : capacity;
 
@@ -122,6 +127,101 @@ K4C_TEST(take_byte_reads_from_buffered_source) {
     return 0;
 }
 
+K4C_TEST(take_array_reads_exact_count) {
+    test_reader_context context = {
+        .cursor = k4c_buf_cursor_create_from_cstr("abcdef"),
+    };
+    uint8_t data[8];
+    k4c_reader reader = k4c_reader_create(&context, &test_reader_vtable, data, sizeof(data));
+
+    k4c_buf_cursor chunk;
+    if (k4c_test_status_ok(k4c_reader_take_array(&reader, 3, &chunk)) != 0) {
+        return 1;
+    }
+    if (cursor_equal(&chunk, "abc") != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(context.last_capacity, 3) != 0) {
+        return 1;
+    }
+
+    if (k4c_test_status_ok(k4c_reader_take_array(&reader, 2, &chunk)) != 0) {
+        return 1;
+    }
+    if (cursor_equal(&chunk, "de") != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(context.last_capacity, 2) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+K4C_TEST(take_array_uses_buffered_bytes_before_reading) {
+    test_reader_context context = {
+        .cursor = k4c_buf_cursor_create_from_cstr("abcdef"),
+    };
+    uint8_t data[8];
+    k4c_reader reader = k4c_reader_create(&context, &test_reader_vtable, data, sizeof(data));
+
+    uint8_t byte = 0;
+    if (k4c_test_status_ok(k4c_reader_take_byte(&reader, &byte)) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(context.last_capacity, sizeof(data)) != 0) {
+        return 1;
+    }
+
+    k4c_buf_cursor chunk;
+    if (k4c_test_status_ok(k4c_reader_take_array(&reader, 3, &chunk)) != 0) {
+        return 1;
+    }
+    if (cursor_equal(&chunk, "bcd") != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(context.read_count, 1) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+K4C_TEST(take_array_overflows_when_count_exceeds_capacity) {
+    test_reader_context context = {
+        .cursor = k4c_buf_cursor_create_from_cstr("abcdef"),
+    };
+    uint8_t data[4];
+    k4c_reader reader = k4c_reader_create(&context, &test_reader_vtable, data, sizeof(data));
+
+    k4c_buf_cursor chunk;
+    if (k4c_test_equal(k4c_reader_take_array(&reader, 5, &chunk), K4C_STATUS_OVERFLOW) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(context.read_count, 0) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+K4C_TEST(take_array_returns_eof_when_count_is_unavailable) {
+    test_reader_context context = {
+        .cursor = k4c_buf_cursor_create_from_cstr("abc"),
+    };
+    uint8_t data[8];
+    k4c_reader reader = k4c_reader_create(&context, &test_reader_vtable, data, sizeof(data));
+
+    k4c_buf_cursor chunk;
+    if (k4c_test_equal(k4c_reader_take_array(&reader, 4, &chunk), K4C_STATUS_EOF) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(reader.pos, 0) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(reader.len, 3) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
 K4C_TEST(take_delimiter_reads_from_buffered_source) {
     test_reader_context context = {
         .cursor = k4c_buf_cursor_create_from_cstr("one\ntwo\nthree"),
@@ -177,6 +277,10 @@ K4C_TEST(take_delimiter_overflows_when_chunk_fills_buffer) {
 K4C_TEST_MAIN(
     K4C_TEST_CASE(create_tracks_context_and_vtable),
     K4C_TEST_CASE(take_byte_reads_from_buffered_source),
+    K4C_TEST_CASE(take_array_reads_exact_count),
+    K4C_TEST_CASE(take_array_uses_buffered_bytes_before_reading),
+    K4C_TEST_CASE(take_array_overflows_when_count_exceeds_capacity),
+    K4C_TEST_CASE(take_array_returns_eof_when_count_is_unavailable),
     K4C_TEST_CASE(take_delimiter_reads_from_buffered_source),
     K4C_TEST_CASE(take_delimiter_overflows_when_chunk_fills_buffer)
 )

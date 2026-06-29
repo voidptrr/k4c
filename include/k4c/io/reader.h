@@ -65,6 +65,9 @@ k4c_reader k4c_reader_create(
 /* Take and return the next byte from reader. */
 k4c_status k4c_reader_take_byte(k4c_reader *reader, uint8_t *out);
 
+/* Take count bytes and return them as a cursor. */
+k4c_status k4c_reader_take_array(k4c_reader *reader, size_t count, k4c_buf_cursor *out);
+
 /*
  * Take bytes through delimiter and return them as a cursor.
  * Implementations decide how to represent a final unterminated segment.
