@@ -42,8 +42,10 @@ typedef struct k4c_file_reader {
     FILE *file;
     uint8_t *data;
     size_t len;
-    /* Maximum bytes held in data for one read result. */
+    /* Maximum bytes held in data for one read result or buffered window. */
     size_t buffer_capacity;
+    size_t buffer_pos;
+    size_t buffer_len;
 } k4c_file_reader;
 
 /*
@@ -62,8 +64,9 @@ k4c_status k4c_file_reader_init(
 );
 
 /*
- * Read the next chunk according to reader mode into reader-owned storage.
- * Line chunks include the terminating newline when present.
+ * Read the next chunk according to reader mode into the configured storage.
+ * Line chunks include the terminating newline when present and may point into
+ * the middle of data when multiple lines were buffered by one fread call.
  */
 k4c_status k4c_file_reader_next(k4c_file_reader *reader, k4c_buf_cursor *out);
 

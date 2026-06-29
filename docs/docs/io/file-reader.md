@@ -41,13 +41,18 @@ typedef struct k4c_file_reader {
     uint8_t *data;
     size_t len;
     size_t buffer_capacity;
+    size_t buffer_pos;
+    size_t buffer_len;
 } k4c_file_reader;
 ```
 
 - `file`: caller-owned `FILE *`.
-- `data`: caller-owned byte buffer.
-- `len`: number of valid bytes currently in `data`.
-- `buffer_capacity`: maximum bytes held in `data` for one result.
+- `data`: caller-owned byte buffer used as the reader storage.
+- `len`: number of bytes in the most recent returned chunk.
+- `buffer_capacity`: maximum bytes held in `data` for one result or buffered
+  window.
+- `buffer_pos`: current unread offset inside `data`.
+- `buffer_len`: number of buffered bytes currently held in `data`.
 
 ## FUNCTIONS
 
@@ -82,7 +87,9 @@ k4c_status k4c_file_reader_next(k4c_file_reader *reader, k4c_buf_cursor *out);
 - Writes: a cursor over the current chunk to `*out` when returning
   `K4C_STATUS_OK`.
 - Notes: line chunks include the terminating newline when present. Lines that
-  fill the buffer without a newline return `K4C_STATUS_OVERFLOW`.
+  fill the buffer without a newline return `K4C_STATUS_OVERFLOW`. In line mode,
+  `out->data` may point inside the reader buffer when one `fread` call buffered
+  more than one line.
 
 ### k4c_file_reader_close
 

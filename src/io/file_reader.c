@@ -26,6 +26,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "k4c/assert.h"
 #include "k4c/buffer/cursor.h"
@@ -44,6 +45,8 @@ static void k4c_file_reader_reset(k4c_file_reader *reader) {
     reader->data = NULL;
     reader->len = 0;
     reader->buffer_capacity = 0;
+    reader->buffer_pos = 0;
+    reader->buffer_len = 0;
 }
 
 k4c_status k4c_file_reader_init(
@@ -66,11 +69,15 @@ k4c_status k4c_file_reader_init(
     reader->data = data;
     reader->len = 0;
     reader->buffer_capacity = buffer_capacity;
+    reader->buffer_pos = 0;
+    reader->buffer_len = 0;
     return K4C_STATUS_OK;
 }
 
 static k4c_status k4c_file_reader_next_bytes(k4c_file_reader *reader, k4c_buf_cursor *out) {
+    reader->buffer_pos = 0;
     reader->len = fread(reader->data, 1, reader->buffer_capacity, reader->file);
+    reader->buffer_len = reader->len;
     if (reader->len > 0) {
         *out = k4c_buf_cursor_create(reader->data, reader->len);
         return K4C_STATUS_OK;
@@ -81,31 +88,66 @@ static k4c_status k4c_file_reader_next_bytes(k4c_file_reader *reader, k4c_buf_cu
     return K4C_STATUS_EOF;
 }
 
+static k4c_status k4c_file_reader_fill(k4c_file_reader *reader) {
+    if (reader->buffer_pos > 0 && reader->buffer_pos < reader->buffer_len) {
+        reader->buffer_len -= reader->buffer_pos;
+        memmove(reader->data, reader->data + reader->buffer_pos, reader->buffer_len);
+        reader->buffer_pos = 0;
+    } else if (reader->buffer_pos >= reader->buffer_len) {
+        reader->buffer_pos = 0;
+        reader->buffer_len = 0;
+    }
+
+    size_t free_capacity = reader->buffer_capacity - reader->buffer_len;
+    size_t read_len = fread(reader->data + reader->buffer_len, 1, free_capacity, reader->file);
+    reader->buffer_len += read_len;
+    if (read_len > 0) {
+        return K4C_STATUS_OK;
+    }
+    if (ferror(reader->file)) {
+        return K4C_STATUS_IO;
+    }
+    return K4C_STATUS_EOF;
+}
+
 static k4c_status k4c_file_reader_next_line(k4c_file_reader *reader, k4c_buf_cursor *out) {
     reader->len = 0;
-    int ch = 0;
 
-    while (reader->len < reader->buffer_capacity && ch != '\n') {
-        ch = fgetc(reader->file);
-        if (ch == EOF) {
-            if (ferror(reader->file)) {
-                return K4C_STATUS_IO;
+    while (true) {
+        if (reader->buffer_pos >= reader->buffer_len) {
+            k4c_status st = k4c_file_reader_fill(reader);
+            if (st != K4C_STATUS_OK) {
+                return st;
             }
-            if (reader->len == 0) {
-                return K4C_STATUS_EOF;
-            }
+        }
+
+        uint8_t *start = reader->data + reader->buffer_pos;
+        size_t available = reader->buffer_len - reader->buffer_pos;
+        uint8_t *newline = memchr(start, '\n', available);
+        if (newline != NULL) {
+            reader->len = (size_t)(newline - start) + 1;
+            reader->buffer_pos += reader->len;
+            *out = k4c_buf_cursor_create(start, reader->len);
+            return K4C_STATUS_OK;
+        }
+
+        if (available == reader->buffer_capacity) {
+            reader->len = available;
+            reader->buffer_pos = reader->buffer_len;
+            return K4C_STATUS_OVERFLOW;
+        }
+
+        k4c_status st = k4c_file_reader_fill(reader);
+        if (st == K4C_STATUS_EOF && reader->buffer_len > 0) {
+            reader->len = reader->buffer_len;
+            reader->buffer_pos = reader->buffer_len;
             *out = k4c_buf_cursor_create(reader->data, reader->len);
             return K4C_STATUS_OK;
         }
-        reader->data[reader->len] = (uint8_t)ch;
-        reader->len++;
+        if (st != K4C_STATUS_OK) {
+            return st;
+        }
     }
-
-    if (ch == '\n') {
-        *out = k4c_buf_cursor_create(reader->data, reader->len);
-        return K4C_STATUS_OK;
-    }
-    return K4C_STATUS_OVERFLOW;
 }
 
 k4c_status k4c_file_reader_next(k4c_file_reader *reader, k4c_buf_cursor *out) {
