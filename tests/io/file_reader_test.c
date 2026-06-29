@@ -132,6 +132,12 @@ K4C_TEST(init_initializes_reader) {
     if (k4c_test_equal(reader.buffer_capacity, 64) != 0) {
         return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
     }
+    if (k4c_test_equal(reader.buffer_pos, 0) != 0) {
+        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
+    }
+    if (k4c_test_equal(reader.buffer_len, 0) != 0) {
+        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
+    }
 
     return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 0);
 }
@@ -156,6 +162,12 @@ K4C_TEST(init_rejects_null_file) {
         return 1;
     }
     if (k4c_test_equal(reader.buffer_capacity, 0) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(reader.buffer_pos, 0) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(reader.buffer_len, 0) != 0) {
         return 1;
     }
     return 0;
@@ -214,6 +226,12 @@ K4C_TEST(close_resets_reader_without_closing_stream) {
         return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
     }
     if (k4c_test_equal(reader.buffer_capacity, 0) != 0) {
+        return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
+    }
+    if (k4c_test_equal(reader.buffer_pos, 0) != 0) {
+        return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
+    }
+    if (k4c_test_equal(reader.buffer_len, 0) != 0) {
         return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
     }
     if (k4c_test_status_ok(k4c_file_reader_close(&reader)) != 0) {
