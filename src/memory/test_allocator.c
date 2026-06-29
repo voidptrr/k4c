@@ -109,19 +109,18 @@ static void *k4c_test_allocator_realloc(void *ctx, void *ptr, size_t size) {
     return new_ptr;
 }
 
-k4c_allocator *k4c_test_allocator_init(k4c_test_allocator *k4c_test_allocator) {
+k4c_allocator k4c_test_allocator_init(k4c_test_allocator *k4c_test_allocator) {
     k4c_test_allocator->alloc_count = 0;
     k4c_test_allocator->realloc_count = 0;
     k4c_test_allocator->dealloc_count = 0;
     k4c_test_allocator->outstanding_allocations = 0;
     k4c_test_allocator->failed_allocations = 0;
     k4c_test_allocator->fail_after = K4C_TEST_ALLOCATOR_NO_FAILURE;
-    k4c_test_allocator->k4c_allocator = (k4c_allocator){
+    return (k4c_allocator){
         .ctx = k4c_test_allocator,
         .features = K4C_ALLOCATOR_FEATURE_DEALLOC | K4C_ALLOCATOR_FEATURE_REALLOC,
         .vtable = &k4c_test_allocator_vtable,
     };
-    return &k4c_test_allocator->k4c_allocator;
 }
 
 void k4c_test_allocator_reset_counts(k4c_test_allocator *k4c_test_allocator) {

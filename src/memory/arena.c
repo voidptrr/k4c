@@ -37,7 +37,6 @@ typedef struct k4c_arena_alloc_header {
 } k4c_arena_alloc_header;
 
 struct k4c_arena {
-    k4c_allocator k4c_allocator;
     void *buffer;
     size_t capacity;
     size_t offset;
@@ -136,29 +135,19 @@ k4c_status k4c_arena_create(size_t capacity, k4c_arena **out) {
 
     k4c_arena->capacity = capacity;
     k4c_arena->offset = 0;
-    k4c_arena->k4c_allocator = (k4c_allocator){
-        .ctx = k4c_arena,
-        .features = K4C_ALLOCATOR_FEATURE_REALLOC | K4C_ALLOCATOR_FEATURE_RESET,
-        .vtable = &k4c_arena_allocator_vtable,
-    };
-
     *out = k4c_arena;
     return K4C_STATUS_OK;
 }
 
-k4c_allocator *k4c_arena_allocator(k4c_arena *k4c_arena) {
+k4c_allocator k4c_arena_allocator_view(k4c_arena *k4c_arena) {
     K4C_ASSERT(k4c_arena != NULL, "fatal: k4c_arena_allocator invalid arguments");
     K4C_ASSERT(k4c_arena->buffer != NULL, "fatal: k4c_arena_allocator invalid k4c_arena");
 
-    return &k4c_arena->k4c_allocator;
-}
-
-void *k4c_arena_alloc(k4c_arena *k4c_arena, size_t size) {
-    return k4c_arena_vtable_alloc(k4c_arena, size);
-}
-
-void *k4c_arena_realloc(k4c_arena *k4c_arena, void *ptr, size_t size) {
-    return k4c_arena_vtable_realloc(k4c_arena, ptr, size);
+    return (k4c_allocator){
+        .ctx = k4c_arena,
+        .features = K4C_ALLOCATOR_FEATURE_REALLOC | K4C_ALLOCATOR_FEATURE_RESET,
+        .vtable = &k4c_arena_allocator_vtable,
+    };
 }
 
 void k4c_arena_reset(k4c_arena *k4c_arena) {

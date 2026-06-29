@@ -48,6 +48,13 @@ k4c_status k4c_alloc(k4c_allocator *k4c_allocator, size_t size, void **out) {
     return K4C_STATUS_OK;
 }
 
+k4c_allocator k4c_allocator_copy(const k4c_allocator *k4c_allocator) {
+    if (k4c_allocator == NULL) {
+        return (struct k4c_allocator){0};
+    }
+    return *k4c_allocator;
+}
+
 k4c_status k4c_resize(k4c_allocator *k4c_allocator, void *ptr, size_t size, void **out) {
     K4C_ASSERT(out != NULL, "fatal: k4c_resize invalid arguments");
 
@@ -75,7 +82,7 @@ k4c_status k4c_resize(k4c_allocator *k4c_allocator, void *ptr, size_t size, void
 }
 
 void k4c_dealloc(k4c_allocator *k4c_allocator, void *ptr) {
-    if (k4c_allocator == NULL) {
+    if (k4c_allocator == NULL || k4c_allocator->vtable == NULL) {
         free(ptr);
         return;
     }

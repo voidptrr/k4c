@@ -36,7 +36,7 @@
 struct k4c_binary_heap {
     k4c_vector *root;
     k4c_binary_heap_cmp_fn cmp;
-    k4c_allocator *k4c_allocator;
+    k4c_allocator k4c_allocator;
 };
 
 typedef struct k4c_binary_heap_iterator_state {
@@ -132,14 +132,15 @@ k4c_status k4c_binary_heap_create(
         return st;
     }
 
-    st = k4c_vector_create(elem_size, k4c_allocator, &k4c_heap->root);
+    k4c_heap->k4c_allocator = k4c_allocator_copy(k4c_allocator);
+
+    st = k4c_vector_create(elem_size, &k4c_heap->k4c_allocator, &k4c_heap->root);
     if (st != K4C_STATUS_OK) {
         k4c_dealloc(k4c_allocator, k4c_heap);
         return st;
     }
 
     k4c_heap->cmp = cmp;
-    k4c_heap->k4c_allocator = k4c_allocator;
 
     *out = k4c_heap;
     return K4C_STATUS_OK;
@@ -205,7 +206,7 @@ k4c_iterator k4c_binary_heap_get_iterator(const k4c_binary_heap *k4c_heap) {
 
 void k4c_binary_heap_destroy(k4c_binary_heap *k4c_heap) {
     K4C_ASSERT(k4c_heap != NULL, "fatal: k4c_binary_heap_destroy invalid arguments");
-    k4c_allocator *k4c_allocator = k4c_heap->k4c_allocator;
+    k4c_allocator *k4c_allocator = &k4c_heap->k4c_allocator;
     k4c_vector_destroy(k4c_heap->root);
     k4c_dealloc(k4c_allocator, k4c_heap);
 }

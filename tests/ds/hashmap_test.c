@@ -45,7 +45,8 @@ K4C_TEST(k4c_allocator) {
     uint64_t key = 7;
     uint64_t value = 11;
 
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_hashmap *map = NULL;
     if (k4c_test_equal(
             k4c_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, k4c_allocator, &map),
@@ -72,7 +73,8 @@ K4C_TEST(k4c_allocator) {
 
 K4C_TEST(init) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_hashmap *map = NULL;
     if (k4c_test_equal(
             k4c_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, k4c_allocator, &map),
@@ -93,7 +95,8 @@ K4C_TEST(init) {
 
 K4C_TEST(default_byte_equality) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_hashmap *map = NULL;
     if (k4c_test_equal(
             k4c_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, k4c_allocator, &map),
@@ -126,7 +129,8 @@ K4C_TEST(default_byte_equality) {
 
 K4C_TEST(custom_equality) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     uint64_t key = 7;
     uint64_t same_key = 7;
     uint64_t value = 11;
@@ -170,7 +174,8 @@ K4C_TEST(custom_equality) {
 
 K4C_TEST(put_get) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_hashmap *map = NULL;
     if (k4c_test_equal(
             k4c_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, k4c_allocator, &map),
@@ -231,7 +236,8 @@ K4C_TEST(put_get) {
 
 K4C_TEST(reserve) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_hashmap *map = NULL;
     if (k4c_test_equal(
             k4c_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, k4c_allocator, &map),
@@ -269,7 +275,8 @@ K4C_TEST(reserve) {
 
 K4C_TEST(remove_growth) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_hashmap *map = NULL;
     if (k4c_test_equal(
             k4c_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, k4c_allocator, &map),
@@ -304,7 +311,8 @@ K4C_TEST(remove_growth) {
 
 K4C_TEST(foreach_macros_walk_items) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_hashmap *map = NULL;
     if (k4c_test_equal(
             k4c_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, k4c_allocator, &map),
@@ -356,7 +364,8 @@ K4C_TEST(foreach_macros_walk_items) {
 
 K4C_TEST(iterator_walks_entries) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_hashmap *map = NULL;
     if (k4c_test_equal(
             k4c_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, k4c_allocator, &map),
@@ -401,7 +410,8 @@ K4C_TEST(iterator_walks_entries) {
 
 K4C_TEST(key_iterator_walks_keys) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_hashmap *map = NULL;
     if (k4c_test_equal(
             k4c_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, k4c_allocator, &map),
@@ -441,7 +451,8 @@ K4C_TEST(key_iterator_walks_keys) {
 
 K4C_TEST(value_iterator_walks_values) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_hashmap *map = NULL;
     if (k4c_test_equal(
             k4c_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, k4c_allocator, &map),

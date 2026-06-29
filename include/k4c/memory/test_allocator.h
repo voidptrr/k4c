@@ -39,11 +39,10 @@ typedef struct k4c_test_allocator {
     size_t outstanding_allocations;
     size_t failed_allocations;
     size_t fail_after;
-    k4c_allocator k4c_allocator;
 } k4c_test_allocator;
 
-/* Initialize a malloc-backed tracking k4c_allocator and return its generic adapter. */
-k4c_allocator *k4c_test_allocator_init(k4c_test_allocator *k4c_test_allocator);
+/* Initialize a malloc-backed tracking k4c_allocator and return its generic view. */
+k4c_allocator k4c_test_allocator_init(k4c_test_allocator *k4c_test_allocator);
 
 /* Reset event counters while keeping outstanding allocation state and fail_after. */
 void k4c_test_allocator_reset_counts(k4c_test_allocator *k4c_test_allocator);

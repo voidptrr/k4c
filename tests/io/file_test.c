@@ -129,7 +129,8 @@ K4C_TEST(write_all_and_read_all_round_trip) {
     }
 
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     uint8_t *data = NULL;
     size_t len = 0;
     if (k4c_test_status_ok(k4c_file_read_all(file_path, k4c_allocator, &data, &len)) != 0) {

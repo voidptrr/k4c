@@ -66,6 +66,9 @@ struct k4c_allocator_vtable {
 /* Allocate size bytes through k4c_allocator vtable when provided, otherwise malloc. */
 k4c_status k4c_alloc(k4c_allocator *k4c_allocator, size_t size, void **out);
 
+/* Copy allocator when provided, otherwise return the default libc-backed allocator value. */
+k4c_allocator k4c_allocator_copy(const k4c_allocator *k4c_allocator);
+
 /* Resize ptr through k4c_allocator vtable when provided, otherwise realloc. */
 k4c_status k4c_resize(k4c_allocator *k4c_allocator, void *ptr, size_t size, void **out);
 

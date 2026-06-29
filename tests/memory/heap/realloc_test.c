@@ -25,6 +25,7 @@
 #include <string.h>
 
 #include "k4c/error.h"
+#include "k4c/memory/allocator.h"
 #include "k4c/memory/general_heap.h"
 #include "k4c/testing.h"
 
@@ -33,13 +34,21 @@ int main(void) {
     if (k4c_test_equal(k4c_heap_create(4096, &k4c_heap), K4C_STATUS_OK)) {
         return 1;
     }
-    char *ptr = (char *)k4c_heap_realloc(k4c_heap, NULL, 32);
+    k4c_allocator allocator = k4c_heap_allocator_view(k4c_heap);
+    char *ptr = NULL;
+    if (k4c_test_status_ok(k4c_resize(&allocator, NULL, 32, (void **)&ptr)) != 0) {
+        return 1;
+    }
     if (k4c_test_not_null(ptr) != 0) {
         return 1;
     }
 
     memcpy(ptr, "hello", 6);
-    ptr = (char *)k4c_heap_realloc(k4c_heap, ptr, 128);
+    char *grown = NULL;
+    if (k4c_test_status_ok(k4c_resize(&allocator, ptr, 128, (void **)&grown)) != 0) {
+        return 1;
+    }
+    ptr = grown;
     if (k4c_test_not_null(ptr) != 0) {
         return 1;
     }
@@ -47,7 +56,11 @@ int main(void) {
         return 1;
     }
 
-    if (k4c_test_null(k4c_heap_realloc(k4c_heap, ptr, 0)) != 0) {
+    char *cleared = ptr;
+    if (k4c_test_status_ok(k4c_resize(&allocator, ptr, 0, (void **)&cleared)) != 0) {
+        return 1;
+    }
+    if (k4c_test_null(cleared) != 0) {
         return 1;
     }
 

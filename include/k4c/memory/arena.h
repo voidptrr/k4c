@@ -54,22 +54,9 @@ typedef struct k4c_arena k4c_arena;
 k4c_status k4c_arena_create(size_t capacity, k4c_arena **out);
 
 /*
- * Return the generic k4c_allocator view owned by this k4c_arena.
+ * Return the generic k4c_allocator view for this k4c_arena.
  */
-k4c_allocator *k4c_arena_allocator(k4c_arena *k4c_arena);
-
-/*
- * Allocate `size` bytes from k4c_arena.
- * Returns NULL when the k4c_arena does not have enough available space.
- */
-void *k4c_arena_alloc(k4c_arena *k4c_arena, size_t size);
-
-/*
- * Grow an k4c_arena allocation.
- * NULL ptr allocates. Size 0 with an existing ptr returns NULL.
- * Shrinking an existing allocation is invalid.
- */
-void *k4c_arena_realloc(k4c_arena *k4c_arena, void *ptr, size_t size);
+k4c_allocator k4c_arena_allocator_view(k4c_arena *k4c_arena);
 
 /*
  * Release all k4c_arena allocations while keeping the backing buffer.

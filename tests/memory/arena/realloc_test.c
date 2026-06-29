@@ -26,6 +26,7 @@
 #include <stdint.h>
 
 #include "k4c/error.h"
+#include "k4c/memory/allocator.h"
 #include "k4c/memory/arena.h"
 #include "k4c/memory/utils.h"
 #include "k4c/testing.h"
@@ -35,15 +36,22 @@ int main(void) {
     if (k4c_test_equal(k4c_arena_create(256, &k4c_arena), K4C_STATUS_OK)) {
         return 1;
     }
+    k4c_allocator allocator = k4c_arena_allocator_view(k4c_arena);
     size_t grown_size = K4C_MEMORY_ALIGN * 2;
 
-    uint64_t *value = (uint64_t *)k4c_arena_alloc(k4c_arena, sizeof(uint64_t));
+    uint64_t *value = NULL;
+    if (k4c_test_status_ok(k4c_alloc(&allocator, sizeof(uint64_t), (void **)&value)) != 0) {
+        return 1;
+    }
     if (k4c_test_not_null(value) != 0) {
         return 1;
     }
     *value = 42;
 
-    uint64_t *grown = (uint64_t *)k4c_arena_realloc(k4c_arena, value, grown_size);
+    uint64_t *grown = NULL;
+    if (k4c_test_status_ok(k4c_resize(&allocator, value, grown_size, (void **)&grown)) != 0) {
+        return 1;
+    }
     if (k4c_test_not_null(grown) != 0) {
         return 1;
     }
@@ -54,7 +62,11 @@ int main(void) {
         return 1;
     }
 
-    if (k4c_test_equal_ptr(k4c_arena_realloc(k4c_arena, grown, grown_size), grown) != 0) {
+    uint64_t *same = NULL;
+    if (k4c_test_status_ok(k4c_resize(&allocator, grown, grown_size, (void **)&same)) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal_ptr(same, grown) != 0) {
         return 1;
     }
 

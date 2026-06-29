@@ -38,7 +38,7 @@
 typedef struct k4c_string_header {
     size_t len;
     size_t capacity;
-    k4c_allocator *k4c_allocator;
+    k4c_allocator k4c_allocator;
     char buf[];
 } k4c_string_header;
 
@@ -119,7 +119,7 @@ static k4c_status k4c_string_ensure_capacity(
         return K4C_STATUS_OVERFLOW;
     }
 
-    k4c_allocator *k4c_allocator = header->k4c_allocator;
+    k4c_allocator *k4c_allocator = &header->k4c_allocator;
     k4c_string_header *tmp = NULL;
     k4c_status st = k4c_resize(k4c_allocator, header, alloc_size, (void **)&tmp);
     if (st != K4C_STATUS_OK) {
@@ -166,7 +166,7 @@ k4c_status k4c_string_create(const char *initial, k4c_allocator *k4c_allocator, 
 
     header->len = len;
     header->capacity = capacity;
-    header->k4c_allocator = k4c_allocator;
+    header->k4c_allocator = k4c_allocator_copy(k4c_allocator);
 
     if (len > 0) {
         memcpy(header->buf, initial, len);
@@ -298,6 +298,6 @@ void k4c_string_destroy(k4c_string k4c_string) {
     K4C_ASSERT(k4c_string != NULL, "fatal: k4c_string_destroy invalid arguments");
 
     k4c_string_header *header = k4c_string_header_from_buf(k4c_string);
-    k4c_allocator *k4c_allocator = header->k4c_allocator;
+    k4c_allocator *k4c_allocator = &header->k4c_allocator;
     k4c_dealloc(k4c_allocator, header);
 }

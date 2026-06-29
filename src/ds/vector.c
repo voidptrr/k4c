@@ -39,7 +39,7 @@ struct k4c_vector {
     size_t elem_size;
     size_t capacity;
     void *buffer;
-    k4c_allocator *k4c_allocator;
+    k4c_allocator k4c_allocator;
 };
 
 typedef struct k4c_vector_iterator_state {
@@ -120,7 +120,7 @@ k4c_status k4c_vector_create_with_capacity(
     if (st != K4C_STATUS_OK) {
         return st;
     }
-    k4c_vector->k4c_allocator = k4c_allocator;
+    k4c_vector->k4c_allocator = k4c_allocator_copy(k4c_allocator);
 
     size_t alloc_size = 0;
     if (k4c_size_mul_overflow(elem_size, capacity, &alloc_size)) {
@@ -129,9 +129,9 @@ k4c_status k4c_vector_create_with_capacity(
     }
 
     void *buffer = NULL;
-    st = k4c_alloc(k4c_allocator, alloc_size, &buffer);
+    st = k4c_alloc(&k4c_vector->k4c_allocator, alloc_size, &buffer);
     if (st != K4C_STATUS_OK) {
-        k4c_dealloc(k4c_allocator, k4c_vector);
+        k4c_dealloc(&k4c_vector->k4c_allocator, k4c_vector);
         return st;
     }
 
@@ -157,7 +157,7 @@ k4c_status k4c_vector_reserve(k4c_vector *k4c_vector, size_t capacity) {
     }
 
     void *buffer = NULL;
-    k4c_status st = k4c_resize(k4c_vector->k4c_allocator, k4c_vector->buffer, alloc_size, &buffer);
+    k4c_status st = k4c_resize(&k4c_vector->k4c_allocator, k4c_vector->buffer, alloc_size, &buffer);
     if (st != K4C_STATUS_OK) {
         return st;
     }
@@ -433,7 +433,7 @@ size_t k4c_vector_binary_search(
 void k4c_vector_destroy(k4c_vector *k4c_vector) {
     K4C_ASSERT(k4c_vector != NULL, "fatal: k4c_vector_destroy invalid arguments");
 
-    k4c_allocator *k4c_allocator = k4c_vector->k4c_allocator;
+    k4c_allocator *k4c_allocator = &k4c_vector->k4c_allocator;
     k4c_dealloc(k4c_allocator, k4c_vector->buffer);
     k4c_dealloc(k4c_allocator, k4c_vector);
 }

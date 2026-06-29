@@ -34,7 +34,8 @@
 
 K4C_TEST(init) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_deque *q = NULL;
     if (k4c_test_equal(k4c_deque_create(sizeof(int), k4c_allocator, &q), K4C_STATUS_OK)) {
         return 1;
@@ -53,7 +54,8 @@ K4C_TEST(init) {
 
 K4C_TEST(peekback) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_deque *q = NULL;
     if (k4c_test_equal(k4c_deque_create(sizeof(int), k4c_allocator, &q), K4C_STATUS_OK)) {
         return 1;
@@ -86,7 +88,8 @@ K4C_TEST(peekback) {
 
 K4C_TEST(peekleft) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_deque *q = NULL;
     if (k4c_test_equal(k4c_deque_create(sizeof(int), k4c_allocator, &q), K4C_STATUS_OK)) {
         return 1;
@@ -119,7 +122,8 @@ K4C_TEST(peekleft) {
 
 K4C_TEST(popback) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_deque *q = NULL;
     if (k4c_test_equal(k4c_deque_create(sizeof(int), k4c_allocator, &q), K4C_STATUS_OK)) {
         return 1;
@@ -152,7 +156,8 @@ K4C_TEST(popback) {
 
 K4C_TEST(popleft) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_deque *q = NULL;
     if (k4c_test_equal(k4c_deque_create(sizeof(int), k4c_allocator, &q), K4C_STATUS_OK)) {
         return 1;
@@ -187,7 +192,8 @@ K4C_TEST(popleft) {
 
 K4C_TEST(push) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_deque *q = NULL;
     if (k4c_test_equal(k4c_deque_create(sizeof(int), k4c_allocator, &q), K4C_STATUS_OK)) {
         return 1;
@@ -219,7 +225,8 @@ K4C_TEST(push) {
 
 K4C_TEST(pushfront) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_deque *q = NULL;
     if (k4c_test_equal(k4c_deque_create(sizeof(int), k4c_allocator, &q), K4C_STATUS_OK)) {
         return 1;
@@ -252,7 +259,8 @@ K4C_TEST(pushfront) {
 
 K4C_TEST(iterator_walks_front_to_back) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_deque *q = NULL;
     if (k4c_test_equal(k4c_deque_create(sizeof(int), k4c_allocator, &q), K4C_STATUS_OK)) {
         return 1;
@@ -290,7 +298,8 @@ K4C_TEST(iterator_walks_front_to_back) {
 
 K4C_TEST(vector_collect_copies_items) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_deque *q = NULL;
     if (k4c_test_equal(k4c_deque_create(sizeof(int), k4c_allocator, &q), K4C_STATUS_OK)) {
         return 1;
@@ -331,7 +340,8 @@ K4C_TEST(vector_collect_copies_items) {
 
 K4C_TEST(iterator_walks_items_after_growth) {
     k4c_test_allocator k4c_test_allocator;
-    k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator allocator = k4c_test_allocator_init(&k4c_test_allocator);
+    k4c_allocator *k4c_allocator = &allocator;
     k4c_deque *q = NULL;
     if (k4c_test_equal(k4c_deque_create(sizeof(int), k4c_allocator, &q), K4C_STATUS_OK)) {
         return 1;
