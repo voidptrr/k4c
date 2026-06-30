@@ -7,6 +7,6 @@
 - Checks: `nix flake check`
 
 ## Directory Structure
-- Core: `src/`
-- Public headers: `include/`
+- Core: `lib/`
+- Public headers: `include/k4c`
 - Nix packaging: `nix/`
